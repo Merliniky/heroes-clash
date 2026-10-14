@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1b2440">
+<title>英雄冲突 · Heroes Clash</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud">
+  <div class="pill" id="stagePill"><span class="lbl">关卡</span><b id="stageNum">1</b></div>
+  <div class="pill vs"><span class="blue" id="pCount">0</span><i>VS</i><span class="red" id="eCount">0</span></div>
+  <button class="pill btn" id="speedBtn">1×</button>
+</div>
+<div id="hint" class="hidden">👆 点击敌方部队 · 全军集火</div>
+<div id="banner" class="hidden"></div>
+
+<div id="title" class="overlay show">
+  <div class="logo"><div class="l1">英雄冲突</div><div class="l2">HEROES CLASH</div></div>
+  <div class="tagline">招募部队 · 自动战斗 · 一路闯关</div>
+  <div class="heroes" id="titleHeroes"></div>
+  <button class="big-btn" id="startBtn">开始征战</button>
+  <div class="foot">点击敌人可指挥全军集火</div>
+</div>
+
+<div id="draft" class="overlay">
+  <div class="draft-head"><div class="dh1" id="draftTitle">第 1 关</div><div class="dh2" id="draftSub">选择一支援军加入你的部队</div></div>
+  <div class="cards" id="cards"></div>
+  <div class="army-strip" id="armyStrip"></div>
+</div>
+
+<div id="result" class="overlay">
+  <div class="res-box">
+    <div class="res-title" id="resTitle">胜利！</div>
+    <div class="res-sub" id="resSub"></div>
+    <div class="res-list" id="resList"></div>
+    <button class="big-btn" id="resBtn">继续</button>
+  </div>
+</div>
+<script src="core.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
