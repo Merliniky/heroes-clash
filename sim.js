@@ -1,7 +1,7 @@
 const C=require('./core.js');
 function run(seed,strategy){C.setRng(C.rng(seed));let army=[];
  for(let s=1;s<=8;s++){const o=[C.makeOffer(s,army),C.makeOffer(s,army)];
-  let ch=strategy==='best'?(o[0].count*C.U[o[0].type].v>=o[1].count*C.U[o[1].type].v?o[0]:o[1]):o[C.rng(seed*7+s)()<0.5?0:1];
+  let ch=strategy==="best"?(o[0].count*C.U[o[0].type].v>=o[1].count*C.U[o[1].type].v?o[0]:o[1]):o[C.rng(seed*7+s)()<0.5?0:1];
   const ex=army.find(a=>a.type===ch.type);if(ex)ex.count+=ch.count;else army.push({...ch});
   const b=C.createBattle(army,C.makeEnemies(s));let n=0;while(!b.over&&n<200*60){C.step(b,1/60);n++;}
   if(b.over!=='win')return {reached:s,t:b.t};

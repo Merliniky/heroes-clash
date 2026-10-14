@@ -72,3 +72,5 @@ html,body{width:100%;height:100%;overflow:hidden;background:#141b30;font-family:
 .res-unit .c{font-weight:900;font-size:16px}.res-unit .l{font-size:12px;color:#ff8a8a;height:15px}.res-unit .n{font-size:11px;color:#bcd}
 .res-unit.dead{filter:grayscale(1);opacity:.5}
 @media (max-width:500px){.card .nm{font-size:19px}.stats{font-size:11.5px;grid-template-columns:1fr}.dh1{font-size:28px}#banner{font-size:48px}.pill{font-size:16px;padding:5px 10px}}
+.card .h3{font-size:11px;color:#9fb0dd;text-align:center;margin:-2px 0 4px}
+.card .abil{font-size:11.5px;line-height:1.45;color:#ffe9a8;text-align:left;margin-top:6px;padding:0 4px;min-height:34px}
