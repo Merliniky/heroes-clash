@@ -11,7 +11,7 @@
 <body>
 <canvas id="cv"></canvas>
 <div id="hud">
-  <div class="pill" id="stagePill"><span class="lbl">关卡</span><b id="stageNum">1</b></div>
+  <div class="pill" id="stagePill"><span class="lbl" id="stageLbl">比分</span><b id="stageNum">1</b></div>
   <div class="pill vs"><span class="blue" id="pCount">0</span><i>VS</i><span class="red" id="eCount">0</span></div>
   <button class="pill btn" id="speedBtn">1×</button>
   <button class="pill btn" id="muteBtn">🔊</button>
@@ -21,16 +21,50 @@
 
 <div id="title" class="overlay show">
   <div class="logo"><div class="l1">英雄冲突</div><div class="l2">HEROES CLASH</div></div>
-  <div class="tagline">招募部队 · 自动战斗 · 一路闯关</div>
+  <div class="tagline">八大阵营 · 经营城镇 · 先胜三场者为王</div>
   <div class="heroes" id="titleHeroes"></div>
-  <button class="big-btn" id="startBtn">开始征战</button>
-  <div class="foot">点击敌人可指挥全军集火</div>
+  <button class="big-btn" id="startBtn">开始游戏</button>
+  <div class="foot">英雄无敌3·死亡阴影 全兵种数据</div>
 </div>
 
 <div id="draft" class="overlay">
   <div class="draft-head"><div class="dh1" id="draftTitle">第 1 关</div><div class="dh2" id="draftSub">选择一支援军加入你的部队</div></div>
   <div class="cards" id="cards"></div>
   <div class="army-strip" id="armyStrip"></div>
+</div>
+
+<div id="faction" class="overlay">
+  <div class="draft-head"><div class="dh1">选择你的阵营</div><div class="dh2">敌方AI将随机选择另一个阵营</div></div>
+  <div class="fcards" id="fcards"></div>
+</div>
+
+<div id="map" class="overlay">
+  <div class="mtop">
+    <div class="mpill" id="mTurn"></div>
+    <div class="mpill vs" id="mScore"></div>
+    <div class="mres" id="mRes"></div>
+    <button class="mpill btn" id="mMute" onclick="document.getElementById('muteBtn').click();this.textContent=document.getElementById('muteBtn').textContent">🔊</button>
+  </div>
+  <div id="mapArea"><div id="mLog"></div></div>
+  <div class="mbot">
+    <div class="marmy" id="mArmy"></div>
+    <div class="actbar" id="actBar">
+      <button class="act" id="actBuild"><span>🏗️</span><b>建造</b><i></i></button>
+      <button class="act" id="actRecruit"><span>⚔️</span><b>招募</b><i></i></button>
+      <button class="act" id="actCamp"><span>🏕️</span><b>野怪</b><i>点击营地</i></button>
+      <button class="act red" id="actAttack"><span>🏰</span><b>进攻</b><i></i></button>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="overlay"><div class="modal-box"><div class="modal-title" id="modalTitle"></div><div class="modal-body" id="modalBody"></div><div class="modal-btns" id="modalBtns"></div></div></div>
+
+<div id="gameover" class="overlay">
+  <div class="go-title" id="goTitle">胜利</div>
+  <div class="go-sub" id="goSub"></div>
+  <div class="heroes" id="goArt"></div>
+  <div class="go-stats" id="goStats"></div>
+  <button class="big-btn" id="goBtn">再来一局</button>
 </div>
 
 <div id="result" class="overlay">
@@ -42,7 +76,9 @@
   </div>
 </div>
 <script src="audio.js"></script>
+<script src="units.js"></script>
 <script src="core.js"></script>
+<script src="strat.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
