@@ -144,3 +144,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:#141b30;font-family:
 #gameover .heroes{height:min(26vh,180px);margin:14px 0 22px}
 #gameover .go-sub{position:relative;z-index:2;margin-bottom:6px}
 @media (orientation:portrait){#mLog{top:6px;bottom:auto;left:6px;max-width:44%;font-size:10.5px}.clab{font-size:10.5px}#gameover .heroes img{max-width:24vw;object-fit:contain}#gameover .heroes{max-width:96vw;overflow:hidden}}
+/* r5: overlay stacking (offer above map), compact map markers, bottom sheets */
+#draft{z-index:15}#modal{z-index:20}#gameover{z-index:25}
+button,.act,.mobj,.fcard,.card{touch-action:manipulation}
+#errToast{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:99;background:#7a1010;color:#fff;font-size:13px;padding:8px 12px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .3s}
+#errToast.show{opacity:1}
+.mobj{transform:translate(-50%,-50%)}
+.town{width:clamp(72px,9vw,120px)}.town .castle{width:100%}
+.town .guard{position:absolute;height:46%;bottom:6%;right:-26%;left:auto}.town.ai .guard{right:auto;left:-26%}
+.tlab{font-size:10.5px;padding:1px 7px;top:96%}.tlab b{color:var(--fc);filter:brightness(1.4)}
+.camp{width:auto}
+.pin{width:clamp(40px,4.4vw,56px);height:clamp(40px,4.4vw,56px);border-radius:50%;background:radial-gradient(circle at 50% 35%,#fff3,#0008),#1a2142;border:3px solid var(--tc);box-shadow:0 3px 0 #0008,0 0 0 2px #0b1022,0 0 12px color-mix(in srgb,var(--tc) 60%,transparent);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pin img{width:86%;height:86%;object-fit:contain;transform:scaleX(-1)}
+.ptag{margin-top:2px;font-size:10px;font-weight:900;color:#0b1022;background:var(--tc);border-radius:7px;padding:0 6px;white-space:nowrap;box-shadow:0 1px 0 #0008}
+.camp:active .pin{transform:scale(.92)}
+.camp.hl .pin{animation:pinHl .55s ease-in-out 4}@keyframes pinHl{50%{transform:scale(1.25)}}
+.camp.hl{animation:none}
+.offer-btn{display:none;font-family:inherit;font-size:17px;font-weight:900;color:#3b1d00;border:2px solid #3b1d00;border-radius:14px;padding:10px;background:linear-gradient(#ffe27a,#f5a524);box-shadow:0 4px 0 #8a4a05;animation:hintb2 1s ease-in-out infinite}
+.offer-btn.show{display:block}@keyframes hintb2{50%{transform:scale(1.03)}}
+@media (orientation:portrait){
+  #modal{justify-content:flex-end;padding:0}
+  #modal .modal-box{width:100%;border-radius:20px 20px 0 0;padding-bottom:calc(14px + env(safe-area-inset-bottom));max-height:80vh;animation:sheetin .3s ease-out}
+  .town{width:84px}.camp .pin{width:42px;height:42px}
+}
+@keyframes sheetin{from{transform:translateY(100%)}}
+.card .art{height:min(16vh,120px)}
+.alist .mini.big img{height:44px}
+#draft{background:rgba(8,10,25,.9)}

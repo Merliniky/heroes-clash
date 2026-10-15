@@ -1,4 +1,4 @@
-// build r4-strategic
+// build r5-mapfix
 (()=>{
 const {U,W,H,MAXS,FX0,FX1,FY0,FY1}=Core;
 const $=id=>document.getElementById(id);
@@ -500,16 +500,14 @@ function renderMap(){const g=G.game;if(!g)return;mapLayout();if(!CAMPIMG)CAMPIMG
   $('mRes').innerHTML=ST.RES.map(k=>`<div class="res"><span>${RICON[k]}</span><b>${p.res[k]}</b><i>+${inc[k]||0}</i></div>`).join('');
   const area=$('mapArea');area.querySelectorAll('.mobj').forEach(e=>e.remove());
   const place=(el,pos)=>{const [x,y]=mpos(pos);el.style.left=(x*100)+'%';el.style.top=(y*100)+'%';area.appendChild(el);};
-  [[p,0,'你的城镇'],[a,1,'敌方城镇']].forEach(([s,i,lab])=>{const el=document.createElement('div');el.className='mobj town '+(i?'ai':'pl');el.style.setProperty('--fc',FCOL[s.fac]);
-    const L=ST.lineOf(s.fac);const top=[...Array(7)].map((_,k)=>s.dw[6-k]?ST.typeAt(s.fac,7-k,s.dw[6-k]===2):null).find(Boolean);
+  [[p,0,'你'],[a,1,'敌']].forEach(([s,i,lab])=>{const el=document.createElement('div');el.className='mobj town '+(i?'ai':'pl');el.style.setProperty('--fc',FCOL[s.fac]);
+    const top=[...Array(7)].map((_,k)=>s.dw[6-k]?ST.typeAt(s.fac,7-k,s.dw[6-k]===2):null).find(Boolean);
     const pw=Math.round(ST.power(s.army,ST.bonus(s))/100)/10;
-    el.innerHTML=`<img class="castle" src="${townImg(s.fac)}"><img class="guard" src="${sprSrc(top)}"><div class="tlab"><b>${lab}</b>${Core.FNAME[s.fac]} · 战力 ${pw}k</div>`;
+    el.innerHTML=`<img class="castle" src="${townImg(s.fac)}"><img class="guard" src="${sprSrc(top)}"><div class="tlab"><b>${lab}</b>${Core.FNAME[s.fac]} ${pw}k</div>`;
     if(i===1)el.onclick=()=>actAttack();place(el,SLOTS.town[i]);});
   g.camps.forEach((c,i)=>{const el=document.createElement('div');el.className='mobj camp'+(c.fresh?' fresh':'');const tp=Object.keys(c.army);const tr=ST.TIERS[c.tier];
-    const pw=ST.campPower(c),mine=ST.power(Object.fromEntries(ST.stacks(p.army).map(x=>[x.type,x.count])),ST.bonus(p));
-    const est=pw<mine*0.5?'稳胜':pw<mine*0.85?'占优':pw<mine*1.15?'势均力敌':'危险';
-    el.innerHTML=`<img class="tent" src="${CAMPIMG}">${tp.map((t,k)=>`<img class="mon m${k}" src="${sprSrc(t)}">`).join('')}
-      <div class="clab" style="--tc:${tr.col}"><b>${tr.n}</b> ${armyLabel(c.army)}${tp.map(t=>U[t].n).join('+')}<div class="rw">${costHTML(c.reward)}${c.art?'<span class="cost">🏺宝物</span>':''}${c.join?'<span class="cost">➕'+U[c.join.type].n+'</span>':''}</div><div class="est">${est}</div></div>`;
+    el.style.setProperty('--tc',tr.col);
+    el.innerHTML=`<div class="pin"><img src="${sprSrc(tp[0])}"></div><div class="ptag">${tr.n}${c.art?' 🏺':''}</div>`;
     el.onclick=()=>openCamp(i);place(el,SLOTS.camps[i]);});
   // keep labels inside the map
   requestAnimationFrame(()=>{const ar=area.getBoundingClientRect();area.querySelectorAll('.clab,.tlab').forEach(l=>{l.style.marginLeft='0px';const r=l.getBoundingClientRect();let dx=0;if(r.left<ar.left+4)dx=ar.left+4-r.left;else if(r.right>ar.right-4)dx=ar.right-4-r.right;l.style.marginLeft=dx+'px';});});
@@ -519,12 +517,13 @@ function renderMap(){const g=G.game;if(!g)return;mapLayout();if(!CAMPIMG)CAMPIMG
   const nb=ST.buildOptions(p).filter(o=>o.ok).length;$('actBuild').querySelector('i').textContent=nb?`${nb} 项可建`:'资源不足';
   const pool=ST.recruitOptions(p).reduce((s,o)=>s+o.avail,0);$('actRecruit').querySelector('i').textContent=`可招募 ${pool}`;
   $('mLog').innerHTML=G.log.slice(-3).map(m=>`<div>${m}</div>`).join('');
-  $('actBar').classList.toggle('locked',G.phase!=='map');
+  $('actBar').classList.toggle('locked',G.phase!=='map');$('offerBtn').classList.toggle('show',G.phase==='offer');
 }
 function logMsg(m){G.log.push(m);if($('mLog'))$('mLog').innerHTML=G.log.slice(-3).map(x=>`<div>${x}</div>`).join('');}
 addEventListener('resize',()=>{if(G.game&&$('map').classList.contains('show'))renderMap();});
 // ---- turn: free offer ----
-function openTurn(){const g=G.game;G.phase='offer';renderMap();
+function openTurn(){const g=G.game;G.phase='offer';renderMap();showOffer();}
+function showOffer(){const g=G.game;if(G.phase!=='offer')return;
   $('draftTitle').textContent=`第 ${g.turn} 回合`;$('draftSub').textContent='免费援军：从你的兵营中选择一支部队';
   const cards=$('cards');cards.innerHTML='';
   g.p.offer.forEach((o,i)=>{const el=document.createElement('div');el.className='card';const owned=g.p.army[o.type];
@@ -557,11 +556,12 @@ function actRecruit(){if(G.phase!=='map')return;const p=G.game.p;S.click();const
   Object.assign(plan,ST.autoRecruit(p));box.appendChild(total);upd();
   modal('招募 <small>（本回合唯一行动）</small>',box,[['取消',null,'gray'],['招募',()=>{if(!upd())return false;const got=ST.doRecruit(p,plan);if(!got.length)return false;S.spawn();logMsg('你招募了 '+got.map(x=>x.count+' '+U[x.type].n).join('、'));setTimeout(afterPlayer,50);}]]);}
 function armyHTML(army){return `<div class="alist">${ST.stacks(army,99).map(s=>`<div class="mini big"><img src="${sprSrc(s.type)}"><b>${s.count}</b><span>${U[s.type].n}</span></div>`).join('')}</div>`;}
-function openCamp(i){if(G.phase!=='map')return;S.click();const c=G.game.camps[i];const tr=ST.TIERS[c.tier];
-  modal(`野怪营地 · <span style="color:${tr.col}">${tr.n}</span>`,`${armyHTML(c.army)}<p class="mp">击败后获得：${costHTML(c.reward)} ${c.art?`<span class="cost">🏺${c.art.n}（${c.art.d}）</span>`:''}${c.join?`<span class="cost">➕ ${c.join.count} ${U[c.join.type].n} 加入</span>`:''}</p><p class="mp dim">战败将失去出战部队。</p>`,
+function openCamp(i){if(G.phase==='offer'){showOffer();return;}if(G.phase!=='map')return;S.click();const c=G.game.camps[i];const tr=ST.TIERS[c.tier];
+  const pw=ST.campPower(c),mine=ST.power(Object.fromEntries(ST.stacks(G.game.p.army).map(x=>[x.type,x.count])),ST.bonus(G.game.p));const est=pw<mine*0.5?'稳胜':pw<mine*0.85?'占优':pw<mine*1.15?'势均力敌':'危险';
+  modal(`野怪营地 · <span style="color:${tr.col}">${tr.n}</span>`,`${armyHTML(c.army)}<p class="mp">击败后获得：${costHTML(c.reward)} ${c.art?`<span class="cost">🏺${c.art.n}（${c.art.d}）</span>`:''}${c.join?`<span class="cost">➕ ${c.join.count} ${U[c.join.type].n} 加入</span>`:''}</p><p class="mp">预估：<b style="color:#ffd75e">${est}</b></p><p class="mp dim">战败将失去出战部队。</p>`,
     [['取消',null,'gray'],['⚔ 进攻营地',()=>{chooseStacks(br=>startBattle({kind:'camp',ci:i,brought:br,enemies:ST.stacks(c.army),bonus:{p:ST.bonus(G.game.p),e:{a:0,d:0}}}));}]]);}
 function actCamp(){if(G.phase!=='map')return;S.click();banner('点击地图上的野怪营地',1100);document.querySelectorAll('.camp').forEach(e=>{e.classList.remove('hl');void e.offsetWidth;e.classList.add('hl');});}
-function actAttack(){if(G.phase!=='map')return;const g=G.game;S.click();
+function actAttack(){if(G.phase==='offer'){showOffer();return;}if(G.phase!=='map')return;const g=G.game;S.click();
   if(!ST.canAttack(g)){modal('休战中',`<p class="mp">第 ${g.truce} 回合前双方无法交战（开局休战 / 每场对决后休整 ${ST.TRUCE_AFTER} 回合）。</p>`,[['好的']]);return;}
   if(!Object.keys(g.p.army).length){modal('进攻','<p class="mp">你没有部队！</p>',[['好的']]);return;}
   modal(`进攻敌方城镇 <small>${Core.FNAME[g.a.fac]}</small>`,`<p class="mp">敌方守军（城墙：防御+3）：</p>${armyHTML(Object.fromEntries(ST.stacks(g.a.army).map(s=>[s.type,s.count])))}<p class="mp">胜者得 1 分及 🪙1500 🪵3 🪨3 💎1。先得 ${ST.WIN_SCORE} 分者赢得游戏。</p>`,
@@ -628,6 +628,10 @@ function gameOver(){const g=G.game;G.phase='over';show('map',false);show('modal'
   show('gameover',true);
   if(win)for(let i=0;i<40;i++)setTimeout(()=>puff(Math.random()*view.cw,view.ch*0.4*Math.random(),6,['rgba(255,215,90,','rgba(120,200,255,','rgba(255,120,160,'][i%3],140,5,1.2,60),i*50);}
 $('startBtn').onclick=startRun;$('goBtn').onclick=()=>{show('gameover',false);startRun();};
+$('offerBtn').onclick=()=>{S.click();showOffer();};
+// global error catcher: visible toast instead of a silent freeze
+function errToast(m){const t=$('errToast');t.textContent='⚠ 出错了：'+m;t.classList.add('show');clearTimeout(errToast.t);errToast.t=setTimeout(()=>t.classList.remove('show'),8000);}
+addEventListener('error',e=>errToast((e.message||'')+(e.lineno?' @'+e.lineno:'')));addEventListener('unhandledrejection',e=>errToast(String(e.reason&&e.reason.message||e.reason)));
 $('actBuild').onclick=actBuild;$('actRecruit').onclick=actRecruit;$('actCamp').onclick=actCamp;$('actAttack').onclick=actAttack;
 
 // ---------- boot ----------
