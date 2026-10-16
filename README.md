@@ -335,3 +335,8 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Rage timer (38 s / boss 52 s → damage ramps +12%/s) keeps battles short; boss intro cutscene with camera zoom + name card.
 - Procedural flapping wings for angel/archangel/pegasus; chest-opening gold reward; 17 achievements (camp tab, gold rewards, toasts).
 - Settings (⚙️): hide tips, persistent 2× speed. Daily-challenge streak calendar (title + camp).
+
+## v11
+- Clash-Royale-style draft cards: fixed-scale 3D portraits rendered from the battlefield models (size reflects tier and footprint), level gem, 4 icon stats, a one-line ability, merge and synergy ribbons; tap a card for details, then confirm.
+- Artifact pick: 3 equal cards (a vertical list on phones), rarity-glow icon frames, tap and confirm, small skip button.
+- Battlefield readability: each unit's badge shows a portrait of its type, 5 new CC0 monster models, bat wings for imp and devil, distinct palettes.

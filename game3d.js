@@ -33,7 +33,7 @@ function toon(m,tint,glow){const key=m.uuid+'|'+(tint||0)+'|'+(glow?1:0);if(toon
   if(glow){t.emissive=new THREE.Color(0xffb020);t.emissiveIntensity=0.12;}rimify(t,glow?1.1:0.35,!!glow);toonCache.set(key,t);return t;}
 // ---------- loading ----------
 const loader=new GLTFLoader();const gltfP={};
-const loadG=f=>gltfP[f]||(gltfP[f]=new Promise((res,rej)=>loader.load('assets/models/'+f+'.glb?v=7',res,undefined,rej)));
+const loadG=f=>gltfP[f]||(gltfP[f]=new Promise((res,rej)=>loader.load('assets/models/'+f+'.glb?v=11',res,undefined,rej)));
 // ---------- board ----------
 const W2=GC/2,H2=GR/2;
 const toW=(x,y)=>[(x-GX0)/CW-W2,(y-GY0)/CH-H2];
@@ -157,10 +157,10 @@ function makeView(u,tpl){const def=tpl.def,g=new THREE.Group();const inner=Skele
   const one={atk:act(mixer,A,def.atk||c.atk,1),shoot:act(mixer,A,def.shoot||c.shoot||def.atk||c.atk,1),hit:act(mixer,A,c.hit,1),death:act(mixer,A,c.death,1),cheer:c.cheer?act(mixer,A,c.cheer,1):null};
   let rmix=null,rone=null;if(tpl.rider){const rh=inner.getObjectByName('riderHold');const rd=def.rider;rmix=new THREE.AnimationMixer(rh);const ri=act(rmix,tpl.rider.anims,rd.clip);if(ri)ri.play();rone=act(rmix,tpl.rider.anims,rd.atk,1);}
   // badge + hp bar (DOM)
-  const el=document.createElement('div');el.className='ub '+u.side;el.innerHTML='<em></em><b></b><i><s></s></i>';uiLayer.appendChild(el);
+  const el=document.createElement('div');el.className='ub '+u.side;el.innerHTML='<em></em><span class="bw"><span class="bi"><img></span><b></b></span><i><s></s></i>';unitPortrait(u.type,1).then(url=>{const im=el.querySelector('.bi img');if(im)im.src=url;});uiLayer.appendChild(el);
   let wg=null;if(def.wings){wg=makeWings(def);g.add(wg);}
   if(u.boss){inner.scale.multiplyScalar(1.45);pick.scale.multiplyScalar(1.4);pick.position.y=pick.scale.y/2;}
-  const v={wg,u,g,inner,mixer,base,one,rmix,rone,ring,disc,pick,el,cntEl:el.children[1],hpEl:el.lastChild.firstChild,bfEl:el.firstChild,bfStr:'',def,mv:0,os:null,osW:0,yaw:u.side==='p'?Math.PI/2:-Math.PI/2,deadT:-1,lastCount:-1,spawn:0,bob:Math.random()*6,hitFlash:0,lastHp:-1};
+  const v={wg,u,g,inner,mixer,base,one,rmix,rone,ring,disc,pick,el,cntEl:el.querySelector('b'),hpEl:el.lastChild.firstChild,bfEl:el.firstChild,bfStr:'',def,mv:0,os:null,osW:0,yaw:u.side==='p'?Math.PI/2:-Math.PI/2,deadT:-1,lastCount:-1,spawn:0,bob:Math.random()*6,hitFlash:0,lastHp:-1};
   g.rotation.y=v.yaw;unitLayer.add(g);views.set(u,v);return v;}
 function playOne(v,k,dur){const a=v.one[k];if(!a)return;if(v.os&&v.os!==a)v.os.stop();const clip=a.getClip(),imp=(v.def.c.imp||0.45)*clip.duration;
   a.reset();a.enabled=true;a.setEffectiveWeight(1);
@@ -199,10 +199,31 @@ function updateView(v,dt,b){const u=v.u,def=v.def;const [x,z]=unitWorld(u);
 }
 // procedural feathered wings (angel, pegasus): two flapping pivots on the back
 const wingGeo=(()=>{const sh=new THREE.Shape();sh.moveTo(0,0);sh.bezierCurveTo(0.3,0.25,0.75,0.35,1,0.3);sh.lineTo(0.9,0.18);sh.lineTo(0.95,0.1);sh.lineTo(0.8,0.02);sh.lineTo(0.82,-0.08);sh.lineTo(0.62,-0.1);sh.lineTo(0.6,-0.2);sh.lineTo(0.4,-0.16);sh.bezierCurveTo(0.25,-0.12,0.1,-0.06,0,0);return new THREE.ShapeGeometry(sh,6);})();
-function makeWings(def){const W=def.wings,h=def.h,sc=h*0.85*(W.s||1);const mat=new THREE.MeshToonMaterial({color:W.c,gradientMap:ramp,side:THREE.DoubleSide,emissive:0x302818});rimify(mat,0.5,true);
+const batGeo=(()=>{const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(0.35,0.3);sh.lineTo(1,0.36);sh.quadraticCurveTo(0.86,0.12,0.9,-0.12);sh.quadraticCurveTo(0.72,-0.02,0.62,-0.2);sh.quadraticCurveTo(0.5,-0.06,0.36,-0.2);sh.quadraticCurveTo(0.24,-0.05,0,0);return new THREE.ShapeGeometry(sh,6);})();
+function makeWings(def){const W=def.wings,h=def.h,sc=h*0.85*(W.s||1);const mat=new THREE.MeshToonMaterial({color:W.c,gradientMap:ramp,side:THREE.DoubleSide,emissive:W.bat?0x200404:0x302818});rimify(mat,0.5,true);
   const grp=new THREE.Group();grp.position.set(0,h*(W.y||0.66),-(W.z!=null?W.z:0.09)*h);grp.userData.p=[];
-  for(const sd of [-1,1]){const piv=new THREE.Group();const m=new THREE.Mesh(wingGeo,mat);m.scale.set(sd*sc,sc,sc);m.rotation.order='YXZ';m.rotation.x=-1.05;m.rotation.y=sd*-0.3;m.castShadow=true;piv.add(m);piv.position.x=sd*0.04*h;grp.add(piv);grp.userData.p.push([piv,sd]);}
+  for(const sd of [-1,1]){const piv=new THREE.Group();const m=new THREE.Mesh(W.bat?batGeo:wingGeo,mat);m.scale.set(sd*sc,sc,sc);m.rotation.order='YXZ';m.rotation.x=-1.05;m.rotation.y=sd*-0.3;m.castShadow=true;piv.add(m);piv.position.x=sd*0.04*h;grp.add(piv);grp.userData.p.push([piv,sd]);}
   return grp;}
+// ---------- fixed-scale 3D portraits (cards, badges): same models as the battlefield ----------
+const PR={cache:{},pend:{},F:1.6};
+function portraitInit(){if(PR.r)return;const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});r.setPixelRatio(1);r.setSize(256,256);r.toneMapping=renderer.toneMapping;r.toneMappingExposure=1.1;r.outputColorSpace=THREE.SRGBColorSpace;
+  const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xffffff,0x6a5a48,2.0));const d=new THREE.DirectionalLight(0xfff1d6,2.6);d.position.set(2,4,5);sc.add(d);const b=new THREE.DirectionalLight(0x9ac8ff,1.4);b.position.set(-3,2,-3);sc.add(b);
+  const cam=new THREE.OrthographicCamera(-1,1,1,-1,0.1,50);PR.r=r;PR.sc=sc;PR.cam=cam;}
+function unitPortrait(t,tight){const K=t+(tight?'|f':'');if(PR.cache[K])return Promise.resolve(PR.cache[K]);if(PR.pend[K])return PR.pend[K];
+  return PR.pend[K]=ensureTpl(t).then(tpl=>{portraitInit();const def=tpl.def;const o=SkeletonUtils.clone(tpl.root);const g=new THREE.Group();g.add(o);
+    const mx=new THREE.AnimationMixer(o);const ia=act(mx,tpl.anims,def.c.idle);if(ia)ia.play();
+    let rm=null;if(tpl.rider){const rh=o.getObjectByName('riderHold');rm=new THREE.AnimationMixer(rh);const ri=act(rm,tpl.rider.anims,def.rider.clip);if(ri)ri.play();rm.update(0.3);}
+    mx.update(0.35);if(def.wings){const w=makeWings(def);for(const [p,sd] of w.userData.p)p.rotation.z=sd*0.45;g.add(w);}
+    g.rotation.y=0.62;PR.sc.add(g);g.updateMatrixWorld(true);
+    const bb=new THREE.Box3().setFromObject(o);let F=PR.F;if(tight){const z=bb.getSize(new THREE.Vector3());F=Math.max(z.y,z.x)*1.04;}const sz=bb.getSize(new THREE.Vector3());
+    // fixed world scale: frame = F world units tall, so tier/footprint size shows; only giants are shrunk to fit
+    const fit=Math.min(1,(F*0.94)/Math.max(sz.y,sz.x*0.95,0.01));g.scale.setScalar(fit);g.updateMatrixWorld(true);bb.setFromObject(o);
+    const cx=(bb.min.x+bb.max.x)/2,cz=(bb.min.z+bb.max.z)/2;const cam=PR.cam;cam.left=-F/2;cam.right=F/2;cam.top=F*0.94;cam.bottom=-F*0.06;cam.updateProjectionMatrix();
+    const yb=bb.min.y;cam.position.set(cx,yb,cz+10);cam.lookAt(cx,yb,cz);
+    PR.r.render(PR.sc,cam);const url=PR.r.domElement.toDataURL('image/png');PR.sc.remove(g);mx.stopAllAction();if(rm)rm.stopAllAction();
+    PR.cache[K]=url;return url;});}
+function fillPortraits(root){root.querySelectorAll('img[data-pt]').forEach(im=>{const t=im.dataset.pt;if(PR.cache[t]){im.src=PR.cache[t];im.classList.add('ok');}else unitPortrait(t).then(u=>{im.src=u;im.classList.add('ok');}).catch(()=>{im.src=sprSrc(t);});});}
+const ptImg=(t,cls='')=>`<img class="pimg ${cls}" data-pt="${t}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="">`;
 // ---------- DOM badges ----------
 function updateBadges(){const w=innerWidth,h=innerHeight;
   for(const v of views.values()){const u=v.u;if(!v.g.visible||!u.alive){v.el.style.display='none';continue;}
@@ -461,6 +482,20 @@ function synPreview(t){const run=G.run,own=H.deployList(run);if(run.army[t]||run
   const before=H.synCounts(own)[f]||0,after=before+1;if(own.length>=H.MAXS)return '';
   if(H.synTier(after)>H.synTier(before))return `<div class="synhit" style="--fc:${H.FAC[f].col}">★ 激活羁绊：${H.FAC[f].icon}${H.FAC[f].n} ${after} — ${H.FAC[f].t[H.synTier(after)-1]}</div>`;
   return `<div class="synnext">${H.FAC[f].icon}${H.FAC[f].n} ${after}/${after<2?2:after<4?4:6}</div>`;}
+const TIERC=['#9aa4b2','#9aa4b2','#7fbf6a','#4fa3ff','#4fa3ff','#b77bff','#b77bff','#ffb43a'];
+function oneLiner(st){const L=abilList(st).filter(x=>!x.startsWith('体型')&&x!=='飞行');return L[0]||(st.shots?'远程射击':'近战');}
+function roleIcon(st){return st.fly?'🪽飞行':st.shots?'🏹远程':'🗡️近战';}
+function cardRibbon(t){const run=G.run;const m=run.merges[t]||0;if(run.army[t])return `<span class="ribbon m">合并${H.UPG[t]?` ${m+1}/3 ⬆`:''}</span>`;
+  const f=H.facOf(t);if(!H.FAC[f])return '';const own=H.deployList(run);if(own.length>=H.MAXS)return '';const b=H.synCounts(own)[f]||0;if(H.synTier(b+1)>H.synTier(b))return `<span class="ribbon s" style="--fc:${H.FAC[f].col}">★ 羁绊激活</span>`;return '';}
+function detHTML(st){return `<div class="det"><div class="dgrid">${statRow('攻',st.a)+statRow('防',st.d)+statRow('伤害',st.dmg[0]===st.dmg[1]?st.dmg[0]:st.dmg[0]+'-'+st.dmg[1])+statRow('生命',st.hp)+statRow('速度',st.spd)+statRow('射击',st.shots||'—')}</div><div class="dab">${abilList(st).join(' · ')||'无特殊能力'}</div><button class="pickBtn">✔ 选择</button></div>`;}
+function unitCard2(c){const t=c.type,st=U[t];const sz=st.fw===2&&st.fh===2?'2×2':st.fw===2?'2格':'';
+  return `<div class="pt" style="--tc:${TIERC[st.lvl]}">${ptImg(t)}<span class="lv">${st.lvl}</span>${sz?`<span class="szb">${sz}</span>`:''}</div>
+   <div class="inf"><div class="nm"><b>${st.n}</b><span class="cnt">×${c.count}</span></div><div class="chips">${facChip(t)}<span class="role">${roleIcon(st)}</span>${cardRibbon(t)}</div>
+   <div class="ist"><span>⚔️${st.a}</span><span>🛡️${st.d}</span><span>❤️${st.hp}</span><span>💥${st.dmg[0]}${st.dmg[1]!==st.dmg[0]?'-'+st.dmg[1]:''}</span></div><div class="one">${oneLiner(st)}</div></div>${detHTML(st)}`;}
+function upgCard2(c){const a=U[c.from],b=U[c.to];const up=(k)=>b[k]!==a[k]?`<i>+${b[k]-a[k]}</i>`:'';
+  return `<div class="pt" style="--tc:${TIERC[b.lvl]}">${ptImg(c.to)}<span class="lv">${b.lvl}</span></div>
+   <div class="inf"><div class="nm"><b>${b.n}</b><span class="cnt">×${c.count}</span></div><div class="chips">${facChip(c.to)}<span class="ribbon u">⬆ 升级</span></div>
+   <div class="ist"><span>⚔️${b.a}${up('a')}</span><span>🛡️${b.d}${up('d')}</span><span>❤️${b.hp}${up('hp')}</span><span>💨${b.spd}${up('spd')}</span></div><div class="one">整支部队升级${c.bonus?` · +${c.bonus} 援军`:''}</div></div>${detHTML(b)}`;}
 function unitCardHTML(c){const t=c.type,st=U[t];const owned=G.run.army[t];const m=G.run.merges[t]||0;
   const tags=[st.shots?'<span class="tag r">远程</span>':'<span class="tag m">近战</span>',st.fly?'<span class="tag f">飞行</span>':'',owned?`<span class="tag up">合并${H.UPG[t]?' · '+(m+1)+'/3升级':''}</span>`:''].join('');
   return `<div class="art"><span class="tier">${'★'.repeat(st.lvl)}</span><img src="${sprSrc(t)}"><span class="cnt">×${c.count}</span></div>
@@ -472,7 +507,7 @@ function upgradeCardHTML(c){const a=U[c.from],b=U[c.to];const d=(k)=>b[k]!==a[k]
    <div class="nm">${a.n} → ${b.n}</div><div class="h3">${facChip(c.to)} ${a.h3} → ${b.h3}</div><div class="tags"><span class="tag up">整支部队升级${c.bonus?` +${c.bonus}援军`:""}</span></div>
    <div class="stats"><div><span>攻</span>${d('a')}</div><div><span>防</span>${d('d')}</div><div><span>伤害</span><b class="${b.dmg+''!==a.dmg+''?'up':''}">${b.dmg[0]}-${b.dmg[1]}</b></div><div><span>生命</span>${d('hp')}</div><div><span>速度</span>${d('spd')}</div><div><span>射击</span>${d('shots')}</div></div>
    <div class="abil">${abilList(b).map(x=>'· '+x).join('<br>')}</div>`;}
-function armyStrip(){const s=H.stacks(G.run.army);$('armyStrip').innerHTML=s.map(x=>`<div class="mini${U[x.type].up?' gold':''}"><img src="${sprSrc(x.type)}"><b>${x.count}</b></div>`).join('')+Array(Math.max(0,H.MAXS-s.length)).fill('<div class="mini empty"></div>').join('');}
+function armyStrip(){const s=H.stacks(G.run.army);$('armyStrip').innerHTML=s.map(x=>`<div class="mini${U[x.type].up?' gold':''}">${ptImg(x.type)}<b>${x.count}</b></div>`).join('')+Array(Math.max(0,H.MAXS-s.length)).fill('<div class="mini empty"></div>').join('');fillPortraits($('armyStrip'));}
 function themeHTML(info){const th=info.theme;return `<div class="thx" style="--tc:${th.col}"><div class="t1">${info.boss?'👑 首领关 · ':''}${th.n}</div><div class="t2">⚠ ${th.mod}</div><div class="t3">💡 ${th.hint}</div>${info.boss?`<div class="t4">首领：${info.boss.n}（${U[info.boss.type].n}）— ${info.boss.desc}</div>`:''}</div>`;}
 const MM=Meta.M;
 function titleMeta(){if($('dStreak'))renderStreak();$('titleMeta').innerHTML=MM.runs?`🏆 最佳 第 <b>${MM.best}</b> 关 · 💰 <b>${MM.gold}</b> 金币`+(MM.daily[Meta.today()]?` · 📅 今日 第 ${MM.daily[Meta.today()]} 关`:''):'';
@@ -493,8 +528,9 @@ function openDraft(){G.phase='offer';$('rageFx').classList.remove('on');document
   $('draftTitle').textContent=run.stage>H.STAGES?`无尽 · 第 ${run.stage} 关`:`第 ${run.stage} / ${H.STAGES} 关`;
   $('draftSub').innerHTML=themeHTML(info)+`<div class="dsub">${run.stage===1?'选择一支部队开始征程':'选择一支援军（同种部队会合并）'}</div>`;
   const offer=H.makeOffer(run);G.offer=offer;const el=$('cards');el.innerHTML='';el.classList.toggle('three',offer.length>2);el.classList.toggle('four',offer.length>3);
-  offer.forEach((c,i)=>{const d=document.createElement('div');d.className='card'+(c.kind==='upgrade'?' upcard':'');d.innerHTML=c.kind==='upgrade'?upgradeCardHTML(c):unitCardHTML(c);d.style.animationDelay=(i*0.08)+'s';d.onclick=()=>pickOffer(i,d);el.appendChild(d);ensureTpl(c.kind==='upgrade'?c.to:c.type);});
-  armyStrip();show('draft',true);G.enemies=H.makeEnemies(run.stage);G.enemies.forEach(e=>ensureTpl(e.type));if(info.boss&&info.boss.summon)ensureTpl(info.boss.summon);}
+  offer.forEach((c,i)=>{const d=document.createElement('div');d.className='card ucard'+(c.kind==='upgrade'?' upcard':'');d.innerHTML=c.kind==='upgrade'?upgCard2(c):unitCard2(c);d.style.animationDelay=(i*0.08)+'s';
+    d.onclick=e=>{if(e.target.closest('.pickBtn')){pickOffer(i,d);return;}const was=d.classList.contains('sel');[...el.children].forEach(x=>x.classList.remove('sel'));if(!was){d.classList.add('sel');S.tick();}};el.appendChild(d);ensureTpl(c.kind==='upgrade'?c.to:c.type);});
+  fillPortraits(el);armyStrip();show('draft',true);G.enemies=H.makeEnemies(run.stage);G.enemies.forEach(e=>ensureTpl(e.type));if(info.boss&&info.boss.summon)ensureTpl(info.boss.summon);}
 function pickOffer(i,el){if(G.phase!=='offer')return;G.phase='picked';S.pick();el.classList.add('chosen');[...$('cards').children].forEach(c=>{if(c!==el)c.classList.add('gone');});
   const beforeSyn=H.synCounts(H.deployList(G.run));const ev=H.takeCard(G.run,G.offer[i]);armyStrip();synToast(beforeSyn);if(ev.upgraded){ach('upgrade');setTimeout(()=>{banner(`⬆ ${U[ev.upgraded].n}！`,1200);S.win();},250);}
   setTimeout(()=>{show('draft',false);openDeploy();},ev.upgraded?1100:520);}
@@ -571,10 +607,11 @@ function openReward(){const run=G.run,kind=H.rewardKind(run.stage);const opts=H.
   G.phase='reward';$('rwTitle').textContent=kind==='artifact'?'🏺 选择一件宝物':'📜 学习一个法术';$('rwSub').textContent=kind==='artifact'?(G.info.boss?'首领战利品！':'每两关一次的宝物奖励'):`英雄升至 Lv${run.stage+1} · 法术栏 ${run.spells.length}/4`;
   const el=$('rwCards');el.innerHTML='';S.rewardJ();opts.forEach((o,i)=>{const d=document.createElement('div');d.className='rcard';d.style.animationDelay=(i*0.08)+'s';
     if(o.kind==='artifact'){const a=H.ARTM[o.id],rr=H.RARITY[a.r];d.classList.add('flip','r'+a.r);d.style.setProperty('--rc',rr.col);
-      d.innerHTML=`<div class="back"><span>🏺</span></div><div class="face"><div class="rr">${rr.n}</div><div class="ri">${a.i}</div><div class="rn">${a.n}</div><div class="re">${a.e}</div><div class="rd">${a.d}</div>${a.tag?`<div class="rtag">#${a.tag}</div>`:''}</div>`;
-      setTimeout(()=>{d.classList.add('open');S.flip();if(a.r==='e'||a.r==='l'){setTimeout(()=>S.rare(),150);}},450+i*330);}
+      d.classList.remove('flip');d.classList.add('acard');d.innerHTML=`<div class="aic"><span>${a.i}</span></div><div class="ainf"><div class="rr">${rr.n}${a.tag?` · #${a.tag}`:''}</div><div class="rn">${a.n}</div><div class="rd">${a.d}</div></div>`;
+      setTimeout(()=>{S.flip();if(a.r==='e'||a.r==='l')S.rare();},300+i*200);}
     else{const sp=H.SPM[o.id];d.innerHTML=`<div class="ri">${sp.i}</div><div class="rn">${sp.n}</div><div class="re">${sp.cost} 法力 · ${({air:'气',fire:'火',earth:'土',water:'水'})[sp.sch]}系</div><div class="rd">${sp.d}</div>`;}
-    d.onclick=()=>takeReward(o,d);el.appendChild(d);});
+    d.onclick=()=>{if(G.phase!=='reward')return;[...el.children].forEach(x=>x.classList.remove('sel'));d.classList.add('sel');S.tick();const b=$('rwOk');b.disabled=false;b.textContent='✔ 确认选择';b.onclick=()=>takeReward(o,d);};el.appendChild(d);});
+  $('rwOk').disabled=true;$('rwOk').textContent='点选一项';
   $('rwSkip').onclick=()=>{S.click();show('reward',false);nextStage();};show('reward',true);}
 function takeReward(o,d){if(G.phase!=='reward')return;if(d.classList.contains('flip')&&!d.classList.contains('open'))return;const run=G.run;S.pick();d.classList.add('chosen');
   if(o.kind==='artifact'){run.arts.push(o.id);if(H.ARTM[o.id].r==='l')ach('legend');if(run.arts.length>=5)ach('arts5');G.phase='x';setTimeout(()=>{show('reward',false);banner(H.ARTM[o.id].i+' '+H.ARTM[o.id].n,1000);nextStage();},500);return;}

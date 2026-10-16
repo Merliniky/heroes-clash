@@ -48,3 +48,14 @@ All tracks were re-encoded to MP3 (72–96 kbps) with ffmpeg. Sound effects are 
 ## v10
 - Angel / pegasus wings: procedural geometry (code in game3d.js), no external asset.
 - App icons / OG image: derived from the game's own gold-dragon art and an in-game screenshot.
+
+## v11 models (Quaternius "Ultimate Monsters", CC0, via poly.pizza)
+| file | used for | source |
+|---|---|---|
+| q_ghost.glb | Wight / Wraith | https://static.poly.pizza/810f60a2-6e45-4c4e-a0d5-da91cd7288bd.glb |
+| q_demon2.glb | Pit Fiend / Pit Lord | https://static.poly.pizza/c2e39eb4-4b8e-4d31-b014-d637bf4e15c6.glb |
+| q_wizard.glb | Gog / Magog | https://static.poly.pizza/d206c071-7934-40eb-9091-35ebdf93c317.glb |
+| q_hywirl.glb | Efreet / Efreet Sultan | https://static.poly.pizza/6500a805-0588-4823-bb8d-2f8ffdf338ab.glb |
+| q_dragon3.glb | Bone / Ghost Dragon | https://static.poly.pizza/90ed3740-d8c4-4910-88ce-ac2ed426022d.glb |
+| q_ghostskull.glb | (spare) | https://static.poly.pizza/0716bf8e-1894-4a90-8d10-34868975a239.glb |
+Card portraits and badge icons are rendered at runtime from the same 3D models.
