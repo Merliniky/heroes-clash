@@ -10,7 +10,7 @@
 - Long-press tooltips and a first-run coach for deploy and spells.
 
 Balance (`node sim.js 400`, a bot that drafts with synergy awareness, auto-deploys, casts spells and picks artifacts):
-reached stage 3: 92%, stage 5: 91%, stage 6: 71%, stage 10: 69%, stage 11: 46%, stage 15: 43%; full clear 37%. Deaths cluster at the boss walls on stages 5, 10 and 15.
+v8 (3-card drafts): reached stage 5: 100%, stage 6: 70%, stage 10: 69%, stage 11: 53%, stage 15: 48%; full clear 33%. Deaths cluster at the boss walls on stages 5, 10 and 15.
 
 
 **Play:** https://merliniky.github.io/heroes-clash/

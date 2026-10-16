@@ -416,7 +416,7 @@ function unitCardHTML(c){const t=c.type,st=U[t];const owned=G.run.army[t];const 
     <div class="abil">${abilList(st).map(x=>'· '+x).join('<br>')||'· 无特殊能力'}</div>`;}
 function upgradeCardHTML(c){const a=U[c.from],b=U[c.to];const d=(k)=>b[k]!==a[k]?`<b class="up">${a[k]}→${b[k]}</b>`:`<b>${b[k]}</b>`;
   return `<div class="art upg"><span class="tier">⬆ 升级</span><img class="from" src="${sprSrc(c.from)}"><span class="arrow">➜</span><img src="${sprSrc(c.to)}"><span class="cnt">×${c.count}</span></div>
-   <div class="nm">${a.n} → ${b.n}</div><div class="h3">${facChip(c.to)} ${a.h3} → ${b.h3}</div><div class="tags"><span class="tag up">整支部队升级</span></div>
+   <div class="nm">${a.n} → ${b.n}</div><div class="h3">${facChip(c.to)} ${a.h3} → ${b.h3}</div><div class="tags"><span class="tag up">整支部队升级${c.bonus?` +${c.bonus}援军`:""}</span></div>
    <div class="stats"><div><span>攻</span>${d('a')}</div><div><span>防</span>${d('d')}</div><div><span>伤害</span><b class="${b.dmg+''!==a.dmg+''?'up':''}">${b.dmg[0]}-${b.dmg[1]}</b></div><div><span>生命</span>${d('hp')}</div><div><span>速度</span>${d('spd')}</div><div><span>射击</span>${d('shots')}</div></div>
    <div class="abil">${abilList(b).map(x=>'· '+x).join('<br>')}</div>`;}
 function armyStrip(){const s=H.stacks(G.run.army);$('armyStrip').innerHTML=s.map(x=>`<div class="mini${U[x.type].up?' gold':''}"><img src="${sprSrc(x.type)}"><b>${x.count}</b></div>`).join('')+Array(Math.max(0,H.MAXS-s.length)).fill('<div class="mini empty"></div>').join('');}
@@ -425,10 +425,10 @@ function startRun(){SFX.init();SFX.startMusic();S.click();G.run=H.newRun();const
   if(DEBUG&&+qs.get('stage')>1){const r=G.run;const to=+qs.get('stage');for(let s=1;s<to;s++){r.stage=s;const o=H.makeOffer(r);H.takeCard(r,o[0]);if(H.rewardKind(s)==='artifact'){const a=H.rewardOptions(r,'artifact')[0];if(a)r.arts.push(a.id);}else{const sp=H.rewardOptions(r,'spell')[0];if(sp&&r.spells.length<4)r.spells.push(sp.id);}
       for(const k in r.army)r.army[k]=Math.round(r.army[k]*1.3);}r.stage=to;}
   show('title',false);show('gameover',false);show('result',false);openDraft();}
-function openDraft(){G.phase='offer';disposeViews();G.battle=null;setBattleUI(false);const run=G.run,info=H.stageInfo(run.stage);G.info=info;
+function openDraft(){G.phase='offer';document.body.classList.remove('boss');disposeViews();G.battle=null;setBattleUI(false);const run=G.run,info=H.stageInfo(run.stage);G.info=info;
   $('draftTitle').textContent=run.stage>H.STAGES?`无尽 · 第 ${run.stage} 关`:`第 ${run.stage} / ${H.STAGES} 关`;
   $('draftSub').innerHTML=themeHTML(info)+`<div class="dsub">${run.stage===1?'选择一支部队开始征程':'选择一支援军（同种部队会合并）'}</div>`;
-  const offer=H.makeOffer(run);G.offer=offer;const el=$('cards');el.innerHTML='';el.classList.toggle('three',offer.length>2);
+  const offer=H.makeOffer(run);G.offer=offer;const el=$('cards');el.innerHTML='';el.classList.toggle('three',offer.length>2);el.classList.toggle('four',offer.length>3);
   offer.forEach((c,i)=>{const d=document.createElement('div');d.className='card'+(c.kind==='upgrade'?' upcard':'');d.innerHTML=c.kind==='upgrade'?upgradeCardHTML(c):unitCardHTML(c);d.style.animationDelay=(i*0.08)+'s';d.onclick=()=>pickOffer(i,d);el.appendChild(d);ensureTpl(c.kind==='upgrade'?c.to:c.type);});
   armyStrip();show('draft',true);G.enemies=H.makeEnemies(run.stage);G.enemies.forEach(e=>ensureTpl(e.type));if(info.boss&&info.boss.summon)ensureTpl(info.boss.summon);}
 function pickOffer(i,el){if(G.phase!=='offer')return;G.phase='picked';S.pick();el.classList.add('chosen');[...$('cards').children].forEach(c=>{if(c!==el)c.classList.add('gone');});
@@ -451,7 +451,7 @@ function startFight(){if(G.phase!=='deploy')return;S.go();hideCoach();if(!G.tut.
   if(G.run.arts.includes('damned'))for(const u of G.battle.units)if(u.side==='e')u.buf.slow=6;
   setBattleUI(true,false);refreshSpellBar(true);G.phase='countdown';banner('战斗！',700);setTimeout(()=>{G.phase='battle';G.endT=0;if(!G.focusHintShown)$('hint').classList.remove('hidden');
     if(!G.tut.spell)setTimeout(()=>{if(G.phase==='battle')coach('<b>英雄法术</b><br>底部法力条会随时间恢复。点技能按钮施法：<br>单体法术再点敌人，范围法术再点位置。<br>点敌人可集火，点己方近战部队可待命。');},900);
-    const bs=G.battle.units.find(u=>u.boss);if(bs){$('bossBar').classList.remove('hidden');$('bossName').textContent='👑 '+H.BOSSES.find(b=>b.id===bs.boss).n;G.bossU=bs;}else G.bossU=null;},600);}
+    const bs=G.battle.units.find(u=>u.boss);document.body.classList.toggle('boss',!!bs);if(bs){$('bossBar').classList.remove('hidden');$('bossName').textContent='👑 '+H.BOSSES.find(b=>b.id===bs.boss).n;G.bossU=bs;}else G.bossU=null;},600);}
 function autoArrange(){if(G.phase!=='deploy')return;S.click();G.run.form={};buildBattle(false).then(()=>{G.phase='deploy';for(const v of views.values())v.spawn=0.6;banner('已自动布阵',700);});G.phase='loading';}
 // ---------- HUD panels ----------
 function refreshSyn(){const run=G.run;if(!run)return;const own=G.battle?G.battle.units.filter(u=>u.side==='p').map(u=>({type:u.type})):H.deployList(run);const sc=H.synCounts(own);
@@ -499,7 +499,7 @@ function confetti(){const x=(Math.random()-0.5)*GC,z=(Math.random()-0.5)*GR;cons
 function gameOver(win){G.phase='over';setBattleUI(false);const run=G.run;const endless=run.stage>H.STAGES;
   $('goTitle').textContent=win?'凯旋':'战败';$('goTitle').className='go-title'+(win?'':' lose');
   $('goSub').textContent=win?`你征服了全部 ${H.STAGES} 关！`:endless?`无尽模式止步于第 ${run.stage} 关`:`止步于第 ${run.stage} 关`;
-  $('goStats').innerHTML=`<div>关卡 <b>${win?H.STAGES:run.stage-1}</b></div><div>歼敌 <b>${run.kills}</b></div><div>宝物 <b>${run.arts.length}</b></div>${run.raised?`<div>通灵 <b>${run.raised}</b></div>`:''}`;
+  $('goStats').innerHTML=`<div>通关 <b>${win?H.STAGES:run.stage-1}</b></div><div>歼敌 <b>${run.kills}</b></div><div>宝物 <b>${run.arts.length}</b></div>${run.raised?`<div>通灵 <b>${run.raised}</b></div>`:''}`;
   $('goArt').innerHTML=H.stacks(run.army).slice(0,5).map(s=>`<img src="${sprSrc(s.type)}">`).join('');$('goEndless').classList.toggle('hidden',!win);show('gameover',true);}
 $('goEndless').onclick=()=>{S.click();show('gameover',false);openReward();G.phase='reward';};
 $('startBtn').onclick=startRun;$('goBtn').onclick=()=>{show('gameover',false);startRun();};

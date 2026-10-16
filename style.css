@@ -251,3 +251,7 @@ button,.act,.mobj,.fcard,.card{touch-action:manipulation}
 .loot{margin-top:6px;color:#d8c0ff;font-weight:800}
 @media (max-width:480px){.spb{width:62px;height:58px}.rcard{width:44vw;min-height:170px}.rcard .ri{font-size:36px}#coach{bottom:140px}}
 #hint{bottom:calc(env(safe-area-inset-bottom,0px) + 128px);font-size:13px}
+.cards.four{flex-wrap:wrap;justify-content:center}.cards.four .card{max-width:46vw}
+#bossBar{top:calc(env(safe-area-inset-top,0px) + 60px);width:min(300px,60vw)}
+body.boss #synPanel,body.boss #artRow{top:calc(env(safe-area-inset-top,0px) + 98px)}
+.tagline{white-space:normal;max-width:92vw;text-align:center;padding:0 12px;box-sizing:border-box;font-size:13px;line-height:1.5}.foot{text-align:center;max-width:92vw;margin:0 auto;padding:0 12px;box-sizing:border-box;font-size:11px}

@@ -87,7 +87,7 @@ const THEMES={
  lair:{n:'巨龙巢穴',fac:'mixed',col:'#c8402a',mod:'敌军中混有巨龙',hint:'弱点：你的远程单位伤害+25%',weak:{ranged:1.25},pool:['greenDragon','boneDragon','redDragon','wolfRider','gog','woodElf','hellHound','vampire','ogre','unicorn']},
 };
 const BOSSES=[
- {id:'lichKing',n:'巫妖王',type:'powerLich',theme:'crypt',mod:{hpMul:4,a:2,d:2},mech:'summon',summon:'skeletonWarrior',every:6,share:0.28,desc:'每6秒召唤一队骷髅勇士；死亡之云溅射'},
+ {id:'lichKing',n:'巫妖王',type:'powerLich',theme:'crypt',mod:{hpMul:7,a:2,d:2},mech:'summon',summon:'skeletonWarrior',every:6,share:0.28,desc:'每6秒召唤一队骷髅勇士；死亡之云溅射'},
  {id:'wyrm',n:'远古红龙',type:'redDragon',theme:'lair',mod:{hpMul:3,a:4},mech:'sweep',every:7,share:0.42,desc:'每7秒对3行区域喷吐龙息（地面红色预警，分散站位可躲避）'},
  {id:'archfiend',n:'深渊魔王',type:'archDevil',theme:'rift',mod:{hpMul:6,a:10,d:10,ab:{fireShield:1}},mech:'blink',summon:'familiar',every:7,share:0.75,desc:'每8秒瞬移到你的远程部队身边并召唤魔仆'},
 ];
@@ -97,7 +97,7 @@ function stageInfo(s){let key=s<=STAGES?SCHED[s-1]:(s%5===0?'B'+((s/5-1)%3):Obje
 // ---------------- budgets ----------------
 const maxLvl=s=>Math.min(7,1+Math.floor((s-1)*0.6));
 const offerBudget=s=>Math.round(430*Math.pow(1.33,s-1));
-let ENEMY_K=290,ENEMY_G=1.46;const setEnemyCurve=(k,g)=>{ENEMY_K=k;ENEMY_G=g;};
+let ENEMY_K=290,ENEMY_G=1.49;const setEnemyCurve=(k,g)=>{ENEMY_K=k;ENEMY_G=g;};
 const enemyBudget=s=>Math.round(ENEMY_K*Math.pow(ENEMY_G,s-1)*(s>STAGES?Math.pow(1.08,s-STAGES):1));
 const cnt=(t,b)=>Math.max(1,Math.round(b/U[t].v));
 function upChance(s){return Math.min(0.8,(s-3)*0.08);}
@@ -111,11 +111,11 @@ function makeEnemies(s){const info=stageInfo(s),th=info.theme;let tot=enemyBudge
 function newRun(){return {stage:1,army:{},merges:{},arts:[],spells:START_SPELLS.slice(),form:{},kills:0,lost:0,raised:0};}
 const stacks=army=>Object.entries(army).filter(([,c])=>c>0).map(([type,count])=>({type,count})).sort((a,b)=>U[b.type].v*b.count-U[a.type].v*a.count);
 const has=(run,id)=>run.arts.includes(id);
-function makeOffer(run){const s=run.stage,n=has(run,'medal')?3:2,L=maxLvl(s),own=stacks(run.army),full=own.length>=MAXS;const cards=[];
+function makeOffer(run){const s=run.stage,n=has(run,'medal')?4:3,L=maxLvl(s),own=stacks(run.army),full=own.length>=MAXS;const cards=[];
   // upgrade card: guaranteed when a stack was picked twice, sometimes otherwise
   const upg=own.filter(o=>UPG[o.type]&&U[UPG[o.type]].lvl<=L+1);
   const ready=upg.filter(o=>(run.merges[o.type]||0)>=2);
-  if(upg.length&&(ready.length||R()<0.3)){const o=pick(ready.length?ready:upg);cards.push({kind:'upgrade',from:o.type,to:UPG[o.type],count:o.count});}
+  if(upg.length&&(ready.length||(s>=4&&R()<0.3))){const o=pick(ready.length?ready:upg);const to=UPG[o.type];cards.push({kind:'upgrade',from:o.type,to,count:o.count,bonus:cnt(to,offerBudget(s)*0.4)});}
   const owned=new Set(own.map(o=>lineOf(o.type)));const ownFac=Object.keys(synCounts(own));
   let tries=0;while(cards.length<n&&tries++<60){let t;
     if(full){t=lineOf(pick(own).type);}else{const pool=ROSTER.filter(x=>U[x].lvl<=L&&U[x].lvl>=Math.max(1,L-3));
@@ -123,7 +123,7 @@ function makeOffer(run){const s=run.stage,n=has(run,'medal')?3:2,L=maxLvl(s),own
     if(cards.some(c=>c.type===t))continue;const curT=own.find(o=>lineOf(o.type)===t);const realT=curT?curT.type:t;
     cards.push({kind:'unit',type:realT,count:cnt(realT,offerBudget(s)*(0.85+R()*0.3)*(has(run,'sash')?1.2:1))});}
   return cards;}
-function takeCard(run,c){const ev={};if(c.kind==='upgrade'){const k=run.army[c.from]||0;delete run.army[c.from];run.army[c.to]=(run.army[c.to]||0)+k;if(run.form[c.from]){run.form[c.to]=run.form[c.from];}delete run.merges[c.from];ev.upgraded=c.to;return ev;}
+function takeCard(run,c){const ev={};if(c.kind==='upgrade'){const k=run.army[c.from]||0;delete run.army[c.from];run.army[c.to]=(run.army[c.to]||0)+k+(c.bonus||0);if(run.form[c.from]){run.form[c.to]=run.form[c.from];}delete run.merges[c.from];ev.upgraded=c.to;return ev;}
   const merged=!!run.army[c.type];run.army[c.type]=(run.army[c.type]||0)+c.count;if(merged){run.merges[c.type]=(run.merges[c.type]||0)+1;ev.merged=true;
     if(run.merges[c.type]>=3&&UPG[c.type]){const to=UPG[c.type];run.army[to]=(run.army[to]||0)+run.army[c.type];delete run.army[c.type];if(run.form[c.type])run.form[to]=run.form[c.type];delete run.merges[c.type];ev.upgraded=to;}}
   return ev;}
