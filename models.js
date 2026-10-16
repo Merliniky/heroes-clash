@@ -19,7 +19,7 @@ const M={
   swordsman:{f:'k_Knight',c:KK,h:0.66,show:['1H_Sword','Badge_Shield'],note:'KayKit Knight, sword + badge shield'},
   monk:{f:'k_Mage',c:KK,h:0.64,show:['2H_Staff'],shoot:'Spellcast_Shoot',tint:0xfff0d0,note:'KayKit Mage, staff'},
   cavalier:{f:'q_horse',c:QH,h:0.78,rider:{f:'k_Knight',show:['1H_Sword','Round_Shield'],clip:'Sit_Chair_Idle',atk:'1H_Melee_Attack_Chop',h:0.62,bone:'Body',y:0.18},tint:0xd8c2a0,note:'Quaternius Horse + KayKit Knight rider'},
-  angel:{f:'k_Knight',c:KK,h:0.95,show:['2H_Sword'],atk:'2H_Melee_Attack_Chop',tint:0xfff6dc,fly:0.3,glowC:0xfff0a0,note:'KayKit Knight, white/gold, hovering + halo glow (no wings)'},
+  angel:{f:'k_Knight',c:KK,h:0.95,show:['2H_Sword'],atk:'2H_Melee_Attack_Chop',tint:0xfff6dc,fly:0.3,glowC:0xfff0a0,wings:{c:0xfffaf0,s:1},note:'KayKit Knight, white/gold, hovering + halo glow + procedural flapping wings'},
   // ---- Necropolis ----
   skeleton:{f:'k_Skeleton_Minion',c:KS,h:0.56,props:[{f:'Skeleton_Blade',bone:'handslot.r',len:0.38}],note:'KayKit Skeleton Minion + blade'},
   walkingDead:{f:'q_zombie',c:QP,h:0.6,tint:0xb0c890,note:'Quaternius Zombie'},
@@ -39,7 +39,7 @@ const M={
   centaur:{f:'q_horse',c:QH,h:0.72,tint:0x8fb070,rider:{f:'k_Barbarian',show:['1H_Axe'],clip:'Sit_Chair_Idle',atk:'1H_Melee_Attack_Stab',h:0.55,bone:'Body',y:0.16},note:'Quaternius Horse + KayKit Barbarian (centaur stand-in)'},
   dwarf:{f:'k_Barbarian',c:KK,h:0.46,show:['1H_Axe','Barbarian_Round_Shield'],sx:1.25,tint:0xffc9a0,note:'KayKit Barbarian, squat scale'},
   woodElf:{f:'k_Rogue_Hooded',c:KK,h:0.62,show:['1H_Crossbow'],tint:0x9adf8a,note:'KayKit Rogue, forest-green tint'},
-  pegasus:{f:'q_horse',c:QH,h:0.75,tint:0xf4f4ff,fly:0.3,note:'Quaternius Horse, white, flying (no wings)'},
+  pegasus:{f:'q_horse',c:QH,h:0.75,tint:0xf4f4ff,fly:0.3,wings:{c:0xf8f8ff,s:1.25,z:0.05,y:0.62},note:'Quaternius Horse, white, flying + procedural flapping wings'},
   dendroidGuard:{f:'q_giant',c:QE,h:0.9,tint:0x8fae5a,note:'Quaternius Giant (wooden), leafy tint'},
   unicorn:{f:'q_horse',c:QH,h:0.8,tint:0xffffff,props:[HORN],note:'Quaternius Horse, white + horn'},
   greenDragon:{f:'q_dragon2',c:QD,h:1.05,tint:0x5ccf5c,fly:0.25,note:'Quaternius Dragon, green'},

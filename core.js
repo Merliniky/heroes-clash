@@ -101,6 +101,7 @@ function calcDmg(b,u,t,opt={}){
   if(ab.hate&&ab.hate[t.type])m*=1+ab.hate[t.type];
   let base=u.curse>b.t?u.count*u.st.dmg[0]:u.buf.bless>b.t?u.count*u.st.dmg[1]:baseRoll(u);        // cursed: minimum damage (Black Knight curse)
   if(opt.melee&&ab.deathBlow&&R()<0.2){base*=2;b.events.push({k:'pop',u:t,str:'致命一击',col:'#ff6a6a'});}
+  if(b.rageM)m*=b.rageM;
   if(R()<0.08+(ab.luck||0)){base*=2;b.crit=1;}
   return Math.max(1,Math.floor(base*m));
 }
@@ -128,8 +129,10 @@ function doMelee(b,u,t,isRetal){
   if(!isRetal&&!ab.noRet&&t.alive&&!(t.stun>b.t)&&adjacent(t,u)&&t.ret>0){t.ret--;b.pend.push({at:b.t+0.4,u:t,t:u,retal:1});}
   if(!isRetal&&ab.dbl&&u.alive&&!u.second){u.second=1;b.pend.push({at:b.t+0.45,u,t,second:1});}else u.second=0;
 }
+const RAGE_T=[38,52],RAGE_K=0.12;
 function step(b,dt){
   if(b.over)return;b.t+=dt;const L=b.units;
+  if(b.bossB==null)b.bossB=L.some(u=>u.boss);const RT=b.bossB?RAGE_T[1]:RAGE_T[0];if(b.t>RT){b.rageM=1+(b.t-RT)*RAGE_K;if(!b.rageOn){b.rageOn=1;b.events.push({k:'rage'});}}
   const r=Math.floor(b.t/ROUND);if(r!==b.round){b.round=r;for(const u of L){u.ret=(u.st.ab&&u.st.ab.retal)||1;
     if(u.alive&&u.st.ab&&u.st.ab.regen&&u.top<u.st.hp){u.top=u.st.hp;b.events.push({k:'regen',u});}}}
   for(const p of b.pend)if(b.t>=p.at&&!p.done){p.done=1;if(p.u.alive&&p.t.alive&&!(p.u.stun>b.t)){

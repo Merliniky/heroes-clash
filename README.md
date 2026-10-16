@@ -329,3 +329,9 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 | 游牧民 | Nomad | 3 | 9 | 8 | 2-6 | 30 | 7 | – | 7 | 200 |  |  |
 | 巨魔 | Troll | 5 | 14 | 7 | 10-15 | 40 | 7 | – | 3 | 500 | regen |  |
 
+
+## v10
+- PWA: manifest, 192/512 + maskable icons, versioned service worker (`hc-v10`) with offline cache, install button (iOS hint), OG/Twitter card.
+- Rage timer (38 s / boss 52 s → damage ramps +12%/s) keeps battles short; boss intro cutscene with camera zoom + name card.
+- Procedural flapping wings for angel/archangel/pegasus; chest-opening gold reward; 17 achievements (camp tab, gold rewards, toasts).
+- Settings (⚙️): hide tips, persistent 2× speed. Daily-challenge streak calendar (title + camp).

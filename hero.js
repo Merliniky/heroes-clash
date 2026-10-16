@@ -117,7 +117,7 @@ function stageInfo(s){let key=s<=STAGES?SCHED[s-1]:(s%5===0?'B'+((s/5-1)%3):Obje
 // ---------------- budgets ----------------
 const maxLvl=s=>Math.min(7,1+Math.floor((s-1)*0.6));
 const offerBudget=s=>Math.round(430*Math.pow(1.33,s-1));
-let ENEMY_K=545,ENEMY_G=1.525;const setEnemyCurve=(k,g)=>{ENEMY_K=k;ENEMY_G=g;};
+let ENEMY_K=560,ENEMY_G=1.525;const setEnemyCurve=(k,g)=>{ENEMY_K=k;ENEMY_G=g;};
 const enemyBudget=s=>Math.round(ENEMY_K*Math.pow(ENEMY_G,s-1)*(s>STAGES?Math.pow(1.08,s-STAGES):1));
 const cnt=(t,b)=>Math.max(1,Math.round(b/U[t].v));
 function upChance(s){return Math.min(0.8,(s-3)*0.08);}

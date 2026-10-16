@@ -158,8 +158,9 @@ function makeView(u,tpl){const def=tpl.def,g=new THREE.Group();const inner=Skele
   let rmix=null,rone=null;if(tpl.rider){const rh=inner.getObjectByName('riderHold');const rd=def.rider;rmix=new THREE.AnimationMixer(rh);const ri=act(rmix,tpl.rider.anims,rd.clip);if(ri)ri.play();rone=act(rmix,tpl.rider.anims,rd.atk,1);}
   // badge + hp bar (DOM)
   const el=document.createElement('div');el.className='ub '+u.side;el.innerHTML='<em></em><b></b><i><s></s></i>';uiLayer.appendChild(el);
+  let wg=null;if(def.wings){wg=makeWings(def);g.add(wg);}
   if(u.boss){inner.scale.multiplyScalar(1.45);pick.scale.multiplyScalar(1.4);pick.position.y=pick.scale.y/2;}
-  const v={u,g,inner,mixer,base,one,rmix,rone,ring,disc,pick,el,cntEl:el.children[1],hpEl:el.lastChild.firstChild,bfEl:el.firstChild,bfStr:'',def,mv:0,os:null,osW:0,yaw:u.side==='p'?Math.PI/2:-Math.PI/2,deadT:-1,lastCount:-1,spawn:0,bob:Math.random()*6,hitFlash:0,lastHp:-1};
+  const v={wg,u,g,inner,mixer,base,one,rmix,rone,ring,disc,pick,el,cntEl:el.children[1],hpEl:el.lastChild.firstChild,bfEl:el.firstChild,bfStr:'',def,mv:0,os:null,osW:0,yaw:u.side==='p'?Math.PI/2:-Math.PI/2,deadT:-1,lastCount:-1,spawn:0,bob:Math.random()*6,hitFlash:0,lastHp:-1};
   g.rotation.y=v.yaw;unitLayer.add(g);views.set(u,v);return v;}
 function playOne(v,k,dur){const a=v.one[k];if(!a)return;if(v.os&&v.os!==a)v.os.stop();const clip=a.getClip(),imp=(v.def.c.imp||0.45)*clip.duration;
   a.reset();a.enabled=true;a.setEffectiveWeight(1);
@@ -173,6 +174,7 @@ function updateView(v,dt,b){const u=v.u,def=v.def;const [x,z]=unitWorld(u);
   v.bob+=dt*3;const hover=fly?fly+Math.sin(v.bob)*0.05:0;
   v.spawn=Math.min(1,v.spawn+dt*3);const sp=v.spawn<1?(1-Math.pow(1-v.spawn,3)):1;
   if(v.dragPos){v.g.position.copy(v.dragPos);}else v.g.position.set(x,0,z);v.inner.position.y=hover+(v.dragPos?0.18:0);if(v.def.glow&&u.alive&&Math.random()<dt*3){P({x:v.g.position.x+(Math.random()-0.5)*0.4,y:Math.random()*v.def.h,z:v.g.position.z+(Math.random()-0.5)*0.4,vy:0.5,drag:1,life:0.8,s:0.05,c:[1,0.82,0.3]},true);}if(v.spawn<1){v.inner.position.y+=(1-sp)*2.4;v.dropping=1;}else if(v.dropping){v.dropping=0;dust(x,z,8,0.9);if(Math.random()<0.4)S.spawn();}v.g.scale.setScalar(0.75+0.25*Math.max(0,sp));
+  if(v.wg){v.wg.position.y=v.def.h*(v.def.wings.y||0.66)+v.inner.position.y;v.wt=(v.wt||Math.random()*6)+dt*(u.moving?11:6);const a=Math.sin(v.wt)*0.55+0.15;for(const [p,sd] of v.wg.userData.p)p.rotation.z=sd*a;v.wg.visible=u.alive||v.deadT<1.2;}
   // facing: toward target when engaged, else movement direction
   let want=v.yaw;const t=u.target&&u.target.alive?u.target:null;
   if(u.alive){if(u.moving){const [x0,z0]=toW(...Core.cellCenter(u.fx,u.fy,u.fw,u.fh)),[x1,z1]=toW(...Core.cellCenter(u.ax,u.ay,u.fw,u.fh));if(Math.hypot(x1-x0,z1-z0)>0.01)want=Math.atan2(x1-x0,z1-z0);}
@@ -195,6 +197,12 @@ function updateView(v,dt,b){const u=v.u,def=v.def;const [x,z]=unitWorld(u);
   // rings
   if(u.alive){v.ring.material=b.focus===u?focusMat:(u.hold||G.sel===u?holdMat:teamMat[u.side]);}
 }
+// procedural feathered wings (angel, pegasus): two flapping pivots on the back
+const wingGeo=(()=>{const sh=new THREE.Shape();sh.moveTo(0,0);sh.bezierCurveTo(0.3,0.25,0.75,0.35,1,0.3);sh.lineTo(0.9,0.18);sh.lineTo(0.95,0.1);sh.lineTo(0.8,0.02);sh.lineTo(0.82,-0.08);sh.lineTo(0.62,-0.1);sh.lineTo(0.6,-0.2);sh.lineTo(0.4,-0.16);sh.bezierCurveTo(0.25,-0.12,0.1,-0.06,0,0);return new THREE.ShapeGeometry(sh,6);})();
+function makeWings(def){const W=def.wings,h=def.h,sc=h*0.85*(W.s||1);const mat=new THREE.MeshToonMaterial({color:W.c,gradientMap:ramp,side:THREE.DoubleSide,emissive:0x302818});rimify(mat,0.5,true);
+  const grp=new THREE.Group();grp.position.set(0,h*(W.y||0.66),-(W.z!=null?W.z:0.09)*h);grp.userData.p=[];
+  for(const sd of [-1,1]){const piv=new THREE.Group();const m=new THREE.Mesh(wingGeo,mat);m.scale.set(sd*sc,sc,sc);m.rotation.order='YXZ';m.rotation.x=-1.05;m.rotation.y=sd*-0.3;m.castShadow=true;piv.add(m);piv.position.x=sd*0.04*h;grp.add(piv);grp.userData.p.push([piv,sd]);}
+  return grp;}
 // ---------- DOM badges ----------
 function updateBadges(){const w=innerWidth,h=innerHeight;
   for(const v of views.values()){const u=v.u;if(!v.g.visible||!u.alive){v.el.style.display='none';continue;}
@@ -293,6 +301,7 @@ function handleEvents(b){for(const e of b.events){const u=e.u;const v=u?views.ge
   else if(e.k==='sweep'){sweepFx(e.rows);S.breath();S.flame();shake=Math.max(shake,0.25);flash('rgba(255,120,40,.35)');}
   else if(e.k==='blink'){const [fx,fz]=toW(e.from.x,e.from.y),[x,,z]=headOf(e.u);puff(fx,0.4,fz,0x9a40ff,20,1.2,0.18,0.6);puff(x,0.4,z,0x9a40ff,20,1.2,0.18,0.6);S.dark();floatText(e.u,'瞬移！','pop');}
   else if(e.k==='spellFx')spellResolveFx(e.id,e.out);
+  else if(e.k==='rage'){banner('⚡ 狂暴时间！伤害递增',1400);S.roar();flash('rgba(255,40,20,.35)');$('rageFx').classList.add('on');}
   if(e.k==='wind'&&u&&u.target&&u.target.alive)tline(u,u.target,u.side==='p'?0x6fb4ff:0xff6a5a,e.ranged);
 }b.events.length=0;}
 const breathers=[];
@@ -320,6 +329,7 @@ let stopT=0,slowT=0;function hitStop(t){stopT=Math.max(stopT,t);}
 const STREAK=['','','双杀！','三杀！','四杀！','横扫千军！','势不可挡！'];
 function onEnemyStackDead(u){const now=performance.now()/1000;G.streak=(now-(G.streakT||0)<4.5)?(G.streak||0)+1:1;G.streakT=now;hitStop(0.09);
   if(G.run)G.run.bestStreak=Math.max(G.run.bestStreak||0,G.streak);
+  if(G.streak>=3)ach('streak3');if(G.streak>=5)ach('streak5');
   if(G.streak>=2){const el=$('streak');el.textContent=STREAK[Math.min(G.streak,6)];el.classList.remove('hidden','pop');void el.offsetWidth;el.classList.add('pop');clearTimeout(el.t);el.t=setTimeout(()=>el.classList.add('hidden'),1300);S.streak(G.streak);}
   if(u.boss){slowT=1.6;flash('rgba(255,255,255,.7)');shake=0.4;S.boom();setTimeout(()=>{banner('👑 首领陨落！',1600);S.winJ();},350);const [x,,z]=unitWorld(u);for(let i=0;i<3;i++)setTimeout(()=>{ringFx(x,z,0xffe080,2.2,0.7);for(let k=0;k<40;k++)confettiAt(x,z);},i*220);}}
 function confettiAt(x,z){const c=[0xffd75a,0x78c8ff,0xff78a0][Math.floor(Math.random()*3)];P({x,y:1,z,vx:(Math.random()-0.5)*5,vy:2+Math.random()*3,vz:(Math.random()-0.5)*5,g:4,drag:1,life:1.4,s:0.1,c:C3(c)},true);}
@@ -440,10 +450,11 @@ function longPress(el,html){let tm=null,shown=false;el.addEventListener('pointer
 // ---------- game state / flow ----------
 const G={phase:'title',speed:1,battle:null,run:null,hero:null,targeting:null,sel:null,drag:null,focusHintShown:false,tut:JSON.parse(localStorage.getItem('hc_tut')||'{}')};
 const saveTut=()=>localStorage.setItem('hc_tut',JSON.stringify(G.tut));
+const SET=Object.assign({tips:false,speed2:false},JSON.parse(localStorage.getItem('hc_set')||'{}'));const saveSet=()=>localStorage.setItem('hc_set',JSON.stringify(SET));
 const H=Hero;
 function show(id,on){$(id).classList.toggle('show',on);}
 function banner(txt,dur=900){const el=$('banner');el.textContent=txt;el.classList.remove('hidden','pop');void el.offsetWidth;el.classList.add('pop');clearTimeout(banner.t);banner.t=setTimeout(()=>el.classList.add('hidden'),dur);}
-function coach(html){const c=$('coach');c.innerHTML=html+'<div class="cx">知道了 ✓</div>';c.classList.add('show');c.onclick=hideCoach;}
+function coach(html){if(SET.tips)return;const c=$('coach');c.innerHTML=html+'<div class="cx">知道了 ✓</div>';c.classList.add('show');c.onclick=hideCoach;}
 function hideCoach(){$('coach').classList.remove('show');}
 const statRow=(k,v)=>`<div><span>${k}</span><b>${v}</b></div>`;
 function synPreview(t){const run=G.run,own=H.deployList(run);if(run.army[t]||run.army[H.UPG[t]])return '';const f=H.facOf(t);if(!H.FAC[f])return '';
@@ -464,28 +475,28 @@ function upgradeCardHTML(c){const a=U[c.from],b=U[c.to];const d=(k)=>b[k]!==a[k]
 function armyStrip(){const s=H.stacks(G.run.army);$('armyStrip').innerHTML=s.map(x=>`<div class="mini${U[x.type].up?' gold':''}"><img src="${sprSrc(x.type)}"><b>${x.count}</b></div>`).join('')+Array(Math.max(0,H.MAXS-s.length)).fill('<div class="mini empty"></div>').join('');}
 function themeHTML(info){const th=info.theme;return `<div class="thx" style="--tc:${th.col}"><div class="t1">${info.boss?'👑 首领关 · ':''}${th.n}</div><div class="t2">⚠ ${th.mod}</div><div class="t3">💡 ${th.hint}</div>${info.boss?`<div class="t4">首领：${info.boss.n}（${U[info.boss.type].n}）— ${info.boss.desc}</div>`:''}</div>`;}
 const MM=Meta.M;
-function titleMeta(){$('titleMeta').innerHTML=MM.runs?`🏆 最佳 第 <b>${MM.best}</b> 关 · 💰 <b>${MM.gold}</b> 金币`+(MM.daily[Meta.today()]?` · 📅 今日 第 ${MM.daily[Meta.today()]} 关`:''):'';
+function titleMeta(){if($('dStreak'))renderStreak();$('titleMeta').innerHTML=MM.runs?`🏆 最佳 第 <b>${MM.best}</b> 关 · 💰 <b>${MM.gold}</b> 金币`+(MM.daily[Meta.today()]?` · 📅 今日 第 ${MM.daily[Meta.today()]} 关`:''):'';
   const vs=+new URLSearchParams(location.search).get('vs');if(vs){$('vsBanner').innerHTML=`⚔ 好友打到了第 <b>${vs}</b> 关 —— 你能超过吗？`;$('vsBanner').classList.remove('hidden');}}
 function openHeroSel(){SFX.init();SFX.startMusic();S.click();const el=$('hsCards');el.innerHTML='';
   H.HEROES.forEach(h=>{const own=MM.heroes.includes(h.id);const d=document.createElement('div');d.className='hcard'+(own?'':' locked');d.style.setProperty('--hc',h.col);
     d.innerHTML=`<div class="hi">${h.i}</div><div class="hn">${h.n}</div><div class="hc">${h.cls}</div><div class="hs"><img src="${sprSrc(h.starter)}"> 起始：${U[h.starter].n}</div><div class="hsp">${h.spells.map(id=>H.SPM[id].i).join(' ')} ${h.spells.map(id=>H.SPM[id].n).join('·')}</div><div class="hp">${h.pas}</div>${own?'<div class="hgo">出征 ▶</div>':`<div class="hbuy">🔒 ${h.cost} 金币解锁</div>`}`;
-    d.onclick=()=>{if(own){show('heroSel',false);startRun({hero:h.id});return;}if(Meta.spend(h.cost)){MM.heroes.push(h.id);Meta.save();S.rare();toast(`${h.i} 解锁英雄：${h.n}！`,'gold');openHeroSel();}else{S.click();toast(`金币不足（需要 ${h.cost}，拥有 ${MM.gold}）`,'bad');}};el.appendChild(d);});
+    d.onclick=()=>{if(own){show('heroSel',false);startRun({hero:h.id});return;}if(Meta.spend(h.cost)){MM.heroes.push(h.id);Meta.save();if(MM.heroes.length>=H.HEROES.length)ach('heroes');S.rare();toast(`${h.i} 解锁英雄：${h.n}！`,'gold');openHeroSel();}else{S.click();toast(`金币不足（需要 ${h.cost}，拥有 ${MM.gold}）`,'bad');}};el.appendChild(d);});
   $('hsSub').textContent=`💰 ${MM.gold} 金币 · 打得越远赚得越多`;show('title',false);show('gameover',false);show('heroSel',true);}
 function startDaily(){const day=Meta.today(),seed=Meta.seedOf('hc'+day);const hero=H.HEROES[seed%H.HEROES.length].id;H.setRng(Meta.mulberry(seed));startRun({hero,daily:day});toast(`📅 每日挑战 ${day} · 所有玩家相同的招募与敌军 · 英雄：${H.HEROM[hero].n}`,'',3200);}
 function startRun(opt={}){SFX.init();SFX.setTrack('battle');S.click();if(!opt.daily)H.setRng(Math.random);G.first=!MM.runs&&!opt.daily;
   G.run=H.newRun({hero:opt.hero||'knight',unlocked:MM.unlocked,up:MM.up,daily:opt.daily});G.run.dailyDay=opt.daily||null;G.streak=0;const qs=new URLSearchParams(location.search);
   if(G.first){const r=G.run;const ex={knight:'archer',barb:'goblin',wizard:'woodElf'}[r.hero]||'archer';r.army[ex]=Math.max(4,Math.round(H.offerBudget(1)*0.8/U[ex].v));}
-  if(DEBUG&&+qs.get('stage')>1){const r=G.run;const to=+qs.get('stage');for(let s=1;s<to;s++){r.stage=s;const o=H.makeOffer(r);H.takeCard(r,o[0]);if(H.rewardKind(s)==='artifact'){const a=H.rewardOptions(r,'artifact')[0];if(a)r.arts.push(a.id);}else{const sp=H.rewardOptions(r,'spell')[0];if(sp&&r.spells.length<4)r.spells.push(sp.id);}
+  if(DEBUG&&+qs.get('stage')>1){const r=G.run;if(qs.get('army'))for(const t of qs.get('army').split(','))r.army[t]=(r.army[t]||0)+5;const to=+qs.get('stage');for(let s=1;s<to;s++){r.stage=s;const o=H.makeOffer(r);H.takeCard(r,o[0]);if(H.rewardKind(s)==='artifact'){const a=H.rewardOptions(r,'artifact')[0];if(a)r.arts.push(a.id);}else{const sp=H.rewardOptions(r,'spell')[0];if(sp&&r.spells.length<4)r.spells.push(sp.id);}
       for(const k in r.army)r.army[k]=Math.round(r.army[k]*1.3);}r.stage=to;}
   show('title',false);show('gameover',false);show('result',false);show('heroSel',false);show('camp',false);if(G.first){G.info=H.stageInfo(1);G.enemies=H.makeEnemies(1).map(e=>({...e,count:Math.max(1,Math.round(e.count*0.6))}));openDeploy();}else openDraft();}
-function openDraft(){G.phase='offer';document.body.classList.remove('boss');disposeViews();G.battle=null;setBattleUI(false);const run=G.run,info=H.stageInfo(run.stage);G.info=info;
+function openDraft(){G.phase='offer';$('rageFx').classList.remove('on');document.body.classList.remove('boss');disposeViews();G.battle=null;setBattleUI(false);const run=G.run,info=H.stageInfo(run.stage);G.info=info;
   $('draftTitle').textContent=run.stage>H.STAGES?`无尽 · 第 ${run.stage} 关`:`第 ${run.stage} / ${H.STAGES} 关`;
   $('draftSub').innerHTML=themeHTML(info)+`<div class="dsub">${run.stage===1?'选择一支部队开始征程':'选择一支援军（同种部队会合并）'}</div>`;
   const offer=H.makeOffer(run);G.offer=offer;const el=$('cards');el.innerHTML='';el.classList.toggle('three',offer.length>2);el.classList.toggle('four',offer.length>3);
   offer.forEach((c,i)=>{const d=document.createElement('div');d.className='card'+(c.kind==='upgrade'?' upcard':'');d.innerHTML=c.kind==='upgrade'?upgradeCardHTML(c):unitCardHTML(c);d.style.animationDelay=(i*0.08)+'s';d.onclick=()=>pickOffer(i,d);el.appendChild(d);ensureTpl(c.kind==='upgrade'?c.to:c.type);});
   armyStrip();show('draft',true);G.enemies=H.makeEnemies(run.stage);G.enemies.forEach(e=>ensureTpl(e.type));if(info.boss&&info.boss.summon)ensureTpl(info.boss.summon);}
 function pickOffer(i,el){if(G.phase!=='offer')return;G.phase='picked';S.pick();el.classList.add('chosen');[...$('cards').children].forEach(c=>{if(c!==el)c.classList.add('gone');});
-  const beforeSyn=H.synCounts(H.deployList(G.run));const ev=H.takeCard(G.run,G.offer[i]);armyStrip();synToast(beforeSyn);if(ev.upgraded){setTimeout(()=>{banner(`⬆ ${U[ev.upgraded].n}！`,1200);S.win();},250);}
+  const beforeSyn=H.synCounts(H.deployList(G.run));const ev=H.takeCard(G.run,G.offer[i]);armyStrip();synToast(beforeSyn);if(ev.upgraded){ach('upgrade');setTimeout(()=>{banner(`⬆ ${U[ev.upgraded].n}！`,1200);S.win();},250);}
   setTimeout(()=>{show('draft',false);openDeploy();},ev.upgraded?1100:520);}
 function setBattleUI(on,deploy){$('hud').classList.toggle('hidden',!on);$('spellBar').classList.toggle('hidden',!on||deploy);$('deployBar').classList.toggle('hidden',!deploy);$('synPanel').classList.toggle('hidden',!on);$('artRow').classList.toggle('hidden',!on);deployZone.visible=!!deploy;$('uiLayer').style.display=on?'':'none';if(!on){$('bossBar').classList.add('hidden');$('hint').classList.add('hidden');}}
 async function buildBattle(useForm){const run=G.run,info=G.info;setTheme(info.boss?info.boss.theme:info.themeId);const list=H.deployList(run);G.list=list;run.lastArmy=list.map(x=>({...x}));
@@ -503,7 +514,7 @@ function drawThreats(){while(threatGrp.children.length){const o=threatGrp.childr
     else{const len=ex-(-W2+DEPLOY_COLS);if(len<=0)continue;const m=new THREE.Mesh(bandGeo,new THREE.MeshBasicMaterial({color:0xff3a2a,transparent:true,opacity:0.2,depthWrite:false}));m.scale.set(len,1,e.fh*0.9);m.position.set(ex-len/2,0.018,ez);threatGrp.add(m);
       for(let k=1;k<len;k+=1.2){const a=new THREE.Mesh(arrowGeo,new THREE.MeshBasicMaterial({color:0xff5040,transparent:true,opacity:0.55,depthWrite:false}));a.position.set(ex-k,0.03,ez);a.rotation.y=-Math.PI/2;threatGrp.add(a);}}}}
 function openDeploy(){G.phase='loading';const saved=Object.keys(G.run.form).length>0;buildBattle(true).then(()=>{G.phase='deploy';drawThreats();SFX.setTrack(G.info.boss?'boss':'battle');if(G.info.boss)S.sting();
-  for(const u of G.battle.units)MM.codex[u.type]=1;Meta.save();
+  for(const u of G.battle.units)MM.codex[u.type]=1;Meta.save();if(Object.keys(MM.codex).length>=30)ach('codex30');
   if(saved)toast('↺ 已沿用上次阵型 · 拖动可调整','',2000);G.sel=null;setBattleUI(true,true);$('stageNum').textContent=G.run.stage>H.STAGES?`∞${G.run.stage}`:`${G.run.stage}/${H.STAGES}`;
   $('deployTheme').innerHTML=`<b style="color:${G.info.theme.col}">${G.info.boss?'👑 ':''}${G.info.theme.n}</b> · ${G.info.theme.hint}`;
   setTimeout(()=>{for(const u of G.battle.units){const [x,z]=unitWorld(u);dust(x,z,6,1);}S.spawn();},200);
@@ -513,11 +524,19 @@ function openDeploy(){G.phase='loading';const saved=Object.keys(G.run.form).leng
 function startFight(){if(G.phase!=='deploy')return;S.go();hideCoach();G.phase='countdown';drawThreats();G.phase='deploy';if(!G.tut.deploy){G.tut.deploy=1;saveTut();}
   for(const u of G.battle.units)if(u.side==='p')G.run.form[u.type]=[u.ax,u.ay];G.sel=null;hoverMesh.visible=false;
   if(G.run.arts.includes('damned'))for(const u of G.battle.units)if(u.side==='e')u.buf.slow=6;
-  setBattleUI(true,false);refreshSpellBar(true);G.phase='countdown';banner('战斗！',700);setTimeout(()=>{G.phase='battle';G.endT=0;if(!G.focusHintShown)$('hint').classList.remove('hidden');
+  const boss=G.battle.units.find(u=>u.boss);if(boss&&!G.introFor){G.introFor=1;bossIntro(boss,()=>{G.introFor=0;beginBattle();});return;}beginBattle();}
+function bossIntro(u,done){G.phase='intro';setBattleUI(true,true);$('deployBar').classList.add('hidden');const B=H.BOSSES.find(b=>b.id===u.boss);
+  const [x,z]=unitWorld(u);const look=new THREE.Vector3(x,MD[u.type].h*0.9,z);const dir=camBase.clone().sub(camLook).normalize();const near=look.clone().addScaledVector(dir,4.2);
+  G.camT={t:0,dur:2.8,near,look};$('bcName').textContent='👑 '+B.n;$('bcSub').textContent=`${U[B.type].n} · 第 ${G.run.stage} 关首领`;$('bcDesc').textContent=B.desc;
+  setTimeout(()=>{$('bossCard').classList.remove('hidden');S.sting();const v=views.get(u);if(v)playOne(v,v.one.cheer?'cheer':'atk');shake=0.15;},500);
+  setTimeout(()=>{$('bossCard').classList.add('hidden');},2500);setTimeout(()=>{G.camT=null;camera.position.copy(camBase);camera.lookAt(camLook);done();},2850);
+  if(SET.tips||G.run.seenBoss&&G.run.seenBoss[u.boss]){}}
+function beginBattle(){
+  setBattleUI(true,false);refreshSpellBar(true);G.phase='countdown';banner('战斗！',700);setTimeout(()=>{G.phase='battle';G.endT=0;if(!G.focusHintShown&&!SET.tips)$('hint').classList.remove('hidden');
     if(!G.tut.spell)setTimeout(()=>{if(G.phase==='battle'){G.hero.mana=G.hero.max;coach('✨ 法力满了！点下方 <b>法术按钮</b> 再点敌人施法');}},1800);
     const bs=G.battle.units.find(u=>u.boss);document.body.classList.toggle('boss',!!bs);if(bs){$('bossBar').classList.remove('hidden');$('bossName').textContent='👑 '+H.BOSSES.find(b=>b.id===bs.boss).n;G.bossU=bs;}else G.bossU=null;},600);}
 function autoArrange(){if(G.phase!=='deploy')return;S.click();G.run.form={};buildBattle(false).then(()=>{G.phase='deploy';drawThreats();for(const v of views.values())v.spawn=0.6;banner('已自动布阵',700);});G.phase='loading';}
-function synToast(before){const after=H.synCounts(H.deployList(G.run));for(const f in after){const t0=H.synTier(before[f]||0),t1=H.synTier(after[f]);if(t1>t0){const F=H.FAC[f];setTimeout(()=>{toast(`<b style="color:${F.col}">${F.icon} ${F.n}羁绊 ${after[f]} 激活！</b><br>${F.t[t1-1]}`,'syn',3200);S.syn();},350);}}}
+function synToast(before){const after=H.synCounts(H.deployList(G.run));for(const f in after){const t0=H.synTier(before[f]||0),t1=H.synTier(after[f]);if(t1>t0){if(t1>=2)ach('syn4');if(t1>=3)ach('syn6');const F=H.FAC[f];setTimeout(()=>{toast(`<b style="color:${F.col}">${F.icon} ${F.n}羁绊 ${after[f]} 激活！</b><br>${F.t[t1-1]}`,'syn',3200);S.syn();},350);}}}
 // ---------- HUD panels ----------
 function refreshSyn(){const run=G.run;if(!run)return;const own=G.battle?G.battle.units.filter(u=>u.side==='p').map(u=>({type:u.type})):H.deployList(run);const sc=H.synCounts(own);
   const el=$('synPanel');el.innerHTML=Object.keys(H.FAC).filter(f=>sc[f]).sort((a,b)=>sc[b]-sc[a]).map(f=>{const F=H.FAC[f],n=sc[f],t=H.synTier(n);
@@ -540,8 +559,9 @@ function endBattle(){const b=G.battle;if(G.phase!=='battle')return;G.phase='resu
   const run=G.run;const pl=b.units.filter(u=>u.side==='p');const ra=H.afterBattle(run,b,G.list);
   for(const v of views.values())if(v.u.alive&&v.u.side===(win?'p':'e')&&v.one.cheer)playOne(v,'cheer');
   if(!win){setTimeout(()=>gameOver(false),1400);return;}
+  ach('firstWin');if(G.info.boss){if(run.stage===5)ach('boss5');if(run.stage===10)ach('boss10');}
   $('resTitle').textContent=G.info.boss?'首领击败！':'胜利';$('resTitle').className='res-title';
-  const lostT=pl.filter(u=>!u.summoned).reduce((a,u)=>a+u.start-u.count,0),healT=Object.values(ra.healed).reduce((a,b)=>a+b,0);
+  const lostT=pl.filter(u=>!u.summoned).reduce((a,u)=>a+u.start-u.count,0),healT=Object.values(ra.healed).reduce((a,b)=>a+b,0);if(!lostT&&run.stage>=5)ach('flawless');
   $('resList').innerHTML=pl.filter(u=>!u.summoned).map((u,i)=>{const l=u.start-u.count,h=ra.healed[u.type]||0;return `<div class="res-unit ${u.alive?'':'dead'}" style="animation-delay:${i*0.07}s"><img src="${sprSrc(u.type)}"><div class="c">${u.alive?'×'+(u.count+h):'阵亡'}</div><div class="l">${l>0?'-'+l:''}${h?` <i>+${h}</i>`:''}</div><div class="n">${u.st.n}</div></div>`;}).join('');
   $('resSub').innerHTML=`第 ${run.stage} 关已通过`+`<div class="lossline">${lostT?`<span class="lo">☠ 损失 ${lostT}</span>`:'<span class="ok">✨ 零伤亡！</span>'}${healT?`<span class="he">⛺ 军医救回 ${healT}</span>`:''}<span class="go">💰 +${ra.gold}</span></div>`+(ra.raised?`<div class="loot">☠ 通灵术：+${ra.raised} ${U[ra.sk].n}</div>`:'');
   const final=run.stage===H.STAGES;$('resBtn').textContent=final?'查看战果 →':'领取奖励 →';
@@ -557,16 +577,17 @@ function openReward(){const run=G.run,kind=H.rewardKind(run.stage);const opts=H.
     d.onclick=()=>takeReward(o,d);el.appendChild(d);});
   $('rwSkip').onclick=()=>{S.click();show('reward',false);nextStage();};show('reward',true);}
 function takeReward(o,d){if(G.phase!=='reward')return;if(d.classList.contains('flip')&&!d.classList.contains('open'))return;const run=G.run;S.pick();d.classList.add('chosen');
-  if(o.kind==='artifact'){run.arts.push(o.id);G.phase='x';setTimeout(()=>{show('reward',false);banner(H.ARTM[o.id].i+' '+H.ARTM[o.id].n,1000);nextStage();},500);return;}
+  if(o.kind==='artifact'){run.arts.push(o.id);if(H.ARTM[o.id].r==='l')ach('legend');if(run.arts.length>=5)ach('arts5');G.phase='x';setTimeout(()=>{show('reward',false);banner(H.ARTM[o.id].i+' '+H.ARTM[o.id].n,1000);nextStage();},500);return;}
   if(run.spells.length<4){run.spells.push(o.id);G.phase='x';setTimeout(()=>{show('reward',false);nextStage();},500);return;}
   // replace a slot
   const el=$('rwCards');$('rwTitle').textContent=`替换哪个法术？（学习 ${H.SPM[o.id].i}${H.SPM[o.id].n}）`;el.innerHTML='';
   run.spells.forEach((id,i)=>{const sp=H.SPM[id];const c=document.createElement('div');c.className='rcard small';c.innerHTML=`<div class="ri">${sp.i}</div><div class="rn">${sp.n}</div>`;c.onclick=()=>{run.spells[i]=o.id;S.pick();show('reward',false);nextStage();};el.appendChild(c);});}
-function nextStage(){G.run.stage++;openDraft();}
+function nextStage(){G.run.stage++;if(G.run.stage>=20)ach('endless20');openDraft();}
 function confetti(){const x=(Math.random()-0.5)*GC,z=(Math.random()-0.5)*GR;const c=[0xffd75a,0x78c8ff,0xff78a0][Math.floor(Math.random()*3)];for(let i=0;i<6;i++)P({x,y:2+Math.random(),z,vx:(Math.random()-0.5)*2,vy:Math.random()*2,vz:(Math.random()-0.5)*2,g:3,drag:1,life:1.4,s:0.12,c:C3(c)},true);}
 function gameOver(win){G.phase='over';setBattleUI(false);SFX.setTrack('menu');const run=G.run;const endless=run.stage>H.STAGES;
   const reached=win?H.STAGES:run.stage;const bonus=Math.floor(run.kills/40);const gold=run.gold+bonus;const newBest=reached>MM.best;MM.gold+=gold;MM.runs++;MM.best=Math.max(MM.best,reached);MM.bestStreak=Math.max(MM.bestStreak,run.bestStreak||0);MM.totalKills+=run.kills;
-  if(run.dailyDay)MM.daily[run.dailyDay]=Math.max(MM.daily[run.dailyDay]||0,reached);Meta.save();H.setRng(Math.random);
+  if(run.dailyDay)MM.daily[run.dailyDay]=Math.max(MM.daily[run.dailyDay]||0,reached);MM.totalGold=(MM.totalGold||0)+gold;Meta.save();H.setRng(Math.random);
+  if(win)ach('clear');if(dailyStreak()>=3)ach('daily3');if(MM.totalGold>=1000)ach('rich');openChest(gold,newBest);
   $('goGold').innerHTML=`💰 +${gold} 金币 <small>（关卡 ${run.gold} + 歼敌 ${bonus}）</small>${newBest?' <span class="nb">🏆 新纪录！</span>':''}<br><small>去营地解锁新英雄、新兵种与永久强化</small>`;
   makeShareCard(run,reached,win);
   $('goTitle').textContent=win?'凯旋':'战败';$('goTitle').className='go-title'+(win?'':' lose');
@@ -592,6 +613,20 @@ $('shareBtn').onclick=async()=>{S.click();const f=G.shareBlob&&new File([G.share
   try{if(f&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:G.shareText,url:G.shareUrl});return;}if(navigator.share){await navigator.share({text:G.shareText,url:G.shareUrl});return;}}catch(_){return;}
   if(G.shareBlob){const a=document.createElement('a');a.href=URL.createObjectURL(G.shareBlob);a.download='heroes-clash.png';a.click();toast('📥 战绩卡已保存');}};
 $('copyBtn').onclick=()=>{S.click();const t=G.shareText+' '+G.shareUrl;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('🔗 挑战链接已复制！发给好友吧'),()=>{prompt('复制链接：',t);});};
+// ---------- achievements ----------
+const ACH=[
+ {id:'firstWin',i:'⚔️',n:'初战告捷',d:'赢得第一场战斗',g:20},{id:'boss5',i:'💀',n:'巫妖克星',d:'击败第5关首领',g:40},{id:'boss10',i:'🐉',n:'屠龙者',d:'击败第10关首领',g:60},
+ {id:'clear',i:'🏆',n:'凯旋',d:'通关全部15关',g:120},{id:'endless20',i:'♾️',n:'无尽征途',d:'无尽模式到达第20关',g:150},
+ {id:'streak3',i:'🔥',n:'三杀',d:'4.5秒内连续歼灭3支敌军',g:25},{id:'streak5',i:'🌪️',n:'横扫千军',d:'连续歼灭5支敌军',g:60},
+ {id:'syn4',i:'🔗',n:'羁绊大师',d:'激活任意4人羁绊',g:40},{id:'syn6',i:'👑',n:'传奇军团',d:'激活任意6人羁绊',g:100},
+ {id:'upgrade',i:'⬆️',n:'精英之路',d:'将一支部队升级',g:20},{id:'legend',i:'🌟',n:'传说降临',d:'获得一件传说宝物',g:40},{id:'arts5',i:'🏺',n:'收藏家',d:'一局内拥有5件宝物',g:50},
+ {id:'flawless',i:'🛡️',n:'零伤亡',d:'第5关以后无损失获胜',g:40},{id:'daily3',i:'📅',n:'每日三连',d:'连续3天完成每日挑战',g:60},
+ {id:'codex30',i:'📖',n:'博物学家',d:'图鉴收录30种生物',g:50},{id:'rich',i:'💰',n:'富可敌国',d:'累计获得1000金币',g:80},{id:'heroes',i:'🦸',n:'群英汇聚',d:'解锁全部英雄',g:60}];
+MM.ach=MM.ach||{};
+function ach(id){if(MM.ach[id])return;const a=ACH.find(x=>x.id===id);if(!a)return;MM.ach[id]=Date.now();MM.gold+=a.g;Meta.save();setTimeout(()=>{toast(`🏆 成就达成：${a.i} <b>${a.n}</b><br><small>${a.d} · +${a.g} 金币</small>`,'gold',3400);S.rare();},200);}
+function dailyStreak(){let n=0;const d=new Date();if(!MM.daily[Meta.today()])d.setDate(d.getDate()-1);for(;;){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(MM.daily[k]){n++;d.setDate(d.getDate()-1);}else break;}return n;}
+function calendarHTML(days){const out=[];const d=new Date();d.setDate(d.getDate()-days+1);const wk='日一二三四五六';for(let i=0;i<days;i++){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const v=MM.daily[k];out.push(`<span class="cd ${v?'on':''} ${i===days-1?'today':''}" title="${k}"><i>${wk[d.getDay()]}</i>${v?'✔':d.getDate()}</span>`);d.setDate(d.getDate()+1);}return out.join('');}
+function renderStreak(){const n=dailyStreak();$('dStreak').innerHTML=`<div class="dsl">📅 每日挑战 ${n?`🔥 连续 <b>${n}</b> 天`:'· 今天还没挑战'}${MM.daily[Meta.today()]?` · 今日第 ${MM.daily[Meta.today()]} 关`:''}</div><div class="cal">${calendarHTML(7)}</div>`;}
 // ---------- camp (meta shop / codex) ----------
 let campTab='up';
 function openCamp(){SFX.init();S.click();show('title',false);show('gameover',false);show('camp',true);renderCamp();}
@@ -600,24 +635,34 @@ function renderCamp(){$('campGold').innerHTML=`💰 <b>${MM.gold}</b> 金币 · 
   if(campTab==='up'){el.innerHTML=H.META_UP.map(u=>{const lv=MM.up[u.id]||0,max=u.costs.length,c=u.costs[lv];return `<div class="crow"><span class="ci">${u.i}</span><div class="ct"><b>${u.n}</b> <small>Lv${lv}/${max}</small><div>${u.d}</div></div>${lv<max?`<button class="cb" data-id="${u.id}">💰${c}</button>`:'<span class="cmax">已满级</span>'}</div>`;}).join('');
     el.querySelectorAll('.cb').forEach(b=>b.onclick=()=>{const u=H.META_UP.find(x=>x.id===b.dataset.id);buy(u.costs[MM.up[u.id]||0],()=>{MM.up[u.id]=(MM.up[u.id]||0)+1;toast(`${u.i} ${u.n} 升级！`,'gold');});});}
   if(campTab==='hero'){el.innerHTML=H.HEROES.map(h=>{const own=MM.heroes.includes(h.id);return `<div class="crow"><span class="ci">${h.i}</span><div class="ct"><b>${h.n}</b> <small>${h.cls}</small><div>${h.pas}</div></div>${own?'<span class="cmax">已拥有</span>':`<button class="cb" data-id="${h.id}">💰${h.cost}</button>`}</div>`;}).join('');
-    el.querySelectorAll('.cb').forEach(b=>b.onclick=()=>{const h=H.HEROM[b.dataset.id];buy(h.cost,()=>{MM.heroes.push(h.id);toast(`${h.i} 解锁英雄：${h.n}`,'gold');});});}
+    el.querySelectorAll('.cb').forEach(b=>b.onclick=()=>{const h=H.HEROM[b.dataset.id];buy(h.cost,()=>{MM.heroes.push(h.id);if(MM.heroes.length>=H.HEROES.length)ach('heroes');toast(`${h.i} 解锁英雄：${h.n}`,'gold');});});}
   if(campTab==='unlock'){const items=H.LOCK_UNITS.map(t=>({id:t,k:'unit',n:U[t].n,img:sprSrc(t),d:`${Hero.FAC[Hero.facOf(t)].n} · ${U[t].lvl}级（第11关起出现）`,c:H.UNLOCK_COST.unit})).concat(H.LOCK_ARTS.map(id=>({id,k:'art',n:H.ARTM[id].n,ic:H.ARTM[id].i,d:H.ARTM[id].d,c:H.UNLOCK_COST.art})));
     el.innerHTML=items.map(it=>{const own=MM.unlocked.includes(it.id);return `<div class="crow"><span class="ci">${it.img?`<img src="${it.img}">`:it.ic}</span><div class="ct"><b>${it.n}</b> <small>${it.k==='unit'?'兵种':'宝物'}</small><div>${it.d}</div></div>${own?'<span class="cmax">已解锁</span>':`<button class="cb" data-id="${it.id}" data-c="${it.c}">💰${it.c}</button>`}</div>`;}).join('');
     el.querySelectorAll('.cb').forEach(b=>b.onclick=()=>buy(+b.dataset.c,()=>{MM.unlocked.push(b.dataset.id);toast('🔓 已解锁','gold');}));}
+  if(campTab==='ach'){const got=ACH.filter(a=>MM.ach[a.id]).length;el.innerHTML=`<div class="cxh">成就 ${got}/${ACH.length} · 🔥 每日连续 ${dailyStreak()} 天</div><div class="cal big">${calendarHTML(14)}</div>`+ACH.map(a=>`<div class="crow ${MM.ach[a.id]?'':'dim'}"><span class="ci">${MM.ach[a.id]?a.i:'🔒'}</span><div class="ct"><b>${a.n}</b><div>${a.d}</div></div><span class="${MM.ach[a.id]?'cmax':'cg'}">${MM.ach[a.id]?'✔ 已达成':'💰'+a.g}</span></div>`).join('');}
   if(campTab==='codex'){const all=H.ROSTER.flatMap(t=>[t,H.UPG[t]].filter(Boolean));const seen=all.filter(t=>MM.codex[t]).length;
     el.innerHTML=`<div class="cxh">图鉴 ${seen}/${all.length} · 在战斗中遇到即可收录</div><div class="cxg">`+all.map(t=>MM.codex[t]?`<div class="cx" data-t="${t}"><img src="${sprSrc(t)}"><span>${U[t].n}</span></div>`:`<div class="cx no"><img src="${sprSrc(t)}"><span>？？？</span></div>`).join('')+'</div>';
     el.querySelectorAll('.cx[data-t]').forEach(d=>d.onclick=()=>{const t=d.dataset.t,st=U[t];const r=d.getBoundingClientRect();showTextTip(`<div class="tt">${st.n} ${facChip(t)}</div><div class="th">${st.h3} · ${st.lvl}级</div><div class="tg"><span>攻 <b>${st.a}</b></span><span>防 <b>${st.d}</b></span><span>伤 <b>${st.dmg[0]}-${st.dmg[1]}</b></span><span>命 <b>${st.hp}</b></span><span>速 <b>${st.spd}</b></span><span>射 <b>${st.shots||'—'}</b></span></div><div class="ta">${abilList(st).map(x=>'· '+x).join('<br>')}</div>`,r.left+r.width/2,r.top);setTimeout(hideTip,2600);});}}
 document.querySelectorAll('#campTabs button').forEach(b=>b.onclick=()=>{campTab=b.dataset.t;S.click();renderCamp();});
 $('campBack').onclick=()=>{S.click();show('camp',false);titleMeta();show('title',true);};
 $('campBtn').onclick=openCamp;$('goCamp').onclick=openCamp;$('dailyBtn').onclick=()=>{SFX.init();startDaily();};$('hsBack').onclick=()=>{S.click();show('heroSel',false);show('title',true);};
+function openChest(gold,best){const box=$('chestBox'),el=$('chestGold');box.className='chestBox';el.textContent='';$('chestSub').textContent='点击开启宝箱';show('chest',true);S.rewardJ();let opened=false;
+  const open=()=>{if(opened)return;opened=true;box.classList.add('open');box.textContent='💰';S.rare();$('chestSub').textContent=best?'🏆 新纪录！':'金币已存入营地';
+    for(let i=0;i<22;i++){const c=document.createElement('div');c.className='coin';c.textContent='🪙';c.style.setProperty('--dx',(Math.random()-0.5)*300+'px');c.style.setProperty('--dy',(-120-Math.random()*240)+'px');c.style.animationDelay=(i*0.03)+'s';$('chest').appendChild(c);setTimeout(()=>c.remove(),1500);}
+    let n=0;const step=Math.max(1,Math.ceil(gold/30));const iv=setInterval(()=>{n=Math.min(gold,n+step);el.textContent='+'+n+' 金币';if(n%3===0)S.coin();if(n>=gold){clearInterval(iv);setTimeout(()=>show('chest',false),1100);}},40);};
+  $('chest').onclick=open;setTimeout(open,2600);}
 $('goEndless').onclick=()=>{S.click();show('gameover',false);openReward();G.phase='reward';};
 $('startBtn').onclick=()=>{if(!MM.runs){startRun({hero:'knight'});return;}openHeroSel();};$('goBtn').onclick=()=>{show('gameover',false);openHeroSel();};
 $('fightBtn').onclick=startFight;$('autoBtn').onclick=autoArrange;
-$('speedBtn').onclick=()=>{S.click();G.speed=G.speed===1?2:1;$('speedBtn').textContent=G.speed+'×';};
-const mb=$('muteBtn');const setMB=()=>{mb.textContent=SFX.muted?'🔇':'🔊';$('muteToggle').textContent=SFX.muted?'🔇 已静音（点击恢复）':'🔊 静音';};setMB();
+$('speedBtn').onclick=()=>{S.click();G.speed=G.speed===1?2:1;$('speedBtn').textContent=G.speed+'×';SET.speed2=G.speed===2;saveSet();$('setSpeed').checked=SET.speed2;};
+G.speed=SET.speed2?2:1;$('speedBtn').textContent=G.speed+'×';$('setTips').checked=SET.tips;$('setSpeed').checked=SET.speed2;
+$('setTips').onchange=e=>{SET.tips=e.target.checked;saveSet();if(SET.tips){hideCoach();$('hint').classList.add('hidden');}S.tick();};
+$('setSpeed').onchange=e=>{SET.speed2=e.target.checked;saveSet();G.speed=SET.speed2?2:1;$('speedBtn').textContent=G.speed+'×';S.tick();};
+$('titleGear').onclick=e=>{SFX.init();S.click();$('sndPanel').classList.toggle('hidden');e.stopPropagation();};
+const mb=$('muteBtn');const setMB=()=>{mb.textContent=SFX.muted?'🔇':'⚙️';$('muteToggle').textContent=SFX.muted?'🔇 已静音（点击恢复）':'🔊 静音';};setMB();
 mb.onclick=e=>{SFX.init();S.click();$('sndPanel').classList.toggle('hidden');e.stopPropagation();};$('muteToggle').onclick=()=>{SFX.setMuted(!SFX.muted);setMB();S.click();};
 $('volM').value=SFX.vol.m;$('volS').value=SFX.vol.s;$('volM').oninput=e=>SFX.setVol(+e.target.value,null);$('volS').oninput=e=>{SFX.setVol(null,+e.target.value);S.tick();};
-addEventListener('pointerdown',e=>{if(!e.target.closest('#sndPanel,#muteBtn'))$('sndPanel').classList.add('hidden');});
+addEventListener('pointerdown',e=>{if(!e.target.closest('#sndPanel,#muteBtn,#titleGear'))$('sndPanel').classList.add('hidden');});
 function errToast(m){const t=$('errToast');t.textContent='⚠ 出错了：'+m;t.classList.add('show');clearTimeout(errToast.t);errToast.t=setTimeout(()=>t.classList.remove('show'),8000);}
 addEventListener('error',e=>errToast((e.message||'')+(e.lineno?' @'+e.lineno:'')));addEventListener('unhandledrejection',e=>errToast(String(e.reason&&e.reason.message||e.reason)));
 // ---------- main loop ----------
@@ -638,9 +683,15 @@ function frame(){requestAnimationFrame(frame);let dt=Math.min(0.05,clock.getDelt
   stepPool(PA,gdt);stepPool(PN,gdt);stepFx2(gdt);stepFx(gdt);stepBreath(gdt);
   shake=Math.max(0,shake-dt*0.6);camera.position.copy(camBase);if(shake>0){camera.position.x+=(Math.random()-0.5)*shake;camera.position.y+=(Math.random()-0.5)*shake*0.6;camera.position.z+=(Math.random()-0.5)*shake;}
   const ps=renderer.getPixelRatio()*innerHeight/(2*Math.tan(camera.fov*Math.PI/360));PA.mat.uniforms.scale.value=PN.mat.uniforms.scale.value=ps;
+  if(G.camT){const c=G.camT;c.t+=dt;const k=c.t/c.dur;const w=k<0.2?easeIO(k/0.2):k>0.82?easeIO(1-(k-0.82)/0.18):1;camera.position.lerpVectors(camBase,c.near,w);tmpL.lerpVectors(camLook,c.look,w);camera.lookAt(tmpL);}
   renderer.render(scene,camera);updateBadges();}
+const tmpL=new THREE.Vector3();const easeIO=t=>t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 // ---------- boot ----------
-fitCamera();placeProps();requestAnimationFrame(frame);titleMeta();setTheme('grove');addEventListener('pointerdown',()=>{if(G.phase==='title')SFX.setTrack('menu');},{once:true});
+let deferredInstall=null;const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;if(!standalone)$('installBtn').classList.remove('hidden');});
+if(!standalone&&/iPhone|iPad/.test(navigator.userAgent))$('installBtn').classList.remove('hidden');
+$('installBtn').onclick=async()=>{S.click();if(deferredInstall){deferredInstall.prompt();const r=await deferredInstall.userChoice;if(r.outcome==='accepted')$('installBtn').classList.add('hidden');deferredInstall=null;}else toast('点击浏览器底部 <b>分享 ⬆</b> → <b>添加到主屏幕</b>','',4200);};
+fitCamera();placeProps();requestAnimationFrame(frame);titleMeta();renderStreak();setTheme('grove');addEventListener('pointerdown',()=>{if(G.phase==='title')SFX.setTrack('menu');},{once:true});
 $('titleHeroes').innerHTML=['crusader','greenDragon','lich'].map(s=>`<img src="${sprSrc(s)}">`).join('');
 H.ROSTER.filter(t=>U[t].lvl<=2).forEach(t=>ensureTpl(t));
 if(DEBUG){window.__G=G;window.__dbg={THREE,scene,camera,renderer,views,ensureTpl,makeView,disposeViews,unitWorld,playOne,castSpell,groundAt,cellFor,fps:()=>fpsA,

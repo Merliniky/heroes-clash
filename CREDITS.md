@@ -44,3 +44,7 @@ Reuse notes (round 7): the Unicorn is q_horse with a procedural horn cone on the
 | assets/audio/sting.mp3, win.mp3, reward.mp3 | boss sting, boss kill, reward reveal | Kenney | "Music Jingles" (HIT15, STEEL02, PIZZI04) — https://kenney.nl/assets/music-jingles | CC0 |
 
 All tracks were re-encoded to MP3 (72–96 kbps) with ffmpeg. Sound effects are procedural WebAudio.
+
+## v10
+- Angel / pegasus wings: procedural geometry (code in game3d.js), no external asset.
+- App icons / OG image: derived from the game's own gold-dragon art and an in-game screenshot.
