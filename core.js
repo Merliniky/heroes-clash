@@ -84,7 +84,7 @@ function applyDamage(b,src,tgt,dmg,kind){
   if(total<=0){tgt.count=0;tgt.alive=false;occClear(b,tgt,tgt.ax,tgt.ay);if(tgt.moving)occClear(b,tgt,tgt.fx,tgt.fy);if(b.focus===tgt)b.focus=null;}
   else{tgt.count=Math.ceil(total/tgt.st.hp);tgt.top=total-(tgt.count-1)*tgt.st.hp;}
   tgt.hitT=1;
-  b.events.push({k:'hit',u:tgt,src,dmg:Math.round(dmg),killed:before-tgt.count,dead:!tgt.alive,big:dmg>=Math.max(60,tgt.st.hp*before*0.25),kind});
+  b.events.push({k:'hit',u:tgt,src,dmg:Math.round(dmg),killed:before-tgt.count,dead:!tgt.alive,big:dmg>=Math.max(60,tgt.st.hp*before*0.25),crit:!!b.crit&&!!src,kind});b.crit=0;
 }
 // HoMM3 damage roll: <=10 creatures roll each, more: 10 rolls scaled (as in the original)
 function baseRoll(u){const st=u.st,n=u.count,r=()=>st.dmg[0]+Math.floor(R()*(st.dmg[1]-st.dmg[0]+1));
@@ -101,6 +101,7 @@ function calcDmg(b,u,t,opt={}){
   if(ab.hate&&ab.hate[t.type])m*=1+ab.hate[t.type];
   let base=u.curse>b.t?u.count*u.st.dmg[0]:u.buf.bless>b.t?u.count*u.st.dmg[1]:baseRoll(u);        // cursed: minimum damage (Black Knight curse)
   if(opt.melee&&ab.deathBlow&&R()<0.2){base*=2;b.events.push({k:'pop',u:t,str:'致命一击',col:'#ff6a6a'});}
+  if(R()<0.08+(ab.luck||0)){base*=2;b.crit=1;}
   return Math.max(1,Math.floor(base*m));
 }
 function onHitEffects(b,u,t,dmg,melee){

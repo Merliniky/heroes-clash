@@ -1,4 +1,4 @@
-// Procedural WebAudio SFX + light battle music (no external files)
+// Procedural WebAudio SFX + CC0 music files
 (function(){
 let ac=null,master,sfxG,musG,noiseBuf,muted=localStorage.getItem('hc_mute')==='1',musicOn=false,nextT=0,step=0,timer=null;
 const last={};
@@ -9,7 +9,7 @@ function init(){
   const comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;master.connect(comp);comp.connect(ac.destination);
   sfxG=ac.createGain();sfxG.gain.value=0.8;sfxG.connect(master);musG=ac.createGain();musG.gain.value=0.22;musG.connect(master);
   noiseBuf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
-  if(musicOn)startMusic();
+  applyVol();for(const k in els)delete els[k];if(musicOn){const w=want;cur=null;setTrack(w||'menu');}
 }
 function ok(name,gap){if(!ac||muted)return false;const n=ac.currentTime;if(last[name]&&n-last[name]<gap)return false;last[name]=n;return true;}
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -44,20 +44,33 @@ const S={
   lose(){if(!ac||muted)return;const t=ac.currentTime;[[440,0],[415,.25],[392,.5],[330,.8]].forEach(([f,d])=>osc('triangle',f,f*0.98,0.45,0.1,null,t+d));},
   spawn(){if(!ok('spawn',0.05))return;noise('lowpass',800,200,1,0.12,0.1);}
 };
-// light march music: Am-F-C-G, drums + bass + pluck
-const prog=[[57,60,64],[53,57,60],[48,52,55],[55,59,62]];const mf=n=>440*Math.pow(2,(n-69)/12);
-function sched(){if(!ac)return;while(nextT<ac.currentTime+0.15){const st=step%16,bar=Math.floor(step/16)%4,ch=prog[bar],t=nextT;
-  if(!muted){
-    if(st%8===0)osc('sine',110,40,0.18,0.5,musG,t);
-    if(st%8===4)noise('bandpass',1800,null,0.8,0.08,0.18,musG,t);
-    if(st%2===1)noise('highpass',7000,null,1,0.02,0.05,musG,t);
-    if(st%4===0)osc('triangle',mf(ch[0]-12),null,0.3,0.22,musG,t);
-    if(st%4===2)osc('triangle',mf(ch[0]-12),null,0.12,0.12,musG,t);
-    if([0,3,6,8,10,14].includes(st))osc('square',mf(ch[(st>>1)%3]+12),null,0.12,0.025,musG,t);
-  }
-  nextT+=60/112/4;step++;}}
-function startMusic(){musicOn=true;if(!ac)return;if(timer)return;nextT=ac.currentTime+0.1;timer=setInterval(sched,40);}
+// CC0 music tracks (MintoDog / Bobjt via OpenGameArt) + Kenney jingles, routed through WebAudio for volume control
+const vol=JSON.parse(localStorage.getItem('hc_vol')||'{"m":0.55,"s":0.85}');
+const TR={menu:'assets/audio/menu.mp3',battle:'assets/audio/battle.mp3',boss:'assets/audio/boss.mp3'};
+const els={};let cur=null,want=null;
+function trackEl(k){if(els[k])return els[k];const a=new Audio(TR[k]+'?v=9');a.loop=true;a.preload='auto';a.crossOrigin='anonymous';
+  const e={a,g:null};if(ac){try{const src=ac.createMediaElementSource(a);e.g=ac.createGain();e.g.gain.value=0;src.connect(e.g);e.g.connect(musG);}catch(_){}}els[k]=e;return e;}
+function setTrack(k){want=k;musicOn=true;if(!ac)return;if(cur===k)return;const old=cur?els[cur]:null;cur=k;
+  if(old){if(old.g)old.g.gain.setTargetAtTime(0,ac.currentTime,0.3);setTimeout(()=>{if(cur!==Object.keys(els).find(x=>els[x]===old))old.a.pause();},1500);}
+  if(!k)return;const e=trackEl(k);if(k!=='menu'||e.a.paused){try{e.a.currentTime=0;}catch(_){}}const p=e.a.play();if(p&&p.catch)p.catch(()=>{});
+  if(e.g){e.g.gain.cancelScheduledValues(ac.currentTime);e.g.gain.setTargetAtTime(1,ac.currentTime,0.4);}}
+const jb={};function jingle(k,g=1){if(!ac||muted)return;const go=buf=>{const s=ac.createBufferSource(),gg=ac.createGain();gg.gain.value=g;s.buffer=buf;s.connect(gg);gg.connect(sfxG);s.start();};
+  if(jb[k]&&jb[k].buf)return go(jb[k].buf);if(!jb[k]){jb[k]={};fetch('assets/audio/'+k+'.mp3?v=9').then(r=>r.arrayBuffer()).then(b=>ac.decodeAudioData(b)).then(buf=>{jb[k].buf=buf;go(buf);}).catch(()=>{});}}
+function startMusic(){setTrack(want||'menu');}
+function applyVol(){if(!ac)return;musG.gain.setTargetAtTime(0.5*vol.m,ac.currentTime,0.05);sfxG.gain.setTargetAtTime(vol.s,ac.currentTime,0.05);}
+function setVol(m,sv){if(m!=null)vol.m=m;if(sv!=null)vol.s=sv;localStorage.setItem('hc_vol',JSON.stringify(vol));applyVol();}
+Object.assign(S,{
+  crit(){if(!ok('crit',0.06))return;const t=ac.currentTime;osc('square',1600,400,0.12,0.08,null,t);noise('highpass',2500,null,1,0.12,0.18,null,t);osc('sine',90,40,0.3,0.4,null,t);},
+  boom(){if(!ok('boom',0.1))return;const t=ac.currentTime;osc('sine',80,25,0.7,0.7,null,t);noise('lowpass',1800,80,1,0.8,0.5,null,t);noise('highpass',3000,500,1,0.25,0.2,null,t);},
+  zap(){if(!ok('zap',0.08))return;const t=ac.currentTime;for(let i=0;i<5;i++)noise('highpass',4000,900,3,0.06,0.25,null,t+i*0.035);osc('sawtooth',1800,80,0.35,0.12,null,t);osc('sine',60,30,0.5,0.4,null,t+0.05);},
+  flip(){if(!ac||muted)return;noise('bandpass',2500,900,2,0.09,0.12);},
+  coin(){if(!ok('coin',0.05))return;const t=ac.currentTime;osc('square',988,null,0.06,0.06,null,t);osc('square',1319,null,0.2,0.06,null,t+0.07);},
+  streak(n){if(!ac||muted)return;const t=ac.currentTime,b=440*Math.pow(2,Math.min(n,8)/12);[1,1.25,1.5].forEach((m,i)=>osc('triangle',b*m,null,0.16,0.09,null,t+i*0.05));},
+  syn(){if(!ac||muted)return;const t=ac.currentTime;[659,880,1175,1568].forEach((f,i)=>osc('sine',f,null,0.4,0.07,null,t+i*0.07));},
+  sting(){jingle('sting',1);S.roar();},winJ(){jingle('win',0.9);},rewardJ(){jingle('reward',0.9);},
+  rare(){if(!ac||muted)return;const t=ac.currentTime;[784,988,1175,1568,1976].forEach((f,i)=>osc('triangle',f,null,0.5,0.06,null,t+i*0.06));noise('highpass',6000,null,1,0.6,0.04,null,t+0.2);}
+});
 function setMuted(m){muted=m;localStorage.setItem('hc_mute',m?'1':'0');if(master)master.gain.setTargetAtTime(m?0:0.9,ac.currentTime,0.05);}
-window.SFX={init,S,startMusic,setMuted,get muted(){return muted;}};
+window.SFX={init,S,startMusic,setTrack,setMuted,setVol,get vol(){return vol;},get muted(){return muted;}};
 ['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,init,{passive:true}));
 })();

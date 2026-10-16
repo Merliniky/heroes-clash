@@ -34,3 +34,13 @@ The 2D creature portraits on the draft cards (`assets/c/`) are the existing proj
 Creature statistics come from Heroes of Might and Magic III: Shadow of Death (CRTRAITS via heroes.thelazy.net). Abilities come from the VCMI configs. These are game data, not assets.
 
 Reuse notes (round 7): the Unicorn is q_horse with a procedural horn cone on the Head bone. The Centaur and Black Knight are q_horse with a rider model. Upgraded creatures reuse the base model with tint, scale and a gold rim-glow.
+
+## Music & jingles (v9), all CC0
+| File | Use | Author | Source | Licence |
+|---|---|---|---|---|
+| assets/audio/menu.mp3 | title / game over | Bobjt | "peacefull ville" — https://opengameart.org/content/peacefull-ville | CC0 |
+| assets/audio/battle.mp3 | draft / deploy / battle | MintoDog | "Hope (Orchestral battle music)" — https://opengameart.org/content/hopeorchestral-battle-music | CC0 |
+| assets/audio/boss.mp3 | boss stages | MintoDog | "Fairy Boss Battles" — https://opengameart.org/content/fairy-boss-battles | CC0 |
+| assets/audio/sting.mp3, win.mp3, reward.mp3 | boss sting, boss kill, reward reveal | Kenney | "Music Jingles" (HIT15, STEEL02, PIZZI04) — https://kenney.nl/assets/music-jingles | CC0 |
+
+All tracks were re-encoded to MP3 (72–96 kbps) with ffmpeg. Sound effects are procedural WebAudio.

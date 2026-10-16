@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#1b2440">
 <title>英雄冲突 · Heroes Clash</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <canvas id="cv"></canvas>
 <div id="uiLayer"></div>
-<div id="hud">
+<div id="hud" class="hidden">
   <div class="pill" id="stagePill"><span class="lbl" id="stageLbl">关卡</span><b id="stageNum">1</b></div>
   <div class="pill vs"><span class="blue" id="pCount">0</span><i>VS</i><span class="red" id="eCount">0</span></div>
   <button class="pill btn" id="speedBtn">1×</button>
@@ -46,10 +46,31 @@
   <div class="logo"><div class="l1">英雄冲突</div><div class="l2">HEROES CLASH</div></div>
   <div class="tagline">十五关 · 布阵 · 英雄法术 · 宝物 · 种族羁绊 · 首领战</div>
   <div class="heroes" id="titleHeroes"></div>
-  <button class="big-btn" id="startBtn">开始游戏</button>
+  <div class="tmeta" id="titleMeta"></div>
+  <div class="vsBanner hidden" id="vsBanner"></div>
+  <button class="big-btn" id="startBtn">开始征程</button>
+  <div class="tbtns"><button class="tbtn" id="dailyBtn">📅 每日挑战</button><button class="tbtn" id="campBtn">🏕 营地</button></div>
   <div class="foot">英雄无敌3·死亡阴影 原版数值 · 3D 模型均为 CC0（见 CREDITS.md）</div>
 </div>
 
+<div id="heroSel" class="overlay">
+  <div class="draft-head"><div class="dh1">选择英雄</div><div class="dh2" id="hsSub">不同英雄拥有不同的起始部队、法术与被动</div></div>
+  <div class="hcards" id="hsCards"></div>
+  <button class="skip" id="hsBack">返回</button>
+</div>
+<div id="camp" class="overlay">
+  <div class="draft-head"><div class="dh1">🏕 营地</div><div class="dh2" id="campGold"></div></div>
+  <div class="ctabs" id="campTabs"><button data-t="up" class="on">强化</button><button data-t="hero">英雄</button><button data-t="unlock">解锁</button><button data-t="codex">图鉴</button></div>
+  <div class="cbody" id="campBody"></div>
+  <button class="skip" id="campBack">返回</button>
+</div>
+<div id="sndPanel" class="hidden">
+  <label>🎵 音乐 <input type="range" id="volM" min="0" max="1" step="0.05"></label>
+  <label>🔔 音效 <input type="range" id="volS" min="0" max="1" step="0.05"></label>
+  <button id="muteToggle"></button>
+</div>
+<div id="toasts"></div>
+<div id="streak" class="hidden"></div>
 <div id="draft" class="overlay">
   <div class="draft-head"><div class="dh1" id="draftTitle">第 1 关</div><div class="dh2" id="draftSub">选择一支援军加入你的部队</div></div>
   <div class="cards" id="cards"></div>
@@ -61,8 +82,10 @@
   <div class="go-sub" id="goSub"></div>
   <div class="heroes" id="goArt"></div>
   <div class="go-stats" id="goStats"></div>
+  <div class="goGold" id="goGold"></div>
+  <div class="share" id="shareBox"><img id="shareImg" alt="战绩卡"><div class="sbtns"><button class="tbtn" id="shareBtn">📤 分享战绩</button><button class="tbtn" id="copyBtn">🔗 复制挑战链接</button></div></div>
   <button class="big-btn" id="goEndless">♾ 进入无尽模式</button>
-  <button class="big-btn" id="goBtn">再来一局</button>
+  <div class="gobtns"><button class="big-btn" id="goBtn">再来一局</button><button class="tbtn" id="goCamp">🏕 营地</button></div>
 </div>
 
 <div id="result" class="overlay">
@@ -73,12 +96,13 @@
     <button class="big-btn" id="resBtn">继续</button>
   </div>
 </div>
-<script src="audio.js?v=8"></script>
-<script src="units.js?v=8"></script>
-<script src="core.js?v=8"></script>
-<script src="models.js?v=8"></script>
-<script src="hero.js?v=8"></script>
-<script type="importmap">{"imports":{"three":"./lib/three.module.min.js?v=8","three/addons/":"./lib/addons/"}}</script>
-<script type="module" src="game3d.js?v=8"></script>
+<script src="audio.js?v=9"></script>
+<script src="units.js?v=9"></script>
+<script src="core.js?v=9"></script>
+<script src="models.js?v=9"></script>
+<script src="hero.js?v=9"></script>
+<script src="meta.js?v=9"></script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js?v=9","three/addons/":"./lib/addons/"}}</script>
+<script type="module" src="game3d.js?v=9"></script>
 </body>
 </html>

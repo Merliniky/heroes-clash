@@ -1,5 +1,20 @@
 # 英雄冲突 · Heroes Clash (r6 — 3D)
 
+## v9: the retention update
+- **Fast start:** on the first run you tap Start and land straight in a deploy screen with 2 stacks. The coach is one line, and the first win comes in about 16–26 s in tests.
+- **Heroes:** Christian (Knight, free), Crag Hack (Barbarian, 150 gold) and Solmyr (Wizard, 250 gold). Each has its own starting stack, spells and passive.
+- **Camp (meta, saved in localStorage):** gold earned per run. Upgrades: Recruiting Edict, Magic Academy, Field Hospital and Ancestral Vault. You can unlock 5 tier-7 units and 6 artifacts. There is a codex of 66 creatures and a best-stage record.
+- **Daily challenge:** a date-seeded run, so every player gets the same offers, enemies and hero.
+- **Share:** at the end of a run you get a result card (PNG with army, stage, kills and best streak) and a challenge link (`?vs=N` shows a banner to friends).
+- **Juice:** hit-stop, luck crits (8% base, double damage), kill streaks, slow-motion on the boss kill, a much bigger Lightning (chains) and Meteor (8 impacts and scorch marks), and drop-in spawns.
+- **Readability:** dashed attacker→target lines, bigger badges with an HP bar and buff icons, and a red ring on unit loss.
+- **Deploy:** red enemy charge lanes, orange shooter target lines, and a "same formation as last time" toast.
+- **Rewards:** artifact rarity colours (common, rare, epic, legendary) with a card-flip reveal and build tags. Synergy activation toasts.
+- **Themed arenas:** per-theme ground palette, sky, props and ambient particles.
+- **Audio:** CC0 music (menu, battle, boss), Kenney jingles, music and SFX volume sliders, and mute.
+- **Balance:** 25% of losses are healed after each win. Balance from `node sim.js 400 [bot|mid|meta]`: a fresh account (Knight, no unlocks) has a median death at stage 7 and reaches stage 10 in 46% of runs. Partial upgrades give a median of stage 11. Fully upgraded reaches stage 15 in 60% of runs and clears it in 19%.
+
+
 ## v7: depth update
 - **布阵 (deploy):** drag or tap-then-tap your stacks inside the blue zone (7 columns), respecting 1/2/4-cell footprints. The enemy formation is visible. Your formation is remembered between stages. Buttons: 自动布阵 (auto-arrange) and 开战 (fight).
 - **Hero spells:** a mana bar that regenerates and 4 spell slots. Spells: Magic Arrow, Lightning, Haste, Bless, Slow, Cure, Resurrection, Fireball, Meteor, Bloodlust. The hero levels up each stage, and spell power ×1.3 per level. Targeting can be single-target, area (with a reticle) or mass. Each spell has VFX and SFX.
