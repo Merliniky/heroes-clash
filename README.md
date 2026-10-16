@@ -1,3 +1,28 @@
+# 英雄冲突 · Heroes Clash (r6 — 3D)
+
+**Play:** https://merliniky.github.io/heroes-clash/
+
+- **Mode:** per-stage run.
+  - Each stage you choose 1 of 2 reinforcement stacks.
+  - The battle then plays out automatically on a 15×10 grid. Units occupy 1, 2 or 4 cells.
+  - Survivors carry over to the next stage. There are 10 stages.
+- **Controls:** tap an enemy to focus fire. Tap one of your melee stacks to make it hold or attack.
+- **Rendering:** three.js r169, vendored in `lib/` with an import map and no build step.
+  - Fixed perspective camera at 50–55° pitch, like Clash Royale.
+  - Toon materials with rim light, hemisphere light plus a directional sun, soft PCF shadows (1024 map), ACES tone mapping.
+  - CC0 skeletal-animated GLB models (see `CREDITS.md`).
+  - Idle/walk/run are weight-blended by HoMM3 speed. The attack clip is time-scaled so its impact frame lands on the engine's hit moment. Hit-react, death clip, then the body sinks.
+- **Rules:** HoMM3 stats and abilities are exact, unchanged from r4 (`units.js`, `core.js`).
+- **Files:**
+  - `game3d.js`: renderer and UI flow
+  - `models.js`: unit → model mapping
+  - `stage.js`: stage offer and enemy generation
+  - `sim.js`: stage-mode balance sim
+
+
+---
+(Older notes below are from r4/r5. The strategic map was removed in r6.)
+
 # 英雄冲突 · Heroes Clash
 
 This is a plain-JS canvas game with no build step. It plays as a HoMM3 (Shadow of Death)-style strategic duel: 8 factions, 112 faction creatures plus 5 neutrals, and Clash Royale-style real-time grid battles.

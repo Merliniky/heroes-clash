@@ -6,12 +6,13 @@
 <meta name="theme-color" content="#1b2440">
 <title>英雄冲突 · Heroes Clash</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <canvas id="cv"></canvas>
+<div id="uiLayer"></div>
 <div id="hud">
-  <div class="pill" id="stagePill"><span class="lbl" id="stageLbl">比分</span><b id="stageNum">1</b></div>
+  <div class="pill" id="stagePill"><span class="lbl" id="stageLbl">关卡</span><b id="stageNum">1</b></div>
   <div class="pill vs"><span class="blue" id="pCount">0</span><i>VS</i><span class="red" id="eCount">0</span></div>
   <button class="pill btn" id="speedBtn">1×</button>
   <button class="pill btn" id="muteBtn">🔊</button>
@@ -22,10 +23,10 @@
 
 <div id="title" class="overlay show">
   <div class="logo"><div class="l1">英雄冲突</div><div class="l2">HEROES CLASH</div></div>
-  <div class="tagline">八大阵营 · 经营城镇 · 先胜三场者为王</div>
+  <div class="tagline">十道关卡 · 二选一招兵 · 幸存者带入下一关</div>
   <div class="heroes" id="titleHeroes"></div>
   <button class="big-btn" id="startBtn">开始游戏</button>
-  <div class="foot">英雄无敌3·死亡阴影 全兵种数据</div>
+  <div class="foot">英雄无敌3·死亡阴影 原版数值 · 3D 模型均为 CC0（见 CREDITS.md）</div>
 </div>
 
 <div id="draft" class="overlay">
@@ -33,33 +34,6 @@
   <div class="cards" id="cards"></div>
   <div class="army-strip" id="armyStrip"></div>
 </div>
-
-<div id="faction" class="overlay">
-  <div class="draft-head"><div class="dh1">选择你的阵营</div><div class="dh2">敌方AI将随机选择另一个阵营</div></div>
-  <div class="fcards" id="fcards"></div>
-</div>
-
-<div id="map" class="overlay">
-  <div class="mtop">
-    <div class="mpill" id="mTurn"></div>
-    <div class="mpill vs" id="mScore"></div>
-    <div class="mres" id="mRes"></div>
-    <button class="mpill btn" id="mMute" onclick="document.getElementById('muteBtn').click();this.textContent=document.getElementById('muteBtn').textContent">🔊</button>
-  </div>
-  <div id="mapArea"><div id="mLog"></div></div>
-  <div class="mbot">
-    <div class="marmy" id="mArmy"></div>
-    <button class="offer-btn" id="offerBtn">🎁 领取本回合免费援军</button>
-    <div class="actbar" id="actBar">
-      <button class="act" id="actBuild"><span>🏗️</span><b>建造</b><i></i></button>
-      <button class="act" id="actRecruit"><span>⚔️</span><b>招募</b><i></i></button>
-      <button class="act" id="actCamp"><span>🏕️</span><b>野怪</b><i>点击营地</i></button>
-      <button class="act red" id="actAttack"><span>🏰</span><b>进攻</b><i></i></button>
-    </div>
-  </div>
-</div>
-
-<div id="modal" class="overlay"><div class="modal-box"><div class="modal-title" id="modalTitle"></div><div class="modal-body" id="modalBody"></div><div class="modal-btns" id="modalBtns"></div></div></div>
 
 <div id="gameover" class="overlay">
   <div class="go-title" id="goTitle">胜利</div>
@@ -77,10 +51,12 @@
     <button class="big-btn" id="resBtn">继续</button>
   </div>
 </div>
-<script src="audio.js?v=5"></script>
-<script src="units.js?v=5"></script>
-<script src="core.js?v=5"></script>
-<script src="strat.js?v=5"></script>
-<script src="game.js?v=5"></script>
+<script src="audio.js?v=6"></script>
+<script src="units.js?v=6"></script>
+<script src="core.js?v=6"></script>
+<script src="stage.js?v=6"></script>
+<script src="models.js?v=6"></script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js?v=6","three/addons/":"./lib/addons/"}}</script>
+<script type="module" src="game3d.js?v=6"></script>
 </body>
 </html>

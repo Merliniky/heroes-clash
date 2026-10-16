@@ -171,3 +171,20 @@ button,.act,.mobj,.fcard,.card{touch-action:manipulation}
 .card .art{height:min(16vh,120px)}
 .alist .mini.big img{height:44px}
 #draft{background:rgba(8,10,25,.9)}
+/* ---- r6 3D overlay UI ---- */
+#cv{touch-action:none}
+#uiLayer{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.ub{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;gap:1px;will-change:transform}
+.ub b{font:800 11px/1 system-ui,-apple-system,"PingFang SC",sans-serif;color:#fff;padding:2px 5px;border-radius:7px;min-width:14px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.4);border:1.5px solid rgba(255,255,255,.85)}
+.ub.p b{background:#2f6fe0}.ub.e b{background:#d8392b}
+.ub i{display:block;width:26px;height:4px;background:rgba(0,0,0,.55);border-radius:3px;overflow:hidden}
+.ub i s{display:block;height:100%;width:100%;text-decoration:none;transition:width .25s}
+.ub.p i s{background:#5fe06a}.ub.e i s{background:#ff6a4a}
+.ub.focus b{background:#e8a800;box-shadow:0 0 0 2px #ffe27a,0 1px 3px rgba(0,0,0,.5)}
+.ub.hold b::after{content:" ⏸";font-size:9px}
+.ub.bump b{animation:bump .3s}
+@keyframes bump{0%{transform:scale(1.45)}100%{transform:scale(1)}}
+.ft{position:absolute;transform:translate(-50%,-100%);font:900 15px/1 system-ui,-apple-system,"PingFang SC",sans-serif;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.6);animation:ft 1.05s ease-out forwards;white-space:nowrap}
+.ft.dmge{color:#fff3b0}.ft.dmgp{color:#ff9a9a}.ft.big{font-size:18px}
+.ft.pop{color:#e2d0ff;font-size:14px}.ft.heal{color:#9dff8a}.ft.retal{color:#ffe8a0;font-size:11px}.ft.hold{color:#ffd75e}.ft.go{color:#9dff8a}.ft.info{color:#cfe6ff;font-size:12px}
+@keyframes ft{0%{opacity:0;margin-top:6px;transform:translate(-50%,-100%) scale(.6)}15%{opacity:1;transform:translate(-50%,-100%) scale(1.15)}30%{transform:translate(-50%,-100%) scale(1)}100%{opacity:0;margin-top:-34px}}

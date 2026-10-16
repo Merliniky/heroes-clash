@@ -1,0 +1,32 @@
+# Credits & licences — 3D assets
+
+Every 3D model in `assets/models/` is **CC0 1.0 (public domain)**. No attribution is required, but we credit the authors anyway.
+The files were trimmed (unused animations removed) and quantised (`KHR_mesh_quantization`) with gltf-transform. The geometry and animation data were not otherwise changed.
+
+| File | Used for (HoMM3 unit) | Author | Source | Licence |
+|---|---|---|---|---|
+| k_Knight.glb | Pikeman, Swordsman, Crusader, Cavalier (rider) | Kay Lousberg (KayKit) | KayKit Character Pack: Adventurers 1.0 — https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 | CC0 |
+| k_Rogue_Hooded.glb | Archer | Kay Lousberg (KayKit) | same pack | CC0 |
+| k_Mage.glb | Monk | Kay Lousberg (KayKit) | same pack | CC0 |
+| k_Barbarian.glb | Battle Dwarf | Kay Lousberg (KayKit) | same pack | CC0 |
+| k_Skeleton_Minion.glb | Skeleton | Kay Lousberg (KayKit) | KayKit Character Pack: Skeletons 1.0 — https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0 | CC0 |
+| k_Skeleton_Warrior.glb | Skeleton Warrior | Kay Lousberg (KayKit) | same pack | CC0 |
+| k_Skeleton_Mage.glb | Lich | Kay Lousberg (KayKit) | same pack | CC0 |
+| Skeleton_Blade / Skeleton_Axe / Skeleton_Shield_Small_A / Skeleton_Staff.glb | weapon props | Kay Lousberg (KayKit) | same pack (Assets/gltf) | CC0 |
+| q_horse.glb | Cavalier (mount) | Quaternius | poly.pizza "Horse" — https://static.poly.pizza/d37dbc87-ca61-4b2c-a2da-d2f0c4240bef.glb | CC0 |
+| q_wolf2.glb | Wolf Rider (mount) | Quaternius | poly.pizza "Wolf" — https://static.poly.pizza/611d25c7-430f-4bb5-ab2c-d8f5f3cb9712.glb | CC0 |
+| q_goblin.glb | Goblin, Wolf Rider (rider) | Quaternius | poly.pizza "Goblin" — https://static.poly.pizza/6fbb8914-bd11-45e1-a906-51ace2ca5d2d.glb | CC0 |
+| q_orc.glb | Orc | Quaternius | poly.pizza "Orc" — https://static.poly.pizza/52a479b3-a635-4a23-92cb-6697eaa5eed5.glb | CC0 |
+| q_demon.glb | Demon, Imp | Quaternius | poly.pizza "Demon" — https://static.poly.pizza/46b52ba4-5d2a-4fc8-85cc-3e980f199141.glb | CC0 |
+| q_yeti.glb | Troll | Quaternius | poly.pizza "Yeti" — https://static.poly.pizza/40a831b3-686a-4af8-b189-a13b38a3c26a.glb | CC0 |
+| q_giant.glb | Giant | Quaternius | poly.pizza "Giant" — https://static.poly.pizza/260aff73-1409-4a45-9746-b078229d8cf3.glb | CC0 |
+| q_zombie.glb | Zombie | Quaternius | poly.pizza "Zombie" — https://static.poly.pizza/c4002f69-6979-42e8-ad6e-2f4e14fc3a9d.glb | CC0 |
+| q_dragon2.glb | Green Dragon, Bone Dragon | Quaternius | poly.pizza "Dragon" — https://static.poly.pizza/ae5b8510-1fa5-4d53-b943-a4f3b88fb629.glb | CC0 |
+| n_CommonTree_1/3, n_PineTree_1, n_Bush_1, n_BushBerries_1, n_Rock_1/2, n_Rock_Moss_1, n_Flowers, n_Grass | arena border props | Quaternius | Ultimate Nature Pack (mirror: https://github.com/trebeljahr/quaternius-showcase, public/glb/nature_pack) | CC0 |
+| n_medieval_village_pack_Fence | arena fences | Quaternius | Medieval Village Pack (same mirror) | CC0 |
+| n_medieval_weapons_pack_Spear | Pikeman spear | Quaternius | Medieval Weapons Pack (same mirror) | CC0 |
+
+Engine: **three.js r169** (`lib/`), MIT licence — see `lib/THREE_LICENSE`. The files are vendored unchanged: three.module.min.js, GLTFLoader, SkeletonUtils, BufferGeometryUtils.
+
+The 2D creature portraits on the draft cards (`assets/c/`) are the existing project art from earlier rounds.
+Creature statistics come from Heroes of Might and Magic III: Shadow of Death (CRTRAITS via heroes.thelazy.net). Abilities come from the VCMI configs. These are game data, not assets.
