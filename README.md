@@ -340,3 +340,6 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Clash-Royale-style draft cards: fixed-scale 3D portraits rendered from the battlefield models (size reflects tier and footprint), level gem, 4 icon stats, a one-line ability, merge and synergy ribbons; tap a card for details, then confirm.
 - Artifact pick: 3 equal cards (a vertical list on phones), rarity-glow icon frames, tap and confirm, small skip button.
 - Battlefield readability: each unit's badge shows a portrait of its type, 5 new CC0 monster models, bat wings for imp and devil, distinct palettes.
+
+## v12 (pilot)
+- `?sprites=1` swaps pikeman, archer, skeleton and green dragon for Blender pre-rendered sprite atlases (camera-facing, mirrored by facing, contact shadow, hit flash). The default game is unchanged. Pipeline: `tools/render.py` and `tools/pack.py`.

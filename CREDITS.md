@@ -59,3 +59,6 @@ All tracks were re-encoded to MP3 (72–96 kbps) with ffmpeg. Sound effects are 
 | q_dragon3.glb | Bone / Ghost Dragon | https://static.poly.pizza/90ed3740-d8c4-4910-88ce-ac2ed426022d.glb |
 | q_ghostskull.glb | (spare) | https://static.poly.pizza/0716bf8e-1894-4a90-8d10-34868975a239.glb |
 Card portraits and badge icons are rendered at runtime from the same 3D models.
+
+## v12 sprite pilot (?sprites=1)
+`assets/spr/*.webp|json` are pre-rendered in Blender 4.2 LTS (headless, Cycles) by `tools/render.py` + `tools/pack.py` from the CC0 models already in this repo: KayKit Adventurers Knight/Rogue + KayKit Skeleton Minion (Kay Lousberg, CC0), Quaternius Dragon (CC0), Quaternius Medieval Weapons spear (CC0). No new third-party assets.
