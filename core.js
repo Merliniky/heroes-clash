@@ -21,23 +21,37 @@ function dmgMul(a,d){return a>=d?Math.min(4,1+0.05*(a-d)):Math.max(0.3,1-0.025*(
 
 const fwOf=st=>st.fw||1,fhOf=st=>st.fh||1;
 function cellCenter(ax,ay,fw,fh){return [GX0+(ax+fw/2)*CW,GY0+(ay+fh/2)*CH];}
+// per-stack modifiers (artifacts/synergies/themes) are applied to a cloned stat block; base HoMM3 numbers stay untouched
+function modStats(base,mod){if(!mod)return base;const st=Object.assign({},base,{ab:Object.assign({},base.ab||{})});
+  for(const k in mod){const v=mod[k];if(k==='ab')Object.assign(st.ab,v);else if(k==='hpMul')st.hp=Math.max(1,Math.round(st.hp*v));else if(k==='shotMul')st.shots=Math.round(st.shots*v);
+    else if(k==='fly')st.fly=v;else if(typeof v==='number')st[k]=(st[k]||0)+v;else st[k]=v;}
+  return st;}
+function makeUnit(b,s,side,ax,ay,bonus){const st=modStats(U[s.type],s.mod),fw=fwOf(st),fh=fhOf(st);
+  return {id:b.nid++,type:s.type,st,side,count:s.count,start:s.count,top:st.hp,fw,fh,ax,ay,moving:false,mt:0,md:0,fx:ax,fy:ay,boss:s.boss||null,
+    cd:Math.max(0.15,(1-Math.min(st.spd,16)/18)*1.6)+R()*0.3,shots:st.shots,target:null,alive:true,wind:0,wt:0,state:'idle',atkT:0,hitT:0,
+    face:side==='p'?1:-1,walkT:R()*6,hold:false,think:0,ret:(st.ab&&st.ab.retal)||1,moved:0,stun:0,curse:0,buf:{},volley:1,bon:(bonus&&bonus[side])||{a:0,d:0}};}
+function autoSlot(b,st,side,minCol,maxCol){const fw=fwOf(st),fh=fhOf(st),ranged=st.shots>0;const rows1=[4,5,3,6,2,7,1,8,0,9],rows2=[4,3,5,2,6,1,7,0,8];
+  const cols=fw===2?[1,2,0,3,4,5]:ranged?[0,1,2,3,4,5]:[2,3,1,0,4,5,6];
+  for(const c of cols){for(const r of (fh===2?rows2:rows1)){const ax=side==='p'?c:GC-c-fw,ay=r;const tmp={id:-9,fw,fh};if(fits(b,tmp,ax,ay))return [ax,ay];}}
+  for(let y=0;y<GR;y++)for(let x=0;x<GC;x++){const ax=side==='p'?x:GC-x-fw;if(fits(b,{id:-9,fw,fh},ax,y))return [ax,y];}return null;}
 function createBattle(army,enemies,bonus){
-  const b={units:[],proj:[],events:[],pend:[],t:0,round:0,focus:null,over:null,occ:new Int16Array(GC*GR).fill(-1)};let id=0;
-  const rows1=[4,5,3,6,2,7,1,8,0,9],rows2=[4,3,5,2,6,1,7,0,8];
+  const b={units:[],proj:[],events:[],pend:[],t:0,round:0,focus:null,over:null,occ:new Int16Array(GC*GR).fill(-1),nid:0};
   const place=(list,side)=>{
-    const order=list.map((s,i)=>({s,i})).sort((p,q)=>(U[q.s.type].shots>0)-(U[p.s.type].shots>0));
-    for(const {s} of order){const st=U[s.type],fw=fwOf(st),fh=fhOf(st),ranged=st.shots>0;
-      const cols=fw===2?[1,2,0,3]:ranged?[0,1,2,3]:[2,3,1,0];let done=false;
-      for(const c of cols){for(const r of (fh===2?rows2:rows1)){const ax=side==='p'?c:GC-c-fw,ay=r;
-        const u={id,type:s.type,st,side,count:s.count,start:s.count,top:st.hp,fw,fh,ax,ay,moving:false,mt:0,md:0,fx:ax,fy:ay,
-          cd:Math.max(0.15,(1-Math.min(st.spd,16)/18)*1.6)+R()*0.3,shots:st.shots,target:null,alive:true,wind:0,wt:0,state:'idle',atkT:0,hitT:0,
-          face:side==='p'?1:-1,walkT:R()*6,hold:false,think:0,ret:(st.ab&&st.ab.retal)||1,moved:0,stun:0,curse:0,bon:(bonus&&bonus[side])||{a:0,d:0}};
-        if(fits(b,u,ax,ay)){[u.x,u.y]=cellCenter(ax,ay,fw,fh);occSet(b,u,ax,ay,u.id);b.units.push(u);id++;done=true;break;}}
-        if(done)break;}}
+    const order=list.map((s,i)=>({s,i})).sort((p,q)=>((p.s.ax!=null)?0:1)-((q.s.ax!=null)?0:1)||(U[q.s.type].shots>0)-(U[p.s.type].shots>0));
+    for(const {s} of order){const st=modStats(U[s.type],s.mod);let pos=null;
+      if(s.ax!=null&&fits(b,{id:-9,fw:fwOf(st),fh:fhOf(st)},s.ax,s.ay))pos=[s.ax,s.ay];if(!pos)pos=autoSlot(b,st,side);if(!pos)continue;
+      const u=makeUnit(b,s,side,pos[0],pos[1],bonus);[u.x,u.y]=cellCenter(u.ax,u.ay,u.fw,u.fh);occSet(b,u,u.ax,u.ay,u.id);b.units.push(u);}
   };
   place(army,'p');place(enemies,'e');
   return b;
 }
+// mid-battle summon (boss mechanics / raise dead): nearest free slot to a point
+function spawn(b,side,type,count,near,mod){const st=modStats(U[type],mod),fw=fwOf(st),fh=fhOf(st);let best=null,bd=1e9;
+  for(let y=0;y<GR;y++)for(let x=0;x<GC;x++){if(!fits(b,{id:-9,fw,fh},x,y))continue;const d=near?Math.hypot(x-near.ax,y-near.ay):(side==='e'?GC-x:x);if(d<bd){bd=d;best=[x,y];}}
+  if(!best)return null;const u=makeUnit(b,{type,count,mod},side,best[0],best[1],null);[u.x,u.y]=cellCenter(u.ax,u.ay,u.fw,u.fh);occSet(b,u,u.ax,u.ay,u.id);u.cd=0.6;b.units.push(u);b.events.push({k:'spawn',u});return u;}
+// relocate during deploy
+function moveTo(b,u,ax,ay){occClear(b,u,u.ax,u.ay);if(!fits(b,u,ax,ay)){occSet(b,u,u.ax,u.ay,u.id);return false;}u.ax=u.fx=ax;u.ay=u.fy=ay;occSet(b,u,ax,ay,u.id);[u.x,u.y]=cellCenter(ax,ay,u.fw,u.fh);return true;}
+const rate=(b,u)=>(u.buf.haste>b.t?1.45:1)*(u.buf.slow>b.t?0.6:1);
 function fits(b,u,ax,ay){if(ax<0||ay<0||ax+u.fw>GC||ay+u.fh>GR)return false;
   for(let i=0;i<u.fw;i++)for(let j=0;j<u.fh;j++){const o=b.occ[(ay+j)*GC+ax+i];if(o!==-1&&o!==u.id)return false;}return true;}
 function occSet(b,u,ax,ay,v){for(let i=0;i<u.fw;i++)for(let j=0;j<u.fh;j++)b.occ[(ay+j)*GC+ax+i]=v;}
@@ -45,7 +59,8 @@ function occClear(b,u,ax,ay){for(let i=0;i<u.fw;i++)for(let j=0;j<u.fh;j++){cons
 function gapAt(ax,ay,fw,fh,t){const dx=Math.max(t.ax-(ax+fw-1),ax-(t.ax+t.fw-1),0),dy=Math.max(t.ay-(ay+fh-1),ay-(t.ay+t.fh-1),0);return Math.max(dx,dy);}
 const adjacent=(a,t)=>gapAt(a.ax,a.ay,a.fw,a.fh,t)<=1;
 function fire(b,u,t){const far=gapAt(u.ax,u.ay,u.fw,u.fh,t)>10;const k=u.st.proj;
-  b.proj.push({x:u.x+u.face*20,y:u.y,z:40,t,src:u,kind:k,dmg:calcDmg(b,u,t,{ranged:1,far}),sp:k==='bolt'||k==='bolt2'?900:k==='axe'||k==='rock'?560:k==='arrow'?760:520,d0:Math.hypot(t.x-u.x,t.y-u.y)});b.events.push({k:'shoot',u});}
+  b.proj.push({x:u.x+u.face*20,y:u.y,z:40,t,src:u,kind:k,dmg:calcDmg(b,u,t,{ranged:1,far}),sp:k==='bolt'||k==='bolt2'?900:k==='axe'||k==='rock'?560:k==='arrow'?760:520,d0:Math.hypot(t.x-u.x,t.y-u.y)});b.events.push({k:'shoot',u});u.volley=0;}
+
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 function pathStep(b,u,t){
   const key=(x,y)=>y*GC+x,prev=new Int16Array(GC*GR).fill(-2),q=[[u.ax,u.ay]];prev[key(u.ax,u.ay)]=-1;let goal=null,qi=0;
@@ -60,9 +75,9 @@ function flyGoal(b,u,t){let best=null,bd=1e9;
 // HoMM3 speed = hexes per turn -> cells per ROUND
 // HoMM3 speed compressed into a narrow band: speed 3 -> 2.2 cells/round, speed 18 -> 4.1 (~1.9x)
 const cellsPerRound=spd=>1.8+0.13*spd;
-function speedPx(u){return cellsPerRound(u.st.spd)*CELLPX/ROUND;}
+function speedPx(u,b){return cellsPerRound(u.st.spd)*CELLPX/ROUND*(b?rate(b,u):1);}
 function startMove(b,u,nx,ny){u.fx=u.ax;u.fy=u.ay;occSet(b,u,nx,ny,u.id);u.moved+=Math.max(Math.abs(nx-u.ax),Math.abs(ny-u.ay));u.ax=nx;u.ay=ny;u.moving=true;u.mt=0;
-  const d=Math.hypot((nx-u.fx)*CW,(ny-u.fy)*CH);u.md=d/speedPx(u);u.state='walk';}
+  const d=Math.hypot((nx-u.fx)*CW,(ny-u.fy)*CH);u.md=d/speedPx(u,b);u.state='walk';}
 function applyDamage(b,src,tgt,dmg,kind){
   if(!tgt.alive)return;
   const total=(tgt.count-1)*tgt.st.hp+tgt.top-dmg;const before=tgt.count;
@@ -76,12 +91,15 @@ function baseRoll(u){const st=u.st,n=u.count,r=()=>st.dmg[0]+Math.floor(R()*(st.
   if(n<=10){let s=0;for(let i=0;i<n;i++)s+=r();return s;}let s=0;for(let i=0;i<10;i++)s+=r();return Math.floor(s*n/10);}
 function calcDmg(b,u,t,opt={}){
   const ab=u.st.ab||{};let D=t.st.d+t.bon.d;if(ab.ignoreDef)D=Math.floor(D*(1-ab.ignoreDef));
-  let m=dmgMul(u.st.a+u.bon.a,D);
+  let m=dmgMul(u.st.a+u.bon.a+(opt.melee&&u.buf.blood>b.t?4:0),D);
   if(opt.melee&&u.st.shots>0&&!ab.noMP)m*=0.5;               // shooter in melee: half (unless "no melee penalty")
-  if(opt.ranged&&opt.far)m*=0.5;                              // range penalty (> 10 cells)
+  if(opt.ranged&&opt.far&&!ab.sharp)m*=0.5;                    // range penalty (> 10 cells); Bow of the Sharpshooter ignores it
+  if(opt.ranged&&ab.sharp&&u.volley){m*=2;}
+  if(opt.ranged&&ab.rngMul)m*=ab.rngMul;
+  if(ab.rage&&((u.count-1)*u.st.hp+u.top)<u.start*u.st.hp*0.5)m*=1.3;
   if(opt.melee&&ab.joust&&!(t.st.ab&&t.st.ab.joustImm))m*=1+ab.joust*u.moved; // jousting
   if(ab.hate&&ab.hate[t.type])m*=1+ab.hate[t.type];
-  let base=u.curse>b.t?u.count*u.st.dmg[0]:baseRoll(u);        // cursed: minimum damage (Black Knight curse)
+  let base=u.curse>b.t?u.count*u.st.dmg[0]:u.buf.bless>b.t?u.count*u.st.dmg[1]:baseRoll(u);        // cursed: minimum damage (Black Knight curse)
   if(opt.melee&&ab.deathBlow&&R()<0.2){base*=2;b.events.push({k:'pop',u:t,str:'致命一击',col:'#ff6a6a'});}
   return Math.max(1,Math.floor(base*m));
 }
@@ -93,6 +111,7 @@ function onHitEffects(b,u,t,dmg,melee){
     if(k>0&&t.alive){applyDamage(b,u,t,(k-1)*t.st.hp+t.top,'stare');b.events.push({k:'pop',u:t,str:'死亡凝视',col:'#ff6a6a'});}}
   if(ab.lightning&&R()<0.2&&t.alive){applyDamage(b,u,t,10*u.count,'bolt');b.events.push({k:'zap',u:t});}
   if(ab.drain){const max=u.start*u.st.hp,cur=(u.count-1)*u.st.hp+u.top,nw=Math.min(max,cur+dmg);u.count=Math.ceil(nw/u.st.hp);u.top=nw-(u.count-1)*u.st.hp;b.events.push({k:'drain',u});}
+  if(ab.burn&&t.alive){applyDamage(b,u,t,Math.max(1,Math.floor(dmg*ab.burn)),'burn');}
   if(melee&&t.st.ab&&t.st.ab.fireShield&&u.alive){applyDamage(b,t,u,Math.max(1,Math.floor(dmg*0.2)),'fire');}
 }
 function doMelee(b,u,t,isRetal){
@@ -120,7 +139,7 @@ function step(b,dt){
     if(u.stun>b.t){u.atkT=Math.max(0,u.atkT-dt*2.6);u.hitT=Math.max(0,u.hitT-dt*7);if(!u.moving)continue;}
     u.cd-=dt;u.atkT=Math.max(0,u.atkT-dt*2.6);u.hitT=Math.max(0,u.hitT-dt*7);u.think-=dt;
     if(u.moving){u.mt+=dt;const k=Math.min(1,u.mt/u.md);const [x0,y0]=cellCenter(u.fx,u.fy,u.fw,u.fh),[x1,y1]=cellCenter(u.ax,u.ay,u.fw,u.fh);
-      u.x=x0+(x1-x0)*k;u.y=y0+(y1-y0)*k;u.walkT+=dt*speedPx(u)/CELLPX;if(x1!==x0)u.face=x1>x0?1:-1;
+      u.x=x0+(x1-x0)*k;u.y=y0+(y1-y0)*k;u.walkT+=dt*speedPx(u,b)/CELLPX;if(x1!==x0)u.face=x1>x0?1:-1;
       if(k>=1){u.moving=false;occClear(b,u,u.fx,u.fy);occSet(b,u,u.ax,u.ay,u.id);u.think=0;}else continue;}
     const foes=L.filter(o=>o.alive&&o.side!==u.side);if(!foes.length)continue;
     const adj=foes.filter(o=>adjacent(u,o));
@@ -135,7 +154,7 @@ function step(b,dt){
     const isAdj=adjacent(u,t),ranged=u.shots>0&&!adj.length;
     if(ranged||isAdj){u.state='idle';
       if(u.cd<=0&&!u.wind){u.wind=u.wt=ranged?0.42:(u.st.fx==='breath'?0.5:0.36);u.windT=t;b.events.push({k:'wind',u,ranged});}
-      if(u.wind&&(u.wind-=dt)<=0){u.wind=0;u.atkT=1;u.cd=ROUND;
+      if(u.wind&&(u.wind-=dt)<=0){u.wind=0;u.atkT=1;u.cd=ROUND/rate(b,u);
         if(ranged){u.shots--;fire(b,u,t);if(u.st.ab&&u.st.ab.dbl&&u.shots>0)b.pend.push({at:b.t+0.3,u,t,shot:1});}
         else doMelee(b,u,t,false);}
     } else if(u.think<=0&&!u.wind){
@@ -160,6 +179,6 @@ function step(b,dt){
 // headless battle (sim): returns {win, army survivors p, e}
 function run(army,enemies,bonus,dt=0.05){const b=createBattle(army,enemies,bonus);while(!b.over){step(b,dt);b.events.length=0;}
   const surv=s=>{const m={};for(const u of b.units)if(u.side===s&&u.alive)m[u.type]=(m[u.type]||0)+u.count;return m;};return {win:b.over==='win',p:surv('p'),e:surv('e'),t:b.t};}
-const api={U,FACTIONS,FNAME,cellsPerRound,PLAYER,W,H,MAXS,FX0,FX1,FY0,FY1,GC,GR,GX0,GY0,CW,CH,ROUND,cellCenter,rng,setRng,createBattle,step,dmgMul,run};
+const api={modStats,spawn,moveTo,fits,occSet,occClear,applyDamage,gapAt,rate,U,FACTIONS,FNAME,cellsPerRound,PLAYER,W,H,MAXS,FX0,FX1,FY0,FY1,GC,GR,GX0,GY0,CW,CH,ROUND,cellCenter,rng,setRng,createBattle,step,dmgMul,run};
 if(typeof module!=='undefined')module.exports=api;else root.Core=api;
 })(this);

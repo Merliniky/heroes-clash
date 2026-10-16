@@ -1,5 +1,18 @@
 # 英雄冲突 · Heroes Clash (r6 — 3D)
 
+## v7: depth update
+- **布阵 (deploy):** drag or tap-then-tap your stacks inside the blue zone (7 columns), respecting 1/2/4-cell footprints. The enemy formation is visible. Your formation is remembered between stages. Buttons: 自动布阵 (auto-arrange) and 开战 (fight).
+- **Hero spells:** a mana bar that regenerates and 4 spell slots. Spells: Magic Arrow, Lightning, Haste, Bless, Slow, Cure, Resurrection, Fireball, Meteor, Bloodlust. The hero levels up each stage, and spell power ×1.3 per level. Targeting can be single-target, area (with a reticle) or mass. Each spell has VFX and SFX.
+- **Upgrades:** picking the same creature merges it into the stack. The third merge, or an upgrade card, turns it into the exact HoMM3 upgraded creature, shown with a gold glow, tint and scale.
+- **26 artifacts:** pick 1 of 3 after every even stage and every boss. Owned artifacts are shown in the HUD (long-press for details).
+- **Themed stages:** 6 themes, each with a modifier and a weakness hint. Bosses: Lich King (stage 5), Red Wyrm with a breath sweep (stage 10), Archfiend with blink, summons and a fire shield (stage 15). Then endless mode.
+- **Faction synergies (2/4/6):** Castle, Necropolis, Stronghold, Rampart, Inferno, with 6–7 units each. A synergy panel is shown, and draft cards show the faction tag and whether a pick completes a synergy.
+- Long-press tooltips and a first-run coach for deploy and spells.
+
+Balance (`node sim.js 400`, a bot that drafts with synergy awareness, auto-deploys, casts spells and picks artifacts):
+reached stage 3: 92%, stage 5: 91%, stage 6: 71%, stage 10: 69%, stage 11: 46%, stage 15: 43%; full clear 37%. Deaths cluster at the boss walls on stages 5, 10 and 15.
+
+
 **Play:** https://merliniky.github.io/heroes-clash/
 
 - **Mode:** per-stage run.
