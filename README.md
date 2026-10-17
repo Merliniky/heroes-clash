@@ -346,3 +346,9 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 
 ## v13 — HD sprite pilots
 `?sprites=1` now uses higher-detail CC0 models for **swordsman** (Quaternius UBC + Fantasy outfit + UAL animations), **skeleton** (OGA Skeleton Outlaw, 2K texture) and **behemoth** (OGA Cethiel's Dragon, textured spiky drake), plus the v12 pikeman/archer/greenDragon. Render adds a second cool rim light, thicker outline, and unsharp-mask after downsampling. Prep scripts live in the build box (`/workspace/hd/prep_*.py`).
+
+## v14 — sprite polish (behind `?sprites=1`)
+- 5 rendered directions (away, away-right, right, toward-right, toward) mirrored to 8; the engine picks the direction from the unit's facing relative to the camera, so units face their target when attacking/shooting and their path when walking.
+- Rendered with a 55° camera matching the portrait game camera; soles placed on z=0 from mesh vertices; baked shadow-catcher contact shadow + small blob; billboards anchored at the projected ground point and pushed toward the camera along the view ray so the lower body/shadow is never clipped.
+- Trimmed frames packed into 2048-wide atlas pages (GPU memory ~5–35 MB per unit instead of ~70+), premultiplied-alpha downscale (no fringes), 1 px external outline.
+- Projectiles now spawn offset toward the target; facing locks onto the wind-up target.

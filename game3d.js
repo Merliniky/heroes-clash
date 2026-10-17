@@ -134,7 +134,7 @@ const SPR_PUSH=1.6,SPR_SCALE=1.25;
 function makeSprite(v,m){const tx=m.tex.map(t=>{const c=t.clone();c.needsUpdate=true;return c;});
   const mat=new THREE.SpriteMaterial({map:tx[0],transparent:true,alphaTest:0.02,depthWrite:false});
   const sp=new THREE.Sprite(mat);sp.renderOrder=3;unitLayer.add(sp);v.inner.visible=false;
-  if(!m.shadow){const sh=new THREE.Mesh(shadowGeo,shadowMat);const w=Math.max(0.45,Math.min(1.3,v.def.h*0.75));sh.scale.set(w,1,w*0.6);sh.position.y=0.02;sh.renderOrder=2;v.g.add(sh);v.sprSh=sh;}
+  {const sh=new THREE.Mesh(shadowGeo,shadowMat);const w=Math.max(0.4,Math.min(1.3,v.def.h*(m.shadow?0.55:0.75)));sh.scale.set(w,1,w*0.6);sh.position.y=0.02;sh.renderOrder=2;v.g.add(sh);v.sprSh=sh;}
   v.spr=sp;v.sprTx=tx;v.sprM=m;v.sprK='';v.sprT=0;v.sprFl=0;v.sprDir=-1;v.sprMir=false;v.sprPg=0;}
 const _cr=new THREE.Vector3(),_cu=new THREE.Vector3(),_cf=new THREE.Vector3(),_sp=new THREE.Vector3(),_cp=new THREE.Vector3();
 // facing angle of a unit relative to the camera: 0 = away from camera (screen up), 90 = screen right, 180 = toward camera, negative = left
@@ -211,7 +211,7 @@ function updateView(v,dt,b){const u=v.u,def=v.def;const [x,z]=unitWorld(u);
   if(v.dragPos){v.g.position.copy(v.dragPos);}else v.g.position.set(x,0,z);v.inner.position.y=hover+(v.dragPos?0.18:0);if(v.def.glow&&u.alive&&Math.random()<dt*3){P({x:v.g.position.x+(Math.random()-0.5)*0.4,y:Math.random()*v.def.h,z:v.g.position.z+(Math.random()-0.5)*0.4,vy:0.5,drag:1,life:0.8,s:0.05,c:[1,0.82,0.3]},true);}if(v.spawn<1){v.inner.position.y+=(1-sp)*2.4;v.dropping=1;}else if(v.dropping){v.dropping=0;dust(x,z,8,0.9);if(Math.random()<0.4)S.spawn();}v.g.scale.setScalar(0.75+0.25*Math.max(0,sp));
   if(v.wg){v.wg.position.y=v.def.h*(v.def.wings.y||0.66)+v.inner.position.y;v.wt=(v.wt||Math.random()*6)+dt*(u.moving?11:6);const a=Math.sin(v.wt)*0.55+0.15;for(const [p,sd] of v.wg.userData.p)p.rotation.z=sd*a;v.wg.visible=u.alive||v.deadT<1.2;}
   // facing: toward target when engaged, else movement direction
-  let want=v.yaw;const t=u.target&&u.target.alive?u.target:null;
+  let want=v.yaw;const t=u.wind>0&&u.windT&&u.windT.alive?u.windT:(u.target&&u.target.alive?u.target:null);
   if(u.alive){if(u.moving){const [x0,z0]=toW(...Core.cellCenter(u.fx,u.fy,u.fw,u.fh)),[x1,z1]=toW(...Core.cellCenter(u.ax,u.ay,u.fw,u.fh));if(Math.hypot(x1-x0,z1-z0)>0.01)want=Math.atan2(x1-x0,z1-z0);}
     else if(t){const [tx,tz]=unitWorld(t);want=Math.atan2(tx-x,tz-z);}}
   let d=want-v.yaw;d=Math.atan2(Math.sin(d),Math.cos(d));v.yaw+=d*Math.min(1,dt*10);v.g.rotation.y=v.yaw;

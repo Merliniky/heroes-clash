@@ -69,3 +69,8 @@ All CC0 (public domain); credit given as courtesy.
 - **Skeleton** — "Skeleton Outlaw" (rigged, animated, 2048px texture), OpenGameArt, CC0. https://opengameart.org/content/skeleton-outlaw
 - **Behemoth** — "Cethiel's Dragon 3D" by Drummyfish (based on Cethiel's dragon art), OpenGameArt, CC0. https://opengameart.org/content/cethiels-dragon-3d
 - Conversion tool: FBX2glTF (Meta, BSD) used offline only.
+
+## v14 sprite pilots (`?sprites=1`) — all CC0
+- **Swordsman / Archer / Pikeman** — bodies, heads and animations: Quaternius *Universal Base Characters*, *Modular Character Outfits – Fantasy* (Ranger outfit for swordsman (recoloured blue) and archer, Peasant outfit for pikeman) and *Universal Animation Library* (Sword_Idle/Attack, Pistol_Idle/Shoot, Punch_Jab, Walk_Loop, Hit_Chest, Death01) — https://quaternius.itch.io . Sword, heater shield, spear: Quaternius *Medieval Weapons Pack*; helmets: Quaternius *Knight* pack (via https://github.com/trebeljahr/quaternius-showcase). Crossbow: KayKit Adventurers (Kay Lousberg). All CC0.
+- **Green Dragon** — Quaternius "Dragon Evolved" (Ultimate Monsters), https://poly.pizza/m/LlwD0QNUPj , CC0 (recoloured green).
+- Skeleton (OGA Skeleton Outlaw) and Behemoth (OGA Cethiel's Dragon 3D, Drummyfish) as in v13, CC0.

@@ -59,7 +59,7 @@ function occClear(b,u,ax,ay){for(let i=0;i<u.fw;i++)for(let j=0;j<u.fh;j++){cons
 function gapAt(ax,ay,fw,fh,t){const dx=Math.max(t.ax-(ax+fw-1),ax-(t.ax+t.fw-1),0),dy=Math.max(t.ay-(ay+fh-1),ay-(t.ay+t.fh-1),0);return Math.max(dx,dy);}
 const adjacent=(a,t)=>gapAt(a.ax,a.ay,a.fw,a.fh,t)<=1;
 function fire(b,u,t){const far=gapAt(u.ax,u.ay,u.fw,u.fh,t)>10;const k=u.st.proj;
-  b.proj.push({x:u.x+u.face*20,y:u.y,z:40,t,src:u,kind:k,dmg:calcDmg(b,u,t,{ranged:1,far}),sp:k==='bolt'||k==='bolt2'?900:k==='axe'||k==='rock'?560:k==='arrow'?760:520,d0:Math.hypot(t.x-u.x,t.y-u.y)});b.events.push({k:'shoot',u});u.volley=0;}
+  const _d=Math.hypot(t.x-u.x,t.y-u.y)||1;b.proj.push({x:u.x+(t.x-u.x)/_d*20,y:u.y+(t.y-u.y)/_d*20,z:40,t,src:u,kind:k,dmg:calcDmg(b,u,t,{ranged:1,far}),sp:k==='bolt'||k==='bolt2'?900:k==='axe'||k==='rock'?560:k==='arrow'?760:520,d0:Math.hypot(t.x-u.x,t.y-u.y)});b.events.push({k:'shoot',u});u.volley=0;}
 
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 function pathStep(b,u,t){
