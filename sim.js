@@ -6,7 +6,8 @@ const U=C.U;
 const ARTRANK=['hellfire','helm','vitality','sharp','dwarfShield','courage','orbFire','boots','gladius','lifeRing','medal','crown','talisman','goldBow','wings','centaurAxe','dragonShield','sphere','damned','tome','cape','sash','hat','cloak','orbAir','necklace'];
 const SPRANK=['lightning','fireball','bless','haste','meteor','slow','bloodlust','resurrection','magicArrow','cure'];
 function scoreCard(run,c){if(c.kind==='upgrade')return 1e9;const own=H.stacks(run.army);const before=H.synCounts(own);const after=H.synCounts(own.concat(run.army[c.type]?[]:[{type:c.type}]));
-  let v=c.count*U[c.type].v;if(MODE==='greedy')return v;const f=H.facOf(c.type);if(H.synTier(after[f]||0)>H.synTier(before[f]||0))v*=1.6;else if((before[f]||0)>0)v*=1.15;return v;}
+  let v=c.count*U[c.type].v;if(MODE==='greedy')return v;if(process.env.FAC&&H.facOf(c.type)===process.env.FAC)v*=4;   // FAC=tower: mono-faction drafting (faction balance check)
+  const f=H.facOf(c.type);if(H.synTier(after[f]||0)>H.synTier(before[f]||0))v*=1.6;else if((before[f]||0)>0)v*=1.15;return v;}
 function castAI(b,h,run){if(MODE!=='bot'&&MODE!=='greedy')return;const sp=run.spells;const ens=b.units.filter(u=>u.alive&&u.side==='e'),ps=b.units.filter(u=>u.alive&&u.side==='p');if(!ens.length)return;
   const can=id=>sp.includes(id)&&h.mana>=H.spellCost(h,id);const go=(id,t)=>{h.mana-=H.spellCost(h,id);H.cast(b,h,id,t);};
   const big=ens.slice().sort((a,c)=>c.count*c.st.v-a.count*a.st.v)[0];
@@ -18,7 +19,7 @@ function castAI(b,h,run){if(MODE!=='bot'&&MODE!=='greedy')return;const sp=run.sp
   if(can('cure')&&ps.filter(u=>u.top<u.st.hp*0.5).length>=2)go('cure');}
 const reach=new Array(31).fill(0);const TN=[],TB=[];const q=(a,p)=>{a=a.slice().sort((x,y)=>x-y);return a.length?a[Math.floor(a.length*p)].toFixed(0):'-';};let stats={arts:{},bossDeath:{5:0,10:0,15:0},clear:0};
 const ALL=H.LOCK_UNITS.concat(H.LOCK_ARTS);
-for(let i=0;i<N;i++){const hid=HERO||(META?H.HEROES[i%3].id:'knight');const run=H.newRun(MODE0==='meta'?{hero:hid,unlocked:ALL,up:{troops:5,mana:3,heal:2,vault:1}}:MODE0==='mid'?{hero:hid,unlocked:ALL.slice(0,5),up:{troops:2,mana:1,heal:1}}:{hero:hid});
+for(let i=0;i<N;i++){const hid=HERO||(META?H.HEROES[i%H.HEROES.length].id:'knight');const run=H.newRun(MODE0==='meta'?{hero:hid,unlocked:ALL,up:{troops:5,mana:3,heal:2,vault:1}}:MODE0==='mid'?{hero:hid,unlocked:ALL.slice(0,5),up:{troops:2,mana:1,heal:1}}:{hero:hid});
   for(;run.stage<=15;run.stage++){const s=run.stage;const offer=H.makeOffer(run);let bi=0,bv=-1;offer.forEach((c,k)=>{const v=scoreCard(run,c);if(v>bv){bv=v;bi=k;}});H.takeCard(run,offer[bi]);
     const info=H.stageInfo(s);const list=H.deployList(run);const b=C.createBattle(H.playerStacks(run,list,info).map(x=>{delete x.ax;delete x.ay;return x;}),H.enemyStacks(H.makeEnemies(s),info));
     const h=H.heroFor(run,info);if(run.arts.includes('damned'))for(const u of b.units)if(u.side==='e')u.buf.slow=6;

@@ -383,3 +383,20 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - New sprites: hell hound (darker, horns, glowing spine spikes and eyes), cerberus (three heads), efreet (legless, flames, hovering), devil (horns, tail, bat wings), black knight (mounted), pegasus, dendroid guard; griffin/royal griffin re-rendered without the upright wolf tail.
 - Upgrades archDevil / efreetSultan / dreadKnight / silverPegasus / dendroidSoldier reuse the base atlas with a tint.
 - Tower / Dungeon / Fortress groundwork: humanoid sprite configs for gremlin, mage, troglodyte, minotaur and lizardman (Quaternius CC0 parts). They are not in the game yet — these factions have no rosters, 3D fallbacks or themes, so their atlases are not loaded.
+
+## v20 — all 8 SoD factions; sprites are now the default (`?sprites=0` = 3D)
+- **New factions:** Tower 塔楼, Dungeon 地下城 and Fortress 要塞. Each has 7 tiers plus upgrades, using exact HoMM3 SoD stats (from `units.js`, generated from CRTRAITS / VCMI). Stronghold now also offers the Roc / Thunderbird tier.
+- **Synergies (2/4/6 units):**
+  - Tower: hero spell damage +8/16/24%, ranged damage +15/30% at tier 2/3, mana regen +15% at tier 3.
+  - Dungeon: luck +6/12/18%, attack +2/+4.
+  - Fortress: defence +2/4/6, HP +10% at tier 3.
+- **Faction select:** the hero select now has one hero per faction (8). Each card shows its faction, and the hero's faction is favoured in recruitment offers. Heroes: Christian (Castle), Crag Hack (Stronghold), Solmyr (Tower, now starts with gremlins), Gelu (Rampart), Sandro (Necropolis), Xeron (Inferno), Mutare (Dungeon), Tazar (Fortress).
+- **New enemy themes:** 魔法学院 (Tower; spell resistance, weak to melee), 地下迷宫 (Dungeon; enemy luck, weak to air spells), 沼泽要塞 (Fortress; enemy defence, weak to fire). Each has its own arena palette, props and ambient particles. The 15-stage schedule now visits all 8 factions. The dragon lair also mixes in wyverns, manticores, harpies and serpent flies.
+- **VCMI abilities now simulated:**
+  - Golem spell-damage resistance (50/75%).
+  - Dragon spell immunities by spell level (green/red 1–3, gold 1–4, black all).
+  - Troglodyte blind/stone immunity, harpy strike-and-return, minotaur positive morale, serpent/dragon fly dispel, dragon fly weakness, wyvern monarch poison, master genie buffs allies, mage/arch mage −2 spell cost.
+  - Drain no longer heals off undead/unliving targets.
+- **3D fallback for every unit:** tinted CC0 models (see CREDITS).
+- **Sprites:** new atlases for the three factions; upgrades are tinted aliases. Sprite mode is on by default and `?sprites=0` forces 3D. GPU atlas pages are released between battles.
+- **Balance:** `node sim.js 400 bot <hero>` for each hero, plus `FAC=<faction> node sim.js 300 bot knight` for mono-faction drafting; results are in the v20 notes.

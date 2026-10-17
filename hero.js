@@ -12,12 +12,18 @@ const FAC={
     t:['全体城堡单位 防御+2','防御+4，每回合额外反击1次','防御+6，每回合额外反击2次']},
   necro:{n:'墓园',col:'#9a6ad8',icon:'💀',lines:['skeleton','walkingDead','wight','vampire','lich','blackKnight','boneDragon'],
     t:['通灵术：战后将击杀敌军的10%转化为骷髅兵','通灵术20%，不死单位攻击+2','通灵术30%，不死单位攻击+4']},
-  stronghold:{n:'据点',col:'#d89a3a',icon:'🪓',lines:['goblin','wolfRider','orc','ogre','cyclops','behemoth'],
+  stronghold:{n:'据点',col:'#d89a3a',icon:'🪓',lines:['goblin','wolfRider','orc','ogre','roc','cyclops','behemoth'],
     t:['全体据点单位 攻击+2','攻击+4，狂暴：生命低于50%时伤害+30%','攻击+6，狂暴']},
   rampart:{n:'壁垒',col:'#4fb85a',icon:'🌿',lines:['centaur','dwarf','woodElf','pegasus','dendroidGuard','unicorn','greenDragon'],
     t:['再生：每回合恢复最前一只的生命','再生，生命+10%','再生，生命+20%，速度+1']},
   inferno:{n:'地狱',col:'#e8503a',icon:'🔥',lines:['imp','gog','hellHound','demon','pitFiend','efreet','devil'],
     t:['地狱火：攻击附带10%火焰伤害','火焰伤害20%','火焰伤害30%，烈焰护盾']},
+  tower:{n:'塔楼',col:'#5fc8e8',icon:'🔮',lines:['gremlin','stoneGargoyle','stoneGolem','mage','genie','naga','giant'],
+    t:['魔法学院：英雄法术伤害+8%','法术伤害+16%，远程单位伤害+15%','法术伤害+24%，远程伤害+30%，法力恢复+15%']},
+  dungeon:{n:'地下城',col:'#b04ac8',icon:'🕸️',lines:['troglodyte','harpy','beholder','medusa','minotaur','manticore','redDragon'],
+    t:['暗影之力：全体地下城单位 幸运+6%','幸运+12%，攻击+2','幸运+18%，攻击+4']},
+  fortress:{n:'要塞',col:'#7a9a3a',icon:'🐊',lines:['gnoll','lizardman','serpentFly','basilisk','gorgon','wyvern','hydra'],
+    t:['沼泽坚甲：全体要塞单位 防御+2','防御+4','防御+6，生命+10%']},
 };
 const ROSTER=[].concat(...Object.values(FAC).map(f=>f.lines));
 const lineOf=t=>DOWN[t]||t;
@@ -30,6 +36,9 @@ function synMod(f,tier,type){if(!tier)return null;const st=U[type];
   if(f==='stronghold')return {a:2*tier,ab:tier>=2?{rage:1}:{}};
   if(f==='rampart')return Object.assign({ab:{regen:1}},tier>=2?{hpMul:tier===2?1.1:1.2}:{},tier>=3?{spd:1}:{});
   if(f==='inferno')return {ab:Object.assign({burn:0.1*tier},tier>=3?{fireShield:1}:{})};
+  if(f==='tower')return tier>=2&&st.shots?{ab:{rngMul:((st.ab&&st.ab.rngMul)||1)*(tier===2?1.15:1.3)}}:null;
+  if(f==='dungeon')return Object.assign({ab:{luck:((st.ab&&st.ab.luck)||0)+0.06*tier}},tier>=2?{a:2*(tier-1)}:{});
+  if(f==='fortress')return Object.assign({d:[0,2,4,6][tier]},tier>=3?{hpMul:1.1}:{});
   return null;}
 // ---------------- artifacts (HoMM3-flavoured) ----------------
 const ART=[
@@ -78,13 +87,19 @@ const SP=[
  {id:'resurrection',n:'复活术',i:'👼',cost:16,tgt:'ally',sch:'earth',d:'点选友军：恢复 50×强度 生命，可复活阵亡个体'},
 ];
 const SPM={};for(const s of SP)SPM[s.id]=s;
+const SLV={magicArrow:1,lightning:2,fireball:3,meteor:4,slow:1};   // HoMM3 spell levels (dragon immunities)
 const SPD={magicArrow:10,lightning:24,fireball:14,meteor:19,PG:1.3};
 const START_SPELLS=['magicArrow','haste','cure'];
 // ---------------- heroes (selectable) ----------------
 const HEROES=[
- {id:'knight',n:'克里斯蒂安',cls:'骑士',i:'⚔️',col:'#4f8cff',cost:0,starter:'pikeman',spells:['magicArrow','haste','cure'],pas:'领导力：全军防御+2，生命+5%',m:()=>({d:2,hpMul:1.05})},
- {id:'barb',n:'克拉格·哈克',cls:'野蛮人',i:'🪓',col:'#d89a3a',cost:150,starter:'orc',spells:['bloodlust','magicArrow','cure'],pas:'进攻术：全军攻击+4，生命+10%；招募数量+20%',m:()=>({a:4,hpMul:1.1}),cnt:1.2},
- {id:'wizard',n:'索尔摩',cls:'巫师',i:'🔮',col:'#9a6ad8',cost:250,starter:'centaur',spells:['magicArrow','lightning','slow'],pas:'智慧：法力上限+10，恢复+30%，法术强度+15%',m:()=>null,mana:10,regen:1.3,sp:1.15},
+ {id:'knight',n:'克里斯蒂安',cls:'骑士',fac:'castle',i:'⚔️',col:'#4f8cff',cost:0,starter:'pikeman',spells:['magicArrow','haste','cure'],pas:'领导力：全军防御+2，生命+5%',m:()=>({d:2,hpMul:1.05})},
+ {id:'barb',n:'克拉格·哈克',cls:'野蛮人',fac:'stronghold',i:'🪓',col:'#d89a3a',cost:150,starter:'orc',spells:['bloodlust','magicArrow','cure'],pas:'进攻术：全军攻击+4，生命+10%；招募数量+20%',m:()=>({a:4,hpMul:1.1}),cnt:1.2},
+ {id:'wizard',n:'索尔摩',cls:'巫师',fac:'tower',i:'🔮',col:'#5fc8e8',cost:250,starter:'gremlin',spells:['magicArrow','lightning','slow'],pas:'智慧：法力上限+10，恢复+20%，法术强度+5%',m:()=>null,mana:10,regen:1.2,sp:1.05},
+ {id:'ranger',n:'吉鲁',cls:'游侠',fac:'rampart',i:'🏹',col:'#4fb85a',cost:150,starter:'centaur',spells:['magicArrow','bless','cure'],pas:'箭术：全军攻击+2 防御+2，远程单位伤害+20%；招募数量+5%',m:st=>Object.assign({a:2,d:2},st.shots?{ab:{rngMul:1.2}}:{}),cnt:1.05},
+ {id:'necro',n:'桑德罗',cls:'死灵法师',fac:'necro',i:'💀',col:'#9a6ad8',cost:200,starter:'skeleton',spells:['magicArrow','slow','cure'],pas:'通灵术：战后额外将击杀敌军的10%转化为骷髅兵',m:()=>null,raise:0.1},
+ {id:'demoniac',n:'塞伦',cls:'恶魔术士',fac:'inferno',i:'🔥',col:'#e8503a',cost:200,starter:'imp',spells:['magicArrow','fireball','haste'],pas:'火焰魔法：火系法术伤害+50%，全军攻击+3 防御+1；招募数量+15%',m:()=>({a:3,d:1}),fireMul:1.5,cnt:1.15},
+ {id:'overlord',n:'穆塔蕾',cls:'领主',fac:'dungeon',i:'🐉',col:'#b04ac8',cost:250,starter:'troglodyte',spells:['magicArrow','bloodlust','cure'],pas:'龙之亲和：全军攻击+4 防御+2，7级单位生命+20%；招募数量+25%',m:st=>Object.assign({a:4,d:2},st.lvl===7?{hpMul:1.2}:{}),cnt:1.25},
+ {id:'beastmaster',n:'塔扎',cls:'驯兽师',fac:'fortress',i:'🐊',col:'#7a9a3a',cost:200,starter:'gnoll',spells:['magicArrow','slow','cure'],pas:'护甲术：全军防御+1，生命+5%',m:()=>({d:1,hpMul:1.05})},
 ];
 const HEROM={};for(const h of HEROES)HEROM[h.id]=h;
 // meta upgrades bought with gold (persist in the browser); the sim passes them in directly
@@ -104,15 +119,18 @@ const THEMES={
  grove:{n:'精灵林地',fac:'rampart',col:'#4fb85a',mod:'敌军获得再生',hint:'弱点：气系法术（闪电/魔法箭）伤害+50%',weak:{air:1.5},emod:()=>({ab:{regen:1}})},
  rift:{n:'地狱裂隙',fac:'inferno',col:'#e8503a',mod:'敌军攻击附带15%火焰伤害',hint:'弱点：你的远程单位伤害+25%',weak:{ranged:1.25},emod:()=>({ab:{burn:0.15}})},
  citadel:{n:'圣光要塞',fac:'castle',col:'#4f8cff',mod:'敌军 防御+2，额外反击1次',hint:'弱点：增益法术持续时间加倍',weak:{buff:2},emod:st=>({d:2,ab:{retal:((st.ab&&st.ab.retal)||1)+1}})},
- lair:{n:'巨龙巢穴',fac:'mixed',col:'#c8402a',mod:'敌军中混有巨龙',hint:'弱点：你的远程单位伤害+25%',weak:{ranged:1.25},pool:['greenDragon','boneDragon','redDragon','wolfRider','gog','woodElf','hellHound','vampire','ogre','unicorn']},
+ academy:{n:'魔法学院',fac:'tower',col:'#5fc8e8',mod:'敌军获得魔法抗性（法术伤害-30%）',hint:'弱点：你的近战单位伤害+20%',weak:{melee:1.2},emod:st=>({ab:{spellRes:Math.max(0.3,(st.ab&&st.ab.spellRes)||0)}})},
+ labyrinth:{n:'地下迷宫',fac:'dungeon',col:'#b04ac8',mod:'敌军 幸运+10%',hint:'弱点：气系法术（闪电/魔法箭）伤害+50%',weak:{air:1.5},emod:st=>({ab:{luck:((st.ab&&st.ab.luck)||0)+0.1}})},
+ swamp:{n:'沼泽要塞',fac:'fortress',col:'#7a9a3a',mod:'敌军 防御+3',hint:'弱点：火系法术伤害+50%',weak:{fire:1.5},emod:()=>({d:3})},
+ lair:{n:'巨龙巢穴',fac:'mixed',col:'#c8402a',mod:'敌军中混有巨龙',hint:'弱点：你的远程单位伤害+25%',weak:{ranged:1.25},pool:['greenDragon','boneDragon','redDragon','wolfRider','gog','woodElf','hellHound','vampire','ogre','unicorn','wyvern','manticore','harpy','serpentFly']},
 };
 const BOSSES=[
  {id:'lichKing',n:'巫妖王',type:'powerLich',theme:'crypt',mod:{hpMul:5,a:2,d:2},mech:'summon',summon:'skeletonWarrior',every:6,share:0.28,desc:'每6秒召唤一队骷髅勇士；死亡之云溅射'},
  {id:'wyrm',n:'远古红龙',type:'redDragon',theme:'lair',mod:{hpMul:3,a:4},mech:'sweep',every:7,share:0.42,desc:'每7秒对3行区域喷吐龙息（地面红色预警，分散站位可躲避）'},
  {id:'archfiend',n:'深渊魔王',type:'archDevil',theme:'rift',mod:{hpMul:2.5,a:8,d:8,ab:{fireShield:1}},mech:'blink',summon:'familiar',every:7,share:0.55,desc:'每8秒瞬移到你的远程部队身边并召唤魔仆'},
 ];
-const SCHED=['warband','crypt','grove','rift','B0','citadel','warband','lair','rift','B1','grove','crypt','citadel','warband','B2'];
-function stageInfo(s){let key=s<=STAGES?SCHED[s-1]:(s%5===0?'B'+((s/5-1)%3):Object.keys(THEMES)[(s*7)%6]);
+const SCHED=['warband','grove','swamp','rift','B0','academy','crypt','labyrinth','lair','B1','citadel','swamp','academy','labyrinth','B2'];
+function stageInfo(s){let key=s<=STAGES?SCHED[s-1]:(s%5===0?'B'+((s/5-1)%3):Object.keys(THEMES)[(s*7)%Object.keys(THEMES).length]);
   if(key[0]==='B'){const B=BOSSES[+key[1]];return {s,boss:B,theme:THEMES[B.theme],themeId:B.theme};}return {s,theme:THEMES[key],themeId:key};}
 // ---------------- budgets ----------------
 const maxLvl=s=>Math.min(7,1+Math.floor((s-1)*0.6));
@@ -145,7 +163,7 @@ function makeOffer(run){const s=run.stage,n=has(run,'medal')?4:3,L=maxLvl(s),own
   const owned=new Set(own.map(o=>lineOf(o.type)));const ownFac=Object.keys(synCounts(own));
   let tries=0;while(cards.length<n&&tries++<60){let t;
     if(full){t=lineOf(pick(own).type);}else{const pool=ROSTER.filter(x=>U[x].lvl<=L&&U[x].lvl>=Math.max(1,L-3)&&!(run.lockU&&run.lockU.has(x)));
-      const fp=ownFac.length&&R()<0.55?pool.filter(x=>ownFac.includes(facOf(x))):pool;t=pick(fp.length?fp:pool);}
+      const hf=(HEROM[run.hero]||{}).fac,rr=R();const fp=hf&&rr<0.3?pool.filter(x=>facOf(x)===hf):ownFac.length&&rr<0.65?pool.filter(x=>ownFac.includes(facOf(x))):pool;t=pick(fp.length?fp:pool);}
     if(cards.some(c=>c.type===t))continue;const curT=own.find(o=>lineOf(o.type)===t);const realT=curT?curT.type:t;
     cards.push({kind:'unit',type:realT,count:cnt(realT,offerBudget(s)*(0.85+R()*0.3)*(has(run,'sash')?1.2:1)*(run.cntMul||1))});}
   return cards;}
@@ -160,26 +178,28 @@ function playerStacks(run,list,info){const sc=synCounts(list);let wingsT=null;
   if(has(run,'wings')){const g=list.filter(s=>!U[s.type].fly).sort((a,b)=>U[b.type].v*b.count-U[a.type].v*a.count)[0];if(g)wingsT=g.type;}
   return list.map(s=>{const st=U[s.type];let m={};const f=facOf(s.type);m=mergeMod(m,synMod(f,synTier(sc[f]||0),s.type));
     for(const id of run.arts)m=mergeMod(m,ARTM[id].m(st));const HR=HEROM[run.hero];if(HR)m=mergeMod(m,HR.m(st));
-    if(s.type===wingsT)m.fly=1;if(info&&info.theme.weak.ranged&&st.shots)m=mergeMod(m,{ab:{rngMul:((m.ab&&m.ab.rngMul)||1)*info.theme.weak.ranged}});
+    if(s.type===wingsT)m.fly=1;if(info&&info.theme.weak.ranged&&st.shots)m=mergeMod(m,{ab:{rngMul:((m.ab&&m.ab.rngMul)||1)*info.theme.weak.ranged}});if(info&&info.theme.weak.melee&&!st.shots)m=mergeMod(m,{ab:{melMul:info.theme.weak.melee}});
     const f2=run.form[s.type];return Object.assign({type:s.type,count:s.count,mod:Object.keys(m).length?m:null},f2?{ax:f2[0],ay:f2[1]}:{});});}
 function enemyStacks(list,info){const sc=synCounts(list.filter(s=>!s.boss));return list.map(s=>{const st=U[s.type];let m={};const f=facOf(s.type);
   if(!s.boss)m=mergeMod(m,synMod(f,synTier(sc[f]||0),s.type));if(info.theme.emod)m=mergeMod(m,info.theme.emod(st));
   if(s.boss){const B=BOSSES.find(b=>b.id===s.boss);m=mergeMod(m,B.mod);}return {type:s.type,count:s.count,boss:s.boss,mod:Object.keys(m).length?m:null};});}
 // ---------------- hero / mana / spells in battle ----------------
 function heroFor(run,info){const HR=HEROM[run.hero]||{},mu=(run.up&&run.up.mana)||0;const lvl=run.stage,P=Math.pow(SPD.PG,lvl-1)*(HR.sp||1);const max=20+lvl*2+(has(run,'crown')?12:0)+(HR.mana||0)+2*mu;
-  return {lvl,P,max,mana:has(run,'hat')?max:max*0.4,regen:(0.75+0.05*lvl)*(has(run,'talisman')?1.5:1)*(HR.regen||1)*(1+0.12*mu),arts:run.arts,info,costMul:has(run,'tome')?0.75:1,casts:0};}
-const spellCost=(h,id)=>Math.round(SPM[id].cost*h.costMul);
-function spellMul(h,sp){let m=1;const w=h.info&&h.info.theme.weak||{};if(sp.sch==='fire'&&h.arts.includes('orbFire'))m*=1.5;if(sp.sch==='air'&&h.arts.includes('orbAir'))m*=1.5;
+  const dl=deployList(run),tt=synTier(synCounts(dl).tower||0),chan=dl.some(s=>U[s.type].ab&&U[s.type].ab.chan)?2:0;
+  return {lvl,P,max,mana:has(run,'hat')?max:max*0.4,regen:(0.75+0.05*lvl)*(has(run,'talisman')?1.5:1)*(HR.regen||1)*(1+0.12*mu)*(tt>=3?1.15:1),arts:run.arts,info,costMul:has(run,'tome')?0.75:1,casts:0,chan,towerMul:1+0.08*tt,fireMul:HR.fireMul||1};}
+const spellCost=(h,id)=>Math.max(1,Math.round(SPM[id].cost*h.costMul)-(h.chan||0));   // Mage / Arch Mage: hero spells cost 2 less
+function spellMul(h,sp){let m=h.towerMul||1;if(sp.sch==='fire')m*=h.fireMul||1;const w=h.info&&h.info.theme.weak||{};if(sp.sch==='fire'&&h.arts.includes('orbFire'))m*=1.5;if(sp.sch==='air'&&h.arts.includes('orbAir'))m*=1.5;
   if(w.fire&&sp.sch==='fire')m*=w.fire;if(w.air&&sp.sch==='air'&&sp.tgt==='enemy')m*=w.air;if(w.area&&sp.tgt==='area')m*=w.area;return m;}
 const durMul=h=>(h.arts.includes('sphere')?2:1)*((h.info&&h.info.theme.weak.buff)||1);
 // target: unit (enemy/ally) or {x,y} pixel point (area). returns list of affected units
 function cast(b,h,id,target){const sp=SPM[id],P=h.P*spellMul(h,sp),out=[];h.casts++;
   const side=s=>b.units.filter(u=>u.alive&&u.side===s);
-  const dmg=(u,v)=>{C.applyDamage(b,null,u,Math.round(v),'spell');out.push(u);};
+  const lv=SLV[id]||1,imm=u=>u.st.ab&&u.st.ab.spellImm>=lv;
+  const dmg=(u,v)=>{if(imm(u)){b.events.push({k:'pop',u,str:'魔法免疫',col:'#cfd8ff'});return;}C.applyDamage(b,null,u,Math.max(1,Math.round(v*(1-((u.st.ab&&u.st.ab.spellRes)||0)))),'spell');out.push(u);};
   if(id==='magicArrow')dmg(target,SPD.magicArrow*P);else if(id==='lightning')dmg(target,SPD.lightning*P);
   else if(id==='fireball'||id==='meteor'){const r=sp.r*(C.CW+C.CH)/2,base=SPD[id];for(const u of b.units.filter(u=>u.alive))if(Math.hypot(u.x-target.x,u.y-target.y)<=r+Math.max(u.fw,u.fh)*20)dmg(u,base*P);}
   else if(id==='haste'||id==='bless'||id==='bloodlust'){const key={haste:'haste',bless:'bless',bloodlust:'blood'}[id];const d=(id==='bloodlust'?12:10)*durMul(h)*(id==='haste'&&h.arts.includes('orbAir')?1.5:1);for(const u of side('p')){u.buf[key]=b.t+d;out.push(u);}}
-  else if(id==='slow'){for(const u of side('e')){u.buf.slow=b.t+10*durMul(h);out.push(u);}}
+  else if(id==='slow'){for(const u of side('e')){if(imm(u))continue;u.buf.slow=b.t+10*durMul(h);out.push(u);}}
   else if(id==='cure'||id==='resurrection'){const amt=(id==='cure'?18:50)*P*(h.arts.includes('necklace')?1.6:1);const L=id==='cure'?side('p'):[target];
     for(const u of L){if(!u.alive)continue;const cur=(u.count-1)*u.st.hp+u.top,max=id==='cure'?cur+(u.st.hp-u.top):u.start*u.st.hp;const nw=Math.min(max,cur+amt);u.count=Math.ceil(nw/u.st.hp);u.top=nw-(u.count-1)*u.st.hp;out.push(u);}}
   b.events.push({k:'spellFx',id,out});return out;}
@@ -192,7 +212,7 @@ function bossTick(b,dt,stage){for(const u of b.units){if(!u.alive||!u.boss)conti
     if(tgt){const from={x:u.x,y:u.y};let best=null,bd=1e9;for(let y=0;y<C.GR;y++)for(let x=0;x<C.GC;x++){const d=C.gapAt(x,y,u.fw,u.fh,tgt);if(d!==1)continue;C.occClear(b,u,u.ax,u.ay);const ok=C.fits(b,u,x,y);C.occSet(b,u,u.ax,u.ay,u.id);if(ok&&d<bd){bd=d;best=[x,y];}}
       if(best&&!u.moving){C.moveTo(b,u,best[0],best[1]);b.events.push({k:'blink',u,from});}const c=Math.max(2,Math.round(enemyBudget(stage)*0.05/U[B.summon].v));C.spawn(b,'e',B.summon,c,u);}}}}
 // ---------------- rewards / post battle ----------------
-function raisePct(run,list){const sc=synCounts(list);const t=synTier(sc.necro||0);return (t?0.1*t:0)+(has(run,'cloak')?0.2:0);}
+function raisePct(run,list){const sc=synCounts(list);const t=synTier(sc.necro||0);return (t?0.1*t:0)+(has(run,'cloak')?0.2:0)+((HEROM[run.hero]||{}).raise||0);}
 function afterBattle(run,b,list){const sp={};for(const u of b.units)if(u.side==='p'&&u.alive)sp[u.type]=(sp[u.type]||0)+u.count;
   const healPct=0.25+0.1*((run.up&&run.up.heal)||0);const healed={};const win=b.over==='win';
   for(const s of list){const alive=sp[s.type]||0;let h=0;if(win&&alive>0){h=Math.floor((s.count-alive)*healPct);if(h>0){healed[s.type]=h;run.healed+=h;}}run.army[s.type]-=s.count;run.army[s.type]+=alive+h;if(run.army[s.type]<=0){delete run.army[s.type];delete run.merges[s.type];}}

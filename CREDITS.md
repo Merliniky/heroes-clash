@@ -104,3 +104,10 @@ No new third-party packs. Same CC0 sources as v16–v18: Quaternius Universal Ba
 - **Dendroid Guard** — "Forest Monster" by Čestmír Dammer (CDmir), OpenGameArt, CC0 — https://opengameart.org/content/forest-monster (used with its tree intact).
 - **Pegasus** — Quaternius White Horse (CC0) with procedural feathered wings.
 - **Black Knight** — Quaternius Animated Animals Horse (CC0), rider from Quaternius UBC + outfits (CC0).
+
+## v20
+No new third-party packs; every asset is CC0.
+- Sprites for gremlin, mage, genie, naga, giant, stone gargoyle, stone golem, troglodyte, harpy, medusa, minotaur, gnoll and lizardman are built from Quaternius *Universal Base Characters*, *Modular Character Outfits – Fantasy*, *Universal Animation Library* and weapon models. Skin and outfit textures were recoloured with `tools/tint.py`. Horns, tails, turbans, snake hair, snouts, rocks, wings and crowns are procedural Blender primitives.
+- Beholder and serpent fly are built entirely from procedural primitives, driven by a hidden UAL skeleton.
+- Manticore and basilisk use the Quaternius *Animated Animals* Wolf; gorgon uses the Quaternius Horse; wyvern and hydra use Quaternius *Dragon Evolved* (Ultimate Monsters). All are recoloured, with procedural parts added: wings, scorpion tail, mane, spikes, horns, and extra hydra heads/necks.
+- The 3D fallbacks reuse the CC0 models already listed above (KayKit and Quaternius), tinted per unit.

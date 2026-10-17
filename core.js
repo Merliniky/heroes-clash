@@ -78,6 +78,8 @@ const cellsPerRound=spd=>1.8+0.13*spd;
 function speedPx(u,b){return cellsPerRound(u.st.spd)*CELLPX/ROUND*(b?rate(b,u):1);}
 function startMove(b,u,nx,ny){u.fx=u.ax;u.fy=u.ay;occSet(b,u,nx,ny,u.id);u.moved+=Math.max(Math.abs(nx-u.ax),Math.abs(ny-u.ay));u.ax=nx;u.ay=ny;u.moving=true;u.mt=0;
   const d=Math.hypot((nx-u.fx)*CW,(ny-u.fy)*CH);u.md=d/speedPx(u,b);u.state='walk';}
+function hopBack(b,u,t){let best=null,bd=1e9;for(let y=0;y<GR;y++)for(let x=0;x<GC;x++){const g=gapAt(x,y,u.fw,u.fh,t);if(g<2||g>3||!fits(b,u,x,y))continue;const d=Math.hypot(x-u.ax,y-u.ay);if(d<bd){bd=d;best=[x,y];}}
+  if(best){startMove(b,u,best[0],best[1]);u.moved=0;u.think=0.6;}}
 function applyDamage(b,src,tgt,dmg,kind){
   if(!tgt.alive)return;
   const total=(tgt.count-1)*tgt.st.hp+tgt.top-dmg;const before=tgt.count;
@@ -91,7 +93,7 @@ function baseRoll(u){const st=u.st,n=u.count,r=()=>st.dmg[0]+Math.floor(R()*(st.
   if(n<=10){let s=0;for(let i=0;i<n;i++)s+=r();return s;}let s=0;for(let i=0;i<10;i++)s+=r();return Math.floor(s*n/10);}
 function calcDmg(b,u,t,opt={}){
   const ab=u.st.ab||{};let D=t.st.d+t.bon.d;if(ab.ignoreDef)D=Math.floor(D*(1-ab.ignoreDef));
-  let m=dmgMul(u.st.a+u.bon.a+(opt.melee&&u.buf.blood>b.t?4:0),D);
+  let m=dmgMul(u.st.a+u.bon.a+(opt.melee&&u.buf.blood>b.t?4:0)-(u.weak>b.t?6:0),D);if(opt.melee&&ab.melMul)m*=ab.melMul;
   if(opt.melee&&u.st.shots>0&&!ab.noMP)m*=0.5;               // shooter in melee: half (unless "no melee penalty")
   if(opt.ranged&&opt.far&&!ab.sharp)m*=0.5;                    // range penalty (> 10 cells); Bow of the Sharpshooter ignores it
   if(opt.ranged&&ab.sharp&&u.volley){m*=2;}
@@ -107,12 +109,15 @@ function calcDmg(b,u,t,opt={}){
 }
 function onHitEffects(b,u,t,dmg,melee){
   const ab=u.st.ab||{};if(!t.alive)return;
-  if(ab.stun&&R()<ab.stun[0]&&!(t.st.ab&&t.st.ab.undead&&ab.stun[1]==='致盲')){t.stun=b.t+ROUND*0.8;t.wind=0;b.events.push({k:'pop',u:t,str:ab.stun[1],col:'#d6c8ff'});}
+  if(ab.stun&&R()<ab.stun[0]&&!(t.st.ab&&t.st.ab.undead&&ab.stun[1]==='致盲')&&!(t.st.ab&&t.st.ab.stunImm&&(ab.stun[1]==='致盲'||ab.stun[1]==='石化'))){t.stun=b.t+ROUND*0.8;t.wind=0;b.events.push({k:'pop',u:t,str:ab.stun[1],col:'#d6c8ff'});}
   if(ab.curse&&melee&&R()<0.25&&!(t.st.ab&&t.st.ab.undead)){t.curse=b.t+ROUND*1.5;b.events.push({k:'pop',u:t,str:'诅咒',col:'#c78bff'});}
   if(ab.deathStare&&melee){let k=0;for(let i=0;i<Math.min(u.count,100);i++)if(R()<0.1)k++;k=Math.min(k,Math.ceil(u.count/10));
     if(k>0&&t.alive){applyDamage(b,u,t,(k-1)*t.st.hp+t.top,'stare');b.events.push({k:'pop',u:t,str:'死亡凝视',col:'#ff6a6a'});}}
   if(ab.lightning&&R()<0.2&&t.alive){applyDamage(b,u,t,10*u.count,'bolt');b.events.push({k:'zap',u:t});}
-  if(ab.drain){const max=u.start*u.st.hp,cur=(u.count-1)*u.st.hp+u.top,nw=Math.min(max,cur+dmg);u.count=Math.ceil(nw/u.st.hp);u.top=nw-(u.count-1)*u.st.hp;b.events.push({k:'drain',u});}
+  if(ab.drain&&!(t.st.ab&&(t.st.ab.undead||t.st.ab.unliving))){const max=u.start*u.st.hp,cur=(u.count-1)*u.st.hp+u.top,nw=Math.min(max,cur+dmg);u.count=Math.ceil(nw/u.st.hp);u.top=nw-(u.count-1)*u.st.hp;b.events.push({k:'drain',u});}
+  if(ab.dispel&&t.alive){let any=0;for(const k of ['haste','bless','blood'])if(t.buf[k]>b.t){t.buf[k]=0;any=1;}if(any)b.events.push({k:'pop',u:t,str:'驱散',col:'#a0e0ff'});}
+  if(ab.weak&&t.alive){if(!(t.weak>b.t))b.events.push({k:'pop',u:t,str:'虚弱',col:'#c0c0ff'});t.weak=b.t+ROUND*2;}
+  if(ab.poison&&t.alive&&R()<0.3&&!(t.st.ab&&(t.st.ab.undead||t.st.ab.unliving))){t.poison={n:3,per:Math.max(1,Math.floor(t.count*t.st.hp*0.1))};b.events.push({k:'pop',u:t,str:'中毒',col:'#8fe060'});}
   if(ab.burn&&t.alive){applyDamage(b,u,t,Math.max(1,Math.floor(dmg*ab.burn)),'burn');}
   if(melee&&t.st.ab&&t.st.ab.fireShield&&u.alive){applyDamage(b,t,u,Math.max(1,Math.floor(dmg*0.2)),'fire');}
 }
@@ -127,6 +132,8 @@ function doMelee(b,u,t,isRetal){
     if(cx>=0&&cy>=0&&cx<GC&&cy<GR){const o=b.occ[cy*GC+cx];const v=b.units.find(z=>z.id===o);if(v&&v!==t&&v!==u&&v.alive){applyDamage(b,u,v,calcDmg(b,u,v,{melee:1}),'breath');b.events.push({k:'breath2',u,t:v});}}}
   // retaliation: once per round (griffin 2, royal griffin unlimited); never vs "no enemy retaliation" attackers
   if(!isRetal&&!ab.noRet&&t.alive&&!(t.stun>b.t)&&adjacent(t,u)&&t.ret>0){t.ret--;b.pend.push({at:b.t+0.4,u:t,t:u,retal:1});}
+  if(!isRetal&&ab.morale&&u.alive&&t.alive&&!u.second&&R()<ab.morale){b.pend.push({at:b.t+0.5,u,t,second:1});b.events.push({k:'pop',u,str:'士气高涨',col:'#ffe080'});}
+  if(!isRetal&&ab.hitRun&&u.alive)b.pend.push({at:b.t+0.55,u,t,hop:1});
   if(!isRetal&&ab.dbl&&u.alive&&!u.second){u.second=1;b.pend.push({at:b.t+0.45,u,t,second:1});}else u.second=0;
 }
 const RAGE_T=[38,52],RAGE_K=0.12;
@@ -134,8 +141,10 @@ function step(b,dt){
   if(b.over)return;b.t+=dt;const L=b.units;
   if(b.bossB==null)b.bossB=L.some(u=>u.boss);const RT=b.bossB?RAGE_T[1]:RAGE_T[0];if(b.t>RT){b.rageM=1+(b.t-RT)*RAGE_K;if(!b.rageOn){b.rageOn=1;b.events.push({k:'rage'});}}
   const r=Math.floor(b.t/ROUND);if(r!==b.round){b.round=r;for(const u of L){u.ret=(u.st.ab&&u.st.ab.retal)||1;
-    if(u.alive&&u.st.ab&&u.st.ab.regen&&u.top<u.st.hp){u.top=u.st.hp;b.events.push({k:'regen',u});}}}
-  for(const p of b.pend)if(b.t>=p.at&&!p.done){p.done=1;if(p.u.alive&&p.t.alive&&!(p.u.stun>b.t)){
+    if(u.alive&&u.st.ab&&u.st.ab.regen&&u.top<u.st.hp){u.top=u.st.hp;b.events.push({k:'regen',u});}
+    if(u.alive&&u.poison&&u.poison.n>0&&r>0){u.poison.n--;applyDamage(b,null,u,u.poison.per,'poison');}
+    if(u.alive&&u.st.ab&&u.st.ab.caster&&r>0){const al=L.filter(o=>o.alive&&o.side===u.side&&o!==u);if(al.length){const o=al[Math.floor(R()*al.length)],k=['haste','bless','blood'][Math.floor(R()*3)];o.buf[k]=Math.max(o.buf[k]||0,b.t+ROUND*2);b.events.push({k:'pop',u:o,str:{haste:'加速术',bless:'祝福术',blood:'嗜血术'}[k],col:'#9fe0ff'});}}}}
+  for(const p of b.pend)if(b.t>=p.at&&!p.done){p.done=1;if(p.hop){if(p.u.alive&&!p.u.moving&&!(p.u.stun>b.t))hopBack(b,p.u,p.t);continue;}if(p.u.alive&&p.t.alive&&!(p.u.stun>b.t)){
     if(p.shot){if(p.u.shots>0){p.u.shots--;p.u.atkT=1;fire(b,p.u,p.t);}}
     else if(adjacent(p.u,p.t)){p.u.atkT=1;p.u.wt=0.3;doMelee(b,p.u,p.t,!p.second);}}}
   b.pend=b.pend.filter(p=>!p.done);

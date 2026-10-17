@@ -55,7 +55,8 @@ let GRASSM,OUTM;{const g=new THREE.PlaneGeometry(GC,GR);const m=GRASSM=new THREE
 const propObjs=[];
 // per-theme arena look: ground tint, sky/fog colour, procedural props, ambient particles
 const THEME_LOOK={warband:{p:['#b8b45a','#aca850',[120,110]],o:0x8a8a40,sky:0xc8d8e8},crypt:{p:['#6e6a80','#646078',[80,80]],o:0x3e3e50,sky:0x5a5a7a},grove:{p:['#7fbf4a','#74b343',[40,110]],o:0x4f9a3a,sky:0x9fd8e8},
-  rift:{p:['#9a6448','#8e5a40',[140,60]],o:0x4a2a20,sky:0xb06040},citadel:{p:['#a6cc78','#9cc06e',[80,130]],o:0x7aa060,sky:0xb8d8f8},lair:{p:['#a88c5c','#9c8052',[130,100]],o:0x6a5a40,sky:0xa88a70}};const texCache={};
+  rift:{p:['#9a6448','#8e5a40',[140,60]],o:0x4a2a20,sky:0xb06040},citadel:{p:['#a6cc78','#9cc06e',[80,130]],o:0x7aa060,sky:0xb8d8f8},lair:{p:['#a88c5c','#9c8052',[130,100]],o:0x6a5a40,sky:0xa88a70},
+  academy:{p:['#a4b4c8','#98a8bc',[90,120]],o:0x5a6a8a,sky:0xa8c8f0},labyrinth:{p:['#6a5e70','#605466',[70,70]],o:0x2a2430,sky:0x3e3450},swamp:{p:['#6e7e4a','#647442',[60,90]],o:0x3a4a2a,sky:0x8e9e7e}};const texCache={};
 const themeGrp=new THREE.Group();scene.add(themeGrp);let curTheme=null;const tmat=c=>new THREE.MeshToonMaterial({color:c,gradientMap:ramp});
 function edgeSpots(n,seed){const R=Core.rng(seed),out=[];for(let k=0;k<n;k++){const side=k%3;let x,z;if(side<2){x=(R()-0.5)*(GC+2);z=(side?1:-1)*(H2+0.7+R()*1.8);}else{z=(R()-0.5)*(GR+1);x=W2+0.8+R()*1.8;}out.push([x,z,R()]);}return out;}
 function setTheme(id){if(curTheme===id)return;curTheme=id;const L=THEME_LOOK[id]||THEME_LOOK.grove;if(!texCache[id])texCache[id]=grassTex(...L.p);GRASSM.map=texCache[id];GRASSM.needsUpdate=true;OUTM.color.set(L.o);scene.background.set(L.sky);scene.fog.color.set(L.sky);
@@ -67,11 +68,17 @@ function setTheme(id){if(curTheme===id)return;curTheme=id;const L=THEME_LOOK[id]
   if(id==='grove'){const stem=tmat(0xf0e8d0),cap=tmat(0xe04a3a),fl=[tmat(0xffe060),tmat(0xff90c0),tmat(0xa0c8ff)];for(const [x,z,r] of sp){if(r<0.5){add(new THREE.CylinderGeometry(0.04,0.05,0.16,6),stem,x,0.08,z);add(new THREE.SphereGeometry(0.12,8,6,0,6.3,0,1.6),cap,x,0.16,z);}else add(new THREE.SphereGeometry(0.07,6,5),fl[Math.floor(r*30)%3],x,0.06,z);}}
   if(id==='lair'){const bone=tmat(0xf0ead8);for(const [x,z,r] of sp){if(r<0.55)add(new THREE.CylinderGeometry(0.03,0.03,0.5,6),bone,x,0.03,z,r*6).rotation.z=Math.PI/2;else add(new THREE.SphereGeometry(0.11,8,6),bone,x,0.1,z);}}
   if(id==='citadel'){const pole=tmat(0xc8b070),flag=new THREE.MeshToonMaterial({color:0x3a6ae0,gradientMap:ramp,side:THREE.DoubleSide});for(const [x,z,r] of sp.slice(0,10)){add(new THREE.CylinderGeometry(0.025,0.025,1.1,6),pole,x,0.55,z);const f=add(new THREE.PlaneGeometry(0.4,0.26),flag,x+0.2,0.9,z);f.userData.flag=r*6;}}
+  if(id==='academy'){const cry=new THREE.MeshToonMaterial({color:0x7ad8ff,gradientMap:ramp,emissive:0x2a6aa0}),col=tmat(0xe8e4f0);for(const [x,z,r] of sp){if(r<0.55){const c=add(new THREE.OctahedronGeometry(0.16,0),cry,x,0.3,z,r*5);c.scale.y=1.8;c.userData.spin=r*6;}else add(new THREE.CylinderGeometry(0.09,0.11,0.55+r*0.3,8),col,x,0.3,z);}}
+  if(id==='labyrinth'){const rk=tmat(0x5a5262),mu=new THREE.MeshToonMaterial({color:0xc070ff,gradientMap:ramp,emissive:0x5a2080});for(const [x,z,r] of sp){if(r<0.6)add(new THREE.ConeGeometry(0.14+r*0.1,0.5+r*0.5,6),rk,x,0.25+r*0.25,z,r*4);else{add(new THREE.CylinderGeometry(0.03,0.04,0.14,6),tmat(0xd8d0e0),x,0.07,z);add(new THREE.SphereGeometry(0.1,8,6,0,6.3,0,1.6),mu,x,0.14,z);}}}
+  if(id==='swamp'){const reed=tmat(0x6a7a30),wat=new THREE.MeshToonMaterial({color:0x3a6a5a,gradientMap:ramp,transparent:true,opacity:0.8});for(const [x,z,r] of sp){if(r<0.45){const o=add(new THREE.CircleGeometry(0.35+r*0.4,14),wat,x,0.012,z);o.rotation.x=-Math.PI/2;o.castShadow=false;}else for(let k=0;k<3;k++)add(new THREE.CylinderGeometry(0.015,0.02,0.5+k*0.12,5),reed,x+k*0.06-0.06,0.25+k*0.06,z+(k%2)*0.05).rotation.z=(k-1)*0.15;}}
   if(id==='warband'){const sp2=tmat(0x7a5a3a),tent=tmat(0xc8a060);for(const [x,z,r] of sp){if(r<0.75)add(new THREE.ConeGeometry(0.05,0.5,5),sp2,x,0.22,z,0,1).rotation.z=(r-0.4);else add(new THREE.ConeGeometry(0.45,0.6,4),tent,x,0.3,z,r*3);}}}
 function themeAmbient(dt){if(!curTheme)return;const r=Math.random;
   if(curTheme==='crypt'&&r()<dt*10)P({x:(r()-0.5)*(GC+4),y:0.1,z:(r()-0.5)*(GR+4),vx:(r()-0.5)*0.2,vy:0.15,vz:(r()-0.5)*0.2,drag:0.5,life:3,s:0.5,grow:1.6,c:[0.55,0.45,0.75],a:0.18});
   if(curTheme==='rift'&&r()<dt*14)P({x:(r()-0.5)*(GC+4),y:0.05,z:(r()-0.5)*(GR+4),vx:(r()-0.5)*0.3,vy:0.6+r()*0.6,vz:(r()-0.5)*0.3,drag:0.3,life:2.2,s:0.05,c:[1,0.5,0.15]},true);
   if(curTheme==='grove'&&r()<dt*6)P({x:(r()-0.5)*GC,y:0.3+r()*1.2,z:(r()-0.5)*GR,vx:(r()-0.5)*0.3,vy:(r()-0.5)*0.2,vz:(r()-0.5)*0.3,drag:0.2,life:2.5,s:0.05,c:[0.8,1,0.4]},true);
+  if(curTheme==='swamp'&&r()<dt*5)P({x:(r()-0.5)*(GC+2),y:0.2+r()*0.8,z:(r()-0.5)*(GR+2),vx:(r()-0.5)*0.4,vy:(r()-0.5)*0.2,vz:(r()-0.5)*0.4,drag:0.2,life:2.2,s:0.05,c:[0.85,1,0.35]},true);
+  if(curTheme==='labyrinth'&&r()<dt*7)P({x:(r()-0.5)*(GC+4),y:0.1,z:(r()-0.5)*(GR+4),vx:(r()-0.5)*0.15,vy:0.12,vz:(r()-0.5)*0.15,drag:0.5,life:3,s:0.45,grow:1.5,c:[0.5,0.3,0.6],a:0.16});
+  if(curTheme==='academy'){for(const o of themeGrp.children)if(o.userData.spin!=null){o.userData.spin+=dt;o.rotation.y=o.userData.spin;o.position.y=0.3+Math.sin(o.userData.spin*2)*0.05;}if(r()<dt*5)P({x:(r()-0.5)*GC,y:0.2+r()*1.0,z:(r()-0.5)*GR,vx:0,vy:0.25,vz:0,drag:0.1,life:2,s:0.04,c:[0.5,0.85,1]},true);}
   if(curTheme==='citadel')for(const o of themeGrp.children)if(o.userData.flag!=null){o.userData.flag+=dt*4;o.rotation.y=Math.sin(o.userData.flag)*0.4;}}
 function cullProps(){const near=portrait?new THREE.Vector3(-W2-0.6,0,0):new THREE.Vector3(0,0,H2+0.8);const dn=camBase.distanceTo(near);for(const o of propObjs)o.visible=camBase.distanceTo(o.position)>dn;}
 async function placeProps(){const R=Core.rng(1234),r=()=>R();const list=await Promise.all(PROPS.map(f=>loadG(f).then(g=>[f,g]).catch(()=>null)));const G={};for(const x of list)if(x)G[x[0]]=x[1].scene;
@@ -203,7 +210,7 @@ function playOne(v,k,dur){if(v.spr){const sk=k==='atk'||k==='shoot'?'attack':k==
   a.reset();a.enabled=true;a.setEffectiveWeight(1);
   if(dur){const ts=Math.min(2.6,Math.max(1,imp/dur));a.timeScale=ts;a.time=Math.max(0,imp-dur*ts);}else a.timeScale=k==='hit'?1.4:1;
   a.play();v.os=a;v.osK=k;v.osW=1;}
-function disposeViews(){for(const v of views.values()){unitLayer.remove(v.g);if(v.spr){unitLayer.remove(v.spr);v.spr.material.dispose();}v.el.remove();v.mixer.stopAllAction();}views.clear();}
+function disposeViews(){for(const v of views.values()){unitLayer.remove(v.g);if(v.spr){unitLayer.remove(v.spr);v.spr.material.dispose();if(v.sprTx)for(const t of v.sprTx)t.dispose();}v.el.remove();v.mixer.stopAllAction();}views.clear();}
 const tmpV=new THREE.Vector3();
 function unitWorld(u){const [x,z]=toW(u.x,u.y);return [x,z];}
 function updateView(v,dt,b){const u=v.u,def=v.def;const [x,z]=unitWorld(u);
@@ -552,7 +559,7 @@ function titleMeta(){if($('dStreak'))renderStreak();$('titleMeta').innerHTML=MM.
   const vs=+new URLSearchParams(location.search).get('vs');if(vs){$('vsBanner').innerHTML=`⚔ 好友打到了第 <b>${vs}</b> 关 —— 你能超过吗？`;$('vsBanner').classList.remove('hidden');}}
 function openHeroSel(){SFX.init();SFX.startMusic();S.click();const el=$('hsCards');el.innerHTML='';
   H.HEROES.forEach(h=>{const own=MM.heroes.includes(h.id);const d=document.createElement('div');d.className='hcard'+(own?'':' locked');d.style.setProperty('--hc',h.col);
-    d.innerHTML=`<div class="hi">${h.i}</div><div class="hn">${h.n}</div><div class="hc">${h.cls}</div><div class="hs"><img src="${sprSrc(h.starter)}"> 起始：${U[h.starter].n}</div><div class="hsp">${h.spells.map(id=>H.SPM[id].i).join(' ')} ${h.spells.map(id=>H.SPM[id].n).join('·')}</div><div class="hp">${h.pas}</div>${own?'<div class="hgo">出征 ▶</div>':`<div class="hbuy">🔒 ${h.cost} 金币解锁</div>`}`;
+    d.innerHTML=`<div class="hi">${h.i}</div><div class="hn">${h.n}</div><div class="hc">${h.cls}${h.fac&&H.FAC[h.fac]?` · ${H.FAC[h.fac].icon} ${H.FAC[h.fac].n}阵营（招募偏向）`:""}</div><div class="hs"><img src="${sprSrc(h.starter)}"> 起始：${U[h.starter].n}</div><div class="hsp">${h.spells.map(id=>H.SPM[id].i).join(' ')} ${h.spells.map(id=>H.SPM[id].n).join('·')}</div><div class="hp">${h.pas}</div>${own?'<div class="hgo">出征 ▶</div>':`<div class="hbuy">🔒 ${h.cost} 金币解锁</div>`}`;
     d.onclick=()=>{if(own){show('heroSel',false);startRun({hero:h.id});return;}if(Meta.spend(h.cost)){MM.heroes.push(h.id);Meta.save();if(MM.heroes.length>=H.HEROES.length)ach('heroes');S.rare();toast(`${h.i} 解锁英雄：${h.n}！`,'gold');openHeroSel();}else{S.click();toast(`金币不足（需要 ${h.cost}，拥有 ${MM.gold}）`,'bad');}};el.appendChild(d);});
   $('hsSub').textContent=`💰 ${MM.gold} 金币 · 打得越远赚得越多`;show('title',false);show('gameover',false);show('heroSel',true);}
 function startDaily(){const day=Meta.today(),seed=Meta.seedOf('hc'+day);const hero=H.HEROES[seed%H.HEROES.length].id;H.setRng(Meta.mulberry(seed));startRun({hero,daily:day});toast(`📅 每日挑战 ${day} · 所有玩家相同的招募与敌军 · 英雄：${H.HEROM[hero].n}`,'',3200);}
