@@ -13,7 +13,7 @@ objs=imp(J['f'] if J['f'].startswith('/') else M+J['f']+'.glb')
 for _o in [o for o in objs if o.name.startswith('Icosphere')]:
     objs.remove(_o);bpy.data.objects.remove(_o)
 arm=[o for o in objs if o.type=='ARMATURE'][0]
-show=set(J.get('show',[]));hideable=set(JOB['_kkw'])
+show=set(J.get('show',[]));hideable=set(JOB['_kkw'])|set(J.get('hide',[]))
 for o in objs:
     if o.type=='MESH' and o.name.split('.')[0] in hideable and o.name.split('.')[0] not in show:
         o.hide_render=True;o.hide_viewport=True
@@ -54,6 +54,15 @@ if J.get('bump'):
         nt.links.new(v.outputs['Distance'],bp.inputs['Height']);nt.links.new(bp.outputs['Normal'],bs[0].inputs['Normal'])
         if J.get('rough') is not None:bs[0].inputs['Roughness'].default_value=J['rough']
         if 'Specular IOR Level' in bs[0].inputs:bs[0].inputs['Specular IOR Level'].default_value=J.get('spec',0.5)
+if J.get('desat'):
+    for m in bpy.data.materials:
+        if not m.node_tree:continue
+        nt=m.node_tree;bs=[n for n in nt.nodes if n.type=='BSDF_PRINCIPLED']
+        if not bs:continue
+        inp=bs[0].inputs['Base Color']
+        if not inp.links:continue
+        hs=nt.nodes.new('ShaderNodeHueSaturation');hs.inputs['Saturation'].default_value=J['desat'][0];hs.inputs['Value'].default_value=J['desat'][1]
+        nt.links.new(inp.links[0].from_socket,hs.inputs['Color']);nt.links.new(hs.outputs[0],inp)
 if J.get('tint'):
     c=J['tint'];tint_mats(objs,tuple((((c>>s)&255)/255)**2.2 for s in (16,8,0)))
 class _A(dict):
@@ -68,6 +77,8 @@ def reset_pose(A):
     if J.get('noreset'):return
     for pb in A.pose.bones:
         pb.location=(0,0,0);pb.rotation_quaternion=(1,0,0,0);pb.rotation_euler=(0,0,0);pb.scale=(1,1,1)
+    for b_,e_ in J.get('posefix',{}).items():
+        if b_ in A.pose.bones and A==arm:A.pose.bones[b_].rotation_mode='QUATERNION';A.pose.bones[b_].rotation_quaternion=mathutils.Euler([math.radians(x) for x in e_]).to_quaternion()
 def set_act(name,f):
     a=acts[name];reset_pose(arm);arm.animation_data.action=a;sc.frame_set(int(f));return a
 # normalize height on idle pose
@@ -91,6 +102,15 @@ if R_:
     if not arm2.animation_data:arm2.animation_data_create()
     for t in arm2.animation_data.nla_tracks[:]:arm2.animation_data.nla_tracks.remove(t)
     a2=[a for a in bpy.data.actions if a.name.startswith(R_['act'])];a2.sort(key=lambda a:len(a.name));arm2.animation_data.action=a2[0]
+    sc.frame_set(int(a2[0].frame_range[0]));bpy.context.view_layer.update()
+    for b_,k_ in R_.get('legk',{}).items():
+        pb=arm2.pose.bones[b_];q=pb.rotation_quaternion.copy()
+        for fc in a2[0].fcurves:
+            if fc.data_path.startswith(f'pose.bones["{b_}"]'):fc.mute=True
+        e_=R_.get('legrot',{}).get(b_)
+        q2=mathutils.Quaternion().slerp(q,k_)
+        if e_:q2=q2@mathutils.Euler([math.radians(x) for x in e_]).to_quaternion()
+        pb.rotation_mode='QUATERNION';pb.rotation_quaternion=q2
     r2=[o for o in ro if o.parent is None]
     for o in r2:o.scale*=R_['s'];o.location*=R_['s']
     bpy.context.view_layer.update()
@@ -107,11 +127,77 @@ def bbox(ex=()):
     lo=mathutils.Vector((1e9,)*3);hi=-lo
     dg=bpy.context.evaluated_depsgraph_get()
     for o in bpy.data.objects:
-        if o.type!='MESH' or o.hide_render or o.name.split('.')[0] in ex:continue
+        if o.type!='MESH' or o.hide_render or o.name.split('.')[0] in ex or o.get('nob'):continue
         e=o.evaluated_get(dg)
         for v in e.bound_box:
             w=e.matrix_world@mathutils.Vector(v);lo=mathutils.Vector(map(min,lo,w));hi=mathutils.Vector(map(max,hi,w))
     return lo,hi
+def _mat(col,rough=0.75,emit=0):
+    m=bpy.data.materials.new('Add');m.use_nodes=True;b=m.node_tree.nodes['Principled BSDF']
+    b.inputs['Base Color'].default_value=(*[c**2.2 for c in col],1);b.inputs['Roughness'].default_value=rough
+    if 'Specular IOR Level' in b.inputs:b.inputs['Specular IOR Level'].default_value=0.3
+    if emit:b.inputs['Emission Color'].default_value=(*[c**2.2 for c in col],1);b.inputs['Emission Strength'].default_value=emit
+    return m
+def _attach(o,A,bone):
+    bpy.context.view_layer.update();mw=o.matrix_world.copy();o.parent=A;o.parent_type='BONE';o.parent_bone=bone;bpy.context.view_layer.update();o.matrix_world=mw
+def _bonepos(A,bone):
+    return A.matrix_world@A.pose.bones[bone].head
+PF=J.get('posefix',{})
+if PF:
+    for a_ in bpy.data.actions:
+        for fc in a_.fcurves:
+            for b_ in PF:
+                if fc.data_path.startswith(f'pose.bones["{b_}"].rotation'):fc.mute=True
+    for b_,e_ in PF.items():
+        pb=arm.pose.bones[b_];pb.rotation_mode='QUATERNION';pb.rotation_quaternion=mathutils.Euler([math.radians(x) for x in e_]).to_quaternion()
+ADD=[]
+AS_=J.get('adds',1)
+if AS_=='auto' and J.get('addons'):
+    _l,_h=bbox(set(J.get('wep',[])));AS_=(_h.z-_l.z)/1.8;print('ADDS',AS_)
+for ad in J.get('addons',[]):
+    A=arm2 if ad.get('rider') else arm
+    base=_bonepos(A,ad['bone'])+mathutils.Vector(ad.get('loc',(0,0,0)))*AS_
+    t=ad['t']
+    if t=='sphere':bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=10,radius=1)
+    elif t=='cone':bpy.ops.mesh.primitive_cone_add(vertices=12,radius1=1,radius2=ad.get('r2',0),depth=2)
+    elif t=='cyl':bpy.ops.mesh.primitive_cylinder_add(vertices=10,radius=1,depth=2)
+    elif t=='torus':bpy.ops.mesh.primitive_torus_add(major_radius=1,minor_radius=ad.get('minor',0.12),major_segments=24,minor_segments=8)
+    elif t=='cube':bpy.ops.mesh.primitive_cube_add(size=2)
+    o=bpy.context.active_object;o.name=ad.get('n','Add');o.rotation_mode='XYZ'
+    o.rotation_euler=[math.radians(a) for a in ad.get('rot',(0,0,0))];o.scale=[x*AS_ for x in ad.get('s',(0.1,0.1,0.1))];o.location=base
+    if ad.get('smooth',1):bpy.ops.object.shade_smooth()
+    o.data.materials.append(_mat(ad.get('col',(1,1,1)),ad.get('rough',0.75),ad.get('emit',0)))
+    if ad.get('nob'):o['nob']=1
+    _attach(o,A,ad['bone']);objs.append(o);ADD.append(o)
+WROOTS=[]
+W_=J.get('wings')
+if W_:
+    A=arm2 if W_.get('rider') else arm
+    wm=_mat(W_.get('col',(0.95,0.93,0.88)),0.8);wm2=_mat(W_.get('col2',W_.get('col',(0.95,0.93,0.88))),0.8)
+    bh=_bonepos(A,W_['bone']);sp=W_.get('span',1.0);n=W_.get('n',8)
+    for side in (1,-1):
+        rootp=bh+mathutils.Vector((side*W_.get('side',0.06),W_.get('back',0.14),W_.get('up',0.05)))
+        e=bpy.data.objects.new(f'WingRoot_{side}',None);sc.collection.objects.link(e);e.location=rootp;e['side']=side
+        for i in range(n):
+            t=i/(n-1);ang=math.radians(W_.get('a0',-15)+t*W_.get('fan',95));L=sp*(1.0-0.45*t)*(1-0.25*abs(t-0.35))
+            d=mathutils.Vector((side*math.cos(ang),W_.get('sweep',0.35)+0.1*t,math.sin(ang))).normalized()
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=6,radius=1)
+            f=bpy.context.active_object;f.name=f'Wing_{side}_{i}';f['nob']=1
+            f.rotation_mode='QUATERNION';f.rotation_quaternion=mathutils.Vector((1,0,0)).rotation_difference(d)
+            f.scale=(L/2,W_.get('w',0.11)*sp*(1-0.3*t),0.022*sp);f.location=rootp+d*(L/2)
+            f.data.materials.append(wm if i%2==0 else wm2)
+            bpy.context.view_layer.update();mw=f.matrix_world.copy();f.parent=e;bpy.context.view_layer.update();f.matrix_world=mw
+            objs.append(f)
+        _attach(e,A,W_['bone']);e.rotation_mode='XYZ';e['b0']=list(e.rotation_euler);WROOTS.append(e);objs.append(e)
+def flap(key,i,n):
+    if not WROOTS:return
+    global MB
+    cyc={'idle':1,'walk':2,'attack':1,'hit':1,'death':0}.get(key,1)
+    amp=math.radians(W_.get('amp',28));ph=2*math.pi*cyc*i/max(1,n)
+    a=amp*math.sin(ph)+math.radians(W_.get('a_off',0)) if key!='death' else math.radians(-35)*i/max(1,n-1)
+    for e in WROOTS:
+        R=mathutils.Matrix.Rotation(e['side']*a,4,'Y')
+        e.matrix_basis=MB[e.name]@R
 root=[o for o in objs if o.parent is None]
 lo,hi=bbox();H=J['h']*1.55;k=H/(hi.z-lo.z)
 for r in root:r.scale*=k;r.location*=k
@@ -206,6 +292,7 @@ if PV:
 RB=J.get('refbone')
 def bone_xy():
     p=arm.matrix_world@arm.pose.bones[RB].head;return mathutils.Vector((p.x,p.y,0))
+MB={e.name:e.matrix_basis.copy() for e in WROOTS}
 ONLY=os.environ.get('ONLY');ONLY=set(ONLY.split(',')) if ONLY else None
 for di,a in enumerate(DIRS):
   for key,(name,n) in J['anims_n'].items():
@@ -224,7 +311,7 @@ for di,a in enumerate(DIRS):
     if RB:
         sc.frame_set(int(f0));p0=bone_xy();sc.frame_set(int(f1));p1=bone_xy()
     for i,f in enumerate(fr):
-        set_yaw(th);sc.frame_set(int(f),subframe=f-int(f))
+        set_yaw(th);flap(key,i,n);sc.frame_set(int(f),subframe=f-int(f))
         if RB and key in ('walk','idle','attack','hit'):
             # cancel linear root drift only (keep sway)
             t=(f-f0)/max(1e-6,f1-f0);drift=p0+(p1-p0)*t;cur=bone_xy();off=-(drift-p0) if key=='walk' else -(cur-p0)*0

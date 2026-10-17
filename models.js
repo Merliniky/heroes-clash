@@ -48,6 +48,7 @@ const M={
   // ---- Inferno ----
   imp:{f:'q_demon',c:QP,h:0.42,tint:0xff8a70,wings:{c:0x902018,s:0.9,y:0.62,bat:1},note:'Quaternius Demon, small red + bat wings'},
   gog:{f:'q_wizard',c:QW,h:0.55,tint:0xff7a50,glowC:0xff6020,note:'Quaternius Wizard (Ultimate Monsters), fire-red (fireball thrower)'},
+  griffin:{f:'q_wolf2',c:QA,h:0.6,tint:0xc89a5a,fly:0.25,wings:{c:0x8a6030,s:1.2,z:0.05,y:0.5},note:'3D fallback: Quaternius Wolf, tawny + procedural wings (sprite: wolf body + procedural eagle head/wings)'},
   hellHound:{f:'q_wolf2',c:QA,h:0.55,tint:0xd04020,note:'Quaternius Wolf, hellfire red'},
   demon:{f:'q_demon',c:QC,h:0.74,note:'Quaternius Demon'},
   pitFiend:{f:'q_demon2',c:QF,h:0.86,tint:0x9a6ac0,note:'Quaternius Demon (Ultimate Monsters variant), purple'},
@@ -58,7 +59,7 @@ const M={
   giant:{f:'q_giant',c:QE,h:1.35,note:'Quaternius Giant'},
   troll:{f:'q_yeti',c:QP,h:0.9,tint:0x9fc59a,note:'Quaternius Yeti, mossy'},
 };
-const UPG={pikeman:'halberdier',archer:'marksman',swordsman:'crusader',monk:'zealot',cavalier:'champion',angel:'archangel',
+const UPG={pikeman:'halberdier',archer:'marksman',griffin:'royalGriffin',swordsman:'crusader',monk:'zealot',cavalier:'champion',angel:'archangel',
   skeleton:'skeletonWarrior',walkingDead:'zombie',wight:'wraith',vampire:'vampireLord',lich:'powerLich',blackKnight:'dreadKnight',boneDragon:'ghostDragon',
   goblin:'hobgoblin',wolfRider:'wolfRaider',orc:'orcChieftain',ogre:'ogreMage',cyclops:'cyclopsKing',behemoth:'ancientBehemoth',
   centaur:'centaurCaptain',dwarf:'battleDwarf',woodElf:'grandElf',pegasus:'silverPegasus',dendroidGuard:'dendroidSoldier',unicorn:'warUnicorn',greenDragon:'goldDragon',

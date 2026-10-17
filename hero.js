@@ -8,7 +8,7 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(R
 const MAXS=C.MAXS,STAGES=15;
 // ---------------- factions & synergies ----------------
 const FAC={
-  castle:{n:'城堡',col:'#4f8cff',icon:'🛡️',lines:['pikeman','archer','swordsman','monk','cavalier','angel'],
+  castle:{n:'城堡',col:'#4f8cff',icon:'🛡️',lines:['pikeman','archer','griffin','swordsman','monk','cavalier','angel'],
     t:['全体城堡单位 防御+2','防御+4，每回合额外反击1次','防御+6，每回合额外反击2次']},
   necro:{n:'墓园',col:'#9a6ad8',icon:'💀',lines:['skeleton','walkingDead','wight','vampire','lich','blackKnight','boneDragon'],
     t:['通灵术：战后将击杀敌军的10%转化为骷髅兵','通灵术20%，不死单位攻击+2','通灵术30%，不死单位攻击+4']},

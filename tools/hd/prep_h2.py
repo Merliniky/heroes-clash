@@ -38,7 +38,25 @@ for m in bpy.data.materials:
                     n.image=bpy.data.images.load(tex);print('SWAP',m.name)
 # props from glb files attached to bones
 for w in C.get('props',[]):
-    ko=imp(w['src']);src=[o for o in ko if o.name.split('.')[0]==w['n']][0]
+    if w.get('prim'):
+        ko=[]
+        for pr in w['prim']:
+            t=pr['t'];
+            if t=='cyl':bpy.ops.mesh.primitive_cylinder_add(vertices=10,radius=1,depth=2)
+            elif t=='cone':bpy.ops.mesh.primitive_cone_add(vertices=10,radius1=1,radius2=pr.get('r2',0),depth=2)
+            elif t=='torus':bpy.ops.mesh.primitive_torus_add(major_radius=1,minor_radius=pr.get('minor',0.15),major_segments=20,minor_segments=8)
+            else:bpy.ops.mesh.primitive_uv_sphere_add(segments=14,ring_count=8,radius=1)
+            o=bpy.context.active_object;o.scale=pr.get('s',(1,1,1));o.location=pr.get('loc',(0,0,0));o.rotation_euler=[math.radians(a) for a in pr.get('rot',(0,0,0))]
+            bpy.ops.object.transform_apply(location=True,rotation=True,scale=True);bpy.ops.object.shade_smooth()
+            mt=bpy.data.materials.new(pr.get('m','PropMat'));mt.use_nodes=True;bs=mt.node_tree.nodes['Principled BSDF']
+            bs.inputs['Base Color'].default_value=(*pr['col'],1);bs.inputs['Roughness'].default_value=pr.get('rough',0.8)
+            if pr.get('emit'):bs.inputs['Emission Color'].default_value=(*pr['col'],1);bs.inputs['Emission Strength'].default_value=pr['emit']
+            o.data.materials.append(mt);ko.append(o)
+        bpy.ops.object.select_all(action='DESELECT')
+        for o in ko:o.select_set(True)
+        bpy.context.view_layer.objects.active=ko[0];bpy.ops.object.join();src=ko[0];src.name=w['n'];ko=[src]
+    else:
+        ko=imp(w['src']);src=[o for o in ko if o.name.split('.')[0]==w['n']][0]
     src.parent=None;src.modifiers.clear();src.matrix_world=mathutils.Matrix.Identity(4)
     if src.vertex_groups:src.vertex_groups.clear()
     if w.get('center'):

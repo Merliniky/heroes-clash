@@ -2,7 +2,7 @@ import json,os,sys,math
 from PIL import Image,ImageFilter
 FPS={'idle':8,'walk':10,'attack':14,'hit':12,'death':12}
 ORDER=['idle','walk','attack','hit','death']
-JOB=json.load(open('/workspace/spr/job15.json'))
+JOB=json.load(open('/workspace/spr/job16.json'))
 out='/workspace/heroes-clash/assets/spr';os.makedirs(out,exist_ok=True)
 import numpy as np
 def post(c,hd,J,anc=None):
