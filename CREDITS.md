@@ -62,3 +62,10 @@ Card portraits and badge icons are rendered at runtime from the same 3D models.
 
 ## v12 sprite pilot (?sprites=1)
 `assets/spr/*.webp|json` are pre-rendered in Blender 4.2 LTS (headless, Cycles) by `tools/render.py` + `tools/pack.py` from the CC0 models already in this repo: KayKit Adventurers Knight/Rogue + KayKit Skeleton Minion (Kay Lousberg, CC0), Quaternius Dragon (CC0), Quaternius Medieval Weapons spear (CC0). No new third-party assets.
+
+## v13 HD sprite pilots (rendered offline to sprite atlases, `?sprites=1`)
+All CC0 (public domain); credit given as courtesy.
+- **Swordsman** — Quaternius *Universal Base Characters* (head), *Modular Character Outfits – Fantasy* (Ranger outfit) and *Universal Animation Library* (Sword_Idle / Walk_Loop / Sword_Attack / Hit_Chest / Death01). CC0. https://quaternius.itch.io/universal-base-characters · https://quaternius.itch.io/modular-character-outfits-fantasy · https://quaternius.itch.io/universal-animation-library . Sword & shield meshes: KayKit Adventurers (Kay Lousberg), CC0.
+- **Skeleton** — "Skeleton Outlaw" (rigged, animated, 2048px texture), OpenGameArt, CC0. https://opengameart.org/content/skeleton-outlaw
+- **Behemoth** — "Cethiel's Dragon 3D" by Drummyfish (based on Cethiel's dragon art), OpenGameArt, CC0. https://opengameart.org/content/cethiels-dragon-3d
+- Conversion tool: FBX2glTF (Meta, BSD) used offline only.

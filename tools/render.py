@@ -9,7 +9,9 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 sc=bpy.context.scene
 def imp(path):
     before=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=path);return [o for o in bpy.data.objects if o not in before]
-objs=imp(M+J['f']+'.glb')
+objs=imp(J['f'] if J['f'].startswith('/') else M+J['f']+'.glb')
+for _o in [o for o in objs if o.name.startswith('Icosphere')]:
+    objs.remove(_o);bpy.data.objects.remove(_o)
 arm=[o for o in objs if o.type=='ARMATURE'][0]
 show=set(J.get('show',[]));hideable=set(JOB['_kkw'])
 for o in objs:
@@ -103,16 +105,17 @@ def light(n,t,e,rot,col,size=1):
     o=bpy.data.objects.new(n,L);o.rotation_euler=[math.radians(a) for a in rot];sc.collection.objects.link(o)
 light('key','SUN',4.2,(50,0,-60),(1,0.92,0.78),8)
 light('fill','SUN',1.3,(60,0,-150),(0.7,0.8,1.0),25)
-light('rim','SUN',3.0,(-35,0,80),(1,0.95,0.9),4)
+light('rim','SUN',J.get('rim',3.0),(-35,0,80),(1,0.95,0.9),4)
+if J.get('hd'):light('rim2','SUN',2.2,(-30,0,-20),(0.75,0.85,1.0),4)
 w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(0.55,0.6,0.7,1);w.node_tree.nodes['Background'].inputs[1].default_value=0.6
 r=sc.render;r.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=JOB.get('_spp',24);sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
 sc.view_settings.view_transform='Standard';sc.view_settings.look='None';sc.view_settings.exposure=0.25
-r.use_freestyle=True;r.line_thickness_mode='ABSOLUTE';r.line_thickness=JOB.get('_line',2.0)
+r.use_freestyle=True;r.line_thickness_mode='ABSOLUTE';r.line_thickness=J.get('line',JOB.get('_line',2.0))
 ls=sc.view_layers[0].freestyle_settings.linesets[0] if sc.view_layers[0].freestyle_settings.linesets else sc.view_layers[0].freestyle_settings.linesets.new('ls')
 ls.select_by_visibility=True;ls.select_silhouette=True;ls.select_border=True;ls.select_crease=False
 ls.linestyle=ls.linestyle or bpy.data.linestyles.new('L');ls.linestyle.color=(0.08,0.06,0.05);ls.linestyle.alpha=0.85
 r.image_settings.file_format='PNG';r.image_settings.color_mode='RGBA'
-meta={'anims':{},'res':res,'ppu':PPU,'H':H,'ext':ext,'elev':JOB.get('_elev',40)}
+meta={'hd':bool(J.get('hd')),'anims':{},'res':res,'ppu':PPU,'H':H,'ext':ext,'elev':JOB.get('_elev',40)}
 # anchor: world origin projected
 bpy.context.view_layer.update()
 from bpy_extras.object_utils import world_to_camera_view

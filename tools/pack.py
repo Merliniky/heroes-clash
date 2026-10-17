@@ -14,15 +14,18 @@ for u in sys.argv[1:]:
     import math
     r=m['res'];ax=r/2;ay=r/2+m['H']*0.5*math.cos(math.radians(m['elev']))*r/m['ext'];pad=4
     x0=int(min(bb[0],ax))-pad;y0=bb[1]-pad;x1=int(max(bb[2],ax))+pad;y1=int(ay)+6
-    S=0.5;fw=round((x1-x0)*S);fh=round((y1-y0)*S)
+    S=float(os.environ.get('PACKS',0.5));fw=round((x1-x0)*S);fh=round((y1-y0)*S)
     cols=max(len(L) for L in fr.values());rows=len(ORDER)
     A=Image.new('RGBA',(cols*fw,rows*fh),(0,0,0,0));anims={}
     for r,k in enumerate(ORDER):
         for i,im in enumerate(fr[k]):
-            c=im.crop((x0,y0,x1,y1)).resize((fw,fh),Image.LANCZOS);A.paste(c,(i*fw,r*fh))
+            c=im.crop((x0,y0,x1,y1)).resize((fw,fh),Image.LANCZOS)
+            if m.get('hd'):
+                from PIL import ImageFilter;c=c.filter(ImageFilter.UnsharpMask(1.2,70,2))
+            A.paste(c,(i*fw,r*fh))
         anims[k]={'row':r,'n':len(fr[k]),'fps':FPS[k],'loop':k in('idle','walk')}
     A.save(f'{out}/{u}.webp',quality=88,method=6);A.save(f'/workspace/spr/{u}_atlas.png')
     ib=fr['idle'][0].getchannel('A').point(lambda a:255 if a>6 else 0).getbbox();ppu=(ib[3]-ib[1])*S/m['H']
-    meta={'fw':fw,'fh':fh,'cols':cols,'rows':rows,'ax':round((ax-x0)*S,1),'ay':round((ay-y0)*S,1),'ppu':round(ppu,2),'anims':anims,'renderSecs':m['secs']}
+    meta={'fw':fw,'fh':fh,'cols':cols,'rows':rows,'ax':round((ax-x0)*S,1),'ay':round((ay-y0)*S,1),'ppu':round(ppu,2),'anims':anims,'renderSecs':m['secs'],'hd':bool(m.get('hd'))}
     json.dump(meta,open(f'{out}/{u}.json','w'))
     print(u,A.size,os.path.getsize(f'{out}/{u}.webp')//1024,'KB',meta['renderSecs'],'s')

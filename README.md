@@ -343,3 +343,6 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 
 ## v12 (pilot)
 - `?sprites=1` swaps pikeman, archer, skeleton and green dragon for Blender pre-rendered sprite atlases (camera-facing, mirrored by facing, contact shadow, hit flash). The default game is unchanged. Pipeline: `tools/render.py` and `tools/pack.py`.
+
+## v13 — HD sprite pilots
+`?sprites=1` now uses higher-detail CC0 models for **swordsman** (Quaternius UBC + Fantasy outfit + UAL animations), **skeleton** (OGA Skeleton Outlaw, 2K texture) and **behemoth** (OGA Cethiel's Dragon, textured spiky drake), plus the v12 pikeman/archer/greenDragon. Render adds a second cool rim light, thicker outline, and unsharp-mask after downsampling. Prep scripts live in the build box (`/workspace/hd/prep_*.py`).

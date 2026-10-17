@@ -124,8 +124,8 @@ async function buildPart(f,def,tint){const g=await loadG(f);const o=SkeletonUtil
     holder.scale.setScalar(p.len*H/(L*ws));bone.add(holder);}
   return {o,anims:g.animations};}
 // ---- pre-rendered sprite pilot (?sprites=1): Blender-rendered atlases replace live 3D models ----
-const SPR_ON=/[?&]sprites=1/.test(location.search);const SPR={};const SPR_UNITS=['pikeman','archer','skeleton','greenDragon'];const sprLoader=new THREE.TextureLoader();
-function loadSpr(t){if(!SPR_ON||!SPR_UNITS.includes(t))return null;return SPR[t]||(SPR[t]=Promise.all([fetch(`assets/spr/${t}.json?v=12`).then(r=>r.json()),new Promise((res,rej)=>sprLoader.load(`assets/spr/${t}.webp?v=12`,res,undefined,rej))]).then(([m,tex])=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;m.tex=tex;return m;}).catch(e=>{console.warn('spr',t,e);return null;}));}
+const SPR_ON=/[?&]sprites=1/.test(location.search);const SPR={};const SPR_UNITS=['pikeman','archer','swordsman','skeleton','behemoth','greenDragon'];const sprLoader=new THREE.TextureLoader();
+function loadSpr(t){if(!SPR_ON||!SPR_UNITS.includes(t))return null;return SPR[t]||(SPR[t]=Promise.all([fetch(`assets/spr/${t}.json?v=13`).then(r=>r.json()),new Promise((res,rej)=>sprLoader.load(`assets/spr/${t}.webp?v=13`,res,undefined,rej))]).then(([m,tex])=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;m.tex=tex;return m;}).catch(e=>{console.warn('spr',t,e);return null;}));}
 const shadowTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');const g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(0,0,0,.42)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
 const shadowMat=new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false});const shadowGeo=new THREE.PlaneGeometry(1,1);shadowGeo.rotateX(-Math.PI/2);
 function makeSprite(v,m){const tex=m.tex.clone();tex.needsUpdate=true;tex.repeat.set(1/m.cols,1/m.rows);const mat=new THREE.SpriteMaterial({map:tex,alphaTest:0.4,transparent:false});
