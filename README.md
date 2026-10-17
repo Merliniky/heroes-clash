@@ -2,7 +2,7 @@
 
 ## v9: the retention update
 - **Fast start:** on the first run you tap Start and land straight in a deploy screen with 2 stacks. The coach is one line, and the first win comes in about 16–26 s in tests.
-- **Heroes:** Christian (Knight, free), Crag Hack (Barbarian, 150 gold) and Solmyr (Wizard, 250 gold). Each has its own starting stack, spells and passive.
+- **Heroes:** 8, one per faction — Christian (Knight, Castle, free), Crag Hack (Barbarian, Stronghold), Solmyr (Wizard, Tower), Gelu (Rampart), Sandro (Necropolis), Xeron (Inferno), Mutare (Dungeon), Tazar (Fortress). Each has its own starting stack, spells, passive and recruitment bias.
 - **Camp (meta, saved in localStorage):** gold earned per run. Upgrades: Recruiting Edict, Magic Academy, Field Hospital and Ancestral Vault. You can unlock 5 tier-7 units and 6 artifacts. There is a codex of 66 creatures and a best-stage record.
 - **Daily challenge:** a date-seeded run, so every player gets the same offers, enemies and hero.
 - **Share:** at the end of a run you get a result card (PNG with army, stage, kills and best streak) and a challenge link (`?vs=N` shows a banner to friends).
@@ -20,8 +20,8 @@
 - **Hero spells:** a mana bar that regenerates and 4 spell slots. Spells: Magic Arrow, Lightning, Haste, Bless, Slow, Cure, Resurrection, Fireball, Meteor, Bloodlust. The hero levels up each stage, and spell power ×1.3 per level. Targeting can be single-target, area (with a reticle) or mass. Each spell has VFX and SFX.
 - **Upgrades:** picking the same creature merges it into the stack. The third merge, or an upgrade card, turns it into the exact HoMM3 upgraded creature, shown with a gold glow, tint and scale.
 - **26 artifacts:** pick 1 of 3 after every even stage and every boss. Owned artifacts are shown in the HUD (long-press for details).
-- **Themed stages:** 6 themes, each with a modifier and a weakness hint. Bosses: Lich King (stage 5), Red Wyrm with a breath sweep (stage 10), Archfiend with blink, summons and a fire shield (stage 15). Then endless mode.
-- **Faction synergies (2/4/6):** Castle, Necropolis, Stronghold, Rampart, Inferno, with 6–7 units each. A synergy panel is shown, and draft cards show the faction tag and whether a pick completes a synergy.
+- **Themed stages:** 9 themes (incl. 魔法学院, 地下迷宫, 沼泽要塞), each with a modifier and a weakness hint. Bosses: Lich King (stage 5), Red Wyrm with a breath sweep (stage 10), Archfiend with blink, summons and a fire shield (stage 15). Then endless mode.
+- **Faction synergies (2/4/6):** all 8 SoD factions (Castle, Rampart, Tower, Inferno, Necropolis, Dungeon, Stronghold, Fortress), 7 tiers each. A synergy panel is shown, and draft cards show the faction tag and whether a pick completes a synergy.
 - Long-press tooltips and a first-run coach for deploy and spells.
 
 Balance (`node sim.js 400`, a bot that drafts with synergy awareness, auto-deploys, casts spells and picks artifacts):
@@ -202,8 +202,8 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 | 树精战士 | Dendroid Soldier | 5+ | 9 | 12 | 10-14 | 65 | 4 | – | 3 | 425 |  | 缠绕（禁止移动） |
 | 独角兽 | Unicorn | 6 | 15 | 14 | 18-22 | 90 | 7 | – | 2 | 850 | stun:[0.2,致盲] | 魔法抗性、抗魔光环 |
 | 战斗独角兽 | War Unicorn | 6+ | 15 | 14 | 18-22 | 110 | 9 | – | 2 | 950 | stun:[0.2,致盲] | 魔法抗性、抗魔光环 |
-| 绿龙 | Green Dragon | 7 | 18 | 18 | 40-50 | 180 | 10 | – | 1 | 2400 +1💎 | breath, fly | 魔法免疫 |
-| 金龙 | Gold Dragon | 7+ | 27 | 27 | 40-50 | 250 | 16 | – | 1 | 4000 +2💎 | breath, fly | 魔法免疫 |
+| 绿龙 | Green Dragon | 7 | 18 | 18 | 40-50 | 180 | 10 | – | 1 | 2400 +1💎 | breath, spellImm:3, fly |  |
+| 金龙 | Gold Dragon | 7+ | 27 | 27 | 40-50 | 250 | 16 | – | 1 | 4000 +2💎 | breath, spellImm:4, fly |  |
 
 ### 塔楼 (tower)
 
@@ -213,16 +213,16 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 | 高级小魔怪 | Master Gremlin | 1+ | 4 | 4 | 1-2 | 4 | 5 | 8 | 16 | 40 |  |  |
 | 石像鬼 | Stone Gargoyle | 2 | 6 | 6 | 2-3 | 16 | 6 | – | 9 | 130 | unliving, fly |  |
 | 黑曜石像鬼 | Obsidian Gargoyle | 2+ | 7 | 7 | 2-3 | 16 | 9 | – | 9 | 160 | unliving, fly |  |
-| 石魔像 | Stone Golem | 3 | 7 | 10 | 4-5 | 30 | 3 | – | 6 | 150 | unliving | 法术伤害抗性 |
-| 铁魔像 | Iron Golem | 3+ | 9 | 10 | 4-5 | 35 | 5 | – | 6 | 200 | unliving | 法术伤害抗性 |
-| 法师 | Mage | 4 | 11 | 8 | 7-9 | 25 | 5 | 24 | 4 | 350 | noMP | 魔法通道、无障碍惩罚 |
-| 大法师 | Arch Mage | 4+ | 12 | 9 | 7-9 | 30 | 7 | 24 | 4 | 450 | noMP | 魔法通道、无障碍惩罚 |
+| 石魔像 | Stone Golem | 3 | 7 | 10 | 4-5 | 30 | 3 | – | 6 | 150 | unliving, spellRes:0.5 |  |
+| 铁魔像 | Iron Golem | 3+ | 9 | 10 | 4-5 | 35 | 5 | – | 6 | 200 | unliving, spellRes:0.75 |  |
+| 法师 | Mage | 4 | 11 | 8 | 7-9 | 25 | 5 | 24 | 4 | 350 | noMP, chan:2 | 无障碍惩罚 |
+| 大法师 | Arch Mage | 4+ | 12 | 9 | 7-9 | 30 | 7 | 24 | 4 | 450 | noMP, chan:2 | 无障碍惩罚 |
 | 灯神 | Genie | 5 | 12 | 12 | 13-16 | 40 | 7 | – | 3 | 550 | hate:{efreet:0.5,efreetSultan:0.5}, fly |  |
-| 高级灯神 | Master Genie | 5+ | 12 | 12 | 13-16 | 40 | 11 | – | 3 | 600 | hate:{efreet:0.5,efreetSultan:0.5}, fly | 施法 |
+| 高级灯神 | Master Genie | 5+ | 12 | 12 | 13-16 | 40 | 11 | – | 3 | 600 | hate:{efreet:0.5,efreetSultan:0.5}, caster, fly |  |
 | 娜迦 | Naga | 6 | 16 | 13 | 20-20 | 110 | 5 | – | 2 | 1100 | noRet |  |
 | 娜迦女王 | Naga Queen | 6+ | 16 | 13 | 30-30 | 110 | 7 | – | 2 | 1600 | noRet |  |
-| 巨人 | Giant | 7 | 19 | 16 | 40-60 | 150 | 7 | – | 1 | 2000 +1💎 |  | 魔法免疫、免疫心智魔法 |
-| 泰坦 | Titan | 7+ | 24 | 24 | 40-60 | 300 | 11 | 24 | 1 | 5000 +2💎 | noMP, hate:{blackDragon:0.5} | 魔法免疫、免疫心智魔法 |
+| 巨人 | Giant | 7 | 19 | 16 | 40-60 | 150 | 7 | – | 1 | 2000 +1💎 |  | 免疫心智魔法（本作无心智魔法） |
+| 泰坦 | Titan | 7+ | 24 | 24 | 40-60 | 300 | 11 | 24 | 1 | 5000 +2💎 | noMP, hate:{blackDragon:0.5} | 免疫心智魔法（本作无心智魔法） |
 
 ### 地狱 (inferno)
 
@@ -266,20 +266,20 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 
 | 单位 | HoMM3 | 级 | 攻 | 防 | 伤害 | 生命 | 速度 | 射击 | 周产 | 金币 | 已实现能力 | 未模拟 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 穴居人 | Troglodyte | 1 | 4 | 3 | 1-3 | 5 | 4 | – | 14 | 50 |  | 免疫致盲/石化 |
-| 地狱穴居人 | Infernal Troglodyte | 1+ | 5 | 4 | 1-3 | 6 | 5 | – | 14 | 65 |  | 免疫致盲/石化 |
-| 鹰身女妖 | Harpy | 2 | 6 | 5 | 1-4 | 14 | 6 | – | 8 | 130 | fly | 攻击后返回 |
-| 鹰身女巫 | Harpy Hag | 2+ | 6 | 6 | 1-4 | 14 | 9 | – | 8 | 170 | noRet, fly | 攻击后返回 |
+| 穴居人 | Troglodyte | 1 | 4 | 3 | 1-3 | 5 | 4 | – | 14 | 50 | stunImm |  |
+| 地狱穴居人 | Infernal Troglodyte | 1+ | 5 | 4 | 1-3 | 6 | 5 | – | 14 | 65 | stunImm |  |
+| 鹰身女妖 | Harpy | 2 | 6 | 5 | 1-4 | 14 | 6 | – | 8 | 130 | hitRun, fly |  |
+| 鹰身女巫 | Harpy Hag | 2+ | 6 | 6 | 1-4 | 14 | 9 | – | 8 | 170 | noRet, hitRun, fly |  |
 | 眼魔 | Beholder | 3 | 9 | 7 | 3-5 | 22 | 5 | 12 | 7 | 250 | noMP |  |
 | 邪眼 | Evil Eye | 3+ | 10 | 8 | 3-5 | 22 | 7 | 24 | 7 | 280 | noMP |  |
 | 美杜莎 | Medusa | 4 | 9 | 9 | 6-8 | 25 | 5 | 4 | 4 | 300 | noMP, stun:[0.2,石化] |  |
 | 美杜莎女王 | Medusa Queen | 4+ | 10 | 10 | 6-8 | 30 | 6 | 8 | 4 | 330 | noMP, stun:[0.2,石化] |  |
-| 牛头人 | Minotaur | 5 | 14 | 12 | 12-20 | 50 | 6 | – | 3 | 500 |  | 士气始终为正 |
-| 牛头人王 | Minotaur King | 5+ | 15 | 15 | 12-20 | 50 | 8 | – | 3 | 575 |  | 士气始终为正 |
+| 牛头人 | Minotaur | 5 | 14 | 12 | 12-20 | 50 | 6 | – | 3 | 500 | morale:0.042 |  |
+| 牛头人王 | Minotaur King | 5+ | 15 | 15 | 12-20 | 50 | 8 | – | 3 | 575 | morale:0.042 |  |
 | 蝎尾狮 | Manticore | 6 | 15 | 13 | 14-20 | 80 | 7 | – | 2 | 850 | fly |  |
 | 蝎尾魔狮 | Scorpicore | 6+ | 16 | 14 | 14-20 | 80 | 11 | – | 2 | 1050 | stun:[0.2,麻痹], fly |  |
-| 红龙 | Red Dragon | 7 | 19 | 19 | 40-50 | 180 | 11 | – | 1 | 2500 +1💎 | breath, fly | 魔法免疫 |
-| 黑龙 | Black Dragon | 7+ | 25 | 25 | 40-50 | 300 | 15 | – | 1 | 4000 +2💎 | breath, hate:{titan:0.5}, fly | 魔法免疫 |
+| 红龙 | Red Dragon | 7 | 19 | 19 | 40-50 | 180 | 11 | – | 1 | 2500 +1💎 | breath, spellImm:3, fly |  |
+| 黑龙 | Black Dragon | 7+ | 25 | 25 | 40-50 | 300 | 15 | – | 1 | 4000 +2💎 | breath, hate:{titan:0.5}, spellImm:5, fly |  |
 
 ### 据点 (stronghold)
 
@@ -308,14 +308,14 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 | 豺狼掠夺者 | Gnoll Marauder | 1+ | 4 | 6 | 2-3 | 6 | 5 | – | 12 | 70 |  |  |
 | 蜥蜴人 | Lizardman | 2 | 5 | 6 | 2-3 | 14 | 4 | 12 | 9 | 110 |  |  |
 | 蜥蜴勇士 | Lizard Warrior | 2+ | 6 | 8 | 2-5 | 15 | 5 | 24 | 9 | 140 |  |  |
-| 毒蝇 | Serpent Fly | 3 | 7 | 9 | 2-5 | 20 | 9 | – | 8 | 220 | fly | 驱散增益 |
-| 龙蝇 | Dragon Fly | 3+ | 8 | 10 | 2-5 | 20 | 13 | – | 8 | 240 | fly | 虚弱、驱散增益 |
+| 毒蝇 | Serpent Fly | 3 | 7 | 9 | 2-5 | 20 | 9 | – | 8 | 220 | dispel, fly |  |
+| 龙蝇 | Dragon Fly | 3+ | 8 | 10 | 2-5 | 20 | 13 | – | 8 | 240 | dispel, weak, fly |  |
 | 石化蜥蜴 | Basilisk | 4 | 11 | 11 | 6-10 | 35 | 5 | – | 4 | 325 | stun:[0.2,石化] |  |
 | 大石化蜥蜴 | Greater Basilisk | 4+ | 12 | 12 | 6-10 | 40 | 7 | – | 4 | 400 | stun:[0.2,石化] |  |
 | 蛮牛 | Gorgon | 5 | 10 | 14 | 12-16 | 70 | 5 | – | 3 | 525 |  |  |
 | 大蛮牛 | Mighty Gorgon | 5+ | 11 | 16 | 12-16 | 70 | 6 | – | 3 | 600 | deathStare |  |
 | 双足飞龙 | Wyvern | 6 | 14 | 14 | 14-18 | 70 | 7 | – | 2 | 800 | fly |  |
-| 双足飞龙王 | Wyvern Monarch | 6+ | 14 | 14 | 18-22 | 70 | 11 | – | 2 | 1100 | fly | 中毒 |
+| 双足飞龙王 | Wyvern Monarch | 6+ | 14 | 14 | 18-22 | 70 | 11 | – | 2 | 1100 | poison, fly |  |
 | 九头蛇 | Hydra | 7 | 16 | 18 | 25-45 | 175 | 5 | – | 1 | 2200 | noRet, allAdj |  |
 | 混沌九头蛇 | Chaos Hydra | 7+ | 18 | 20 | 25-45 | 250 | 7 | – | 1 | 3500 +1💎 | noRet, allAdj |  |
 
@@ -400,3 +400,9 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - **3D fallback for every unit:** tinted CC0 models (see CREDITS).
 - **Sprites:** 18 new atlases for the three factions (gremlin + mage, genie, giant, troglodyte, harpy, beholder, medusa, minotaur, manticore, lizardman, wyvern, gnoll, basilisk, gorgon, hydra, stone gargoyle, stone golem); upgrades are tinted aliases. Naga/naga queen and serpent fly/dragon fly have no atlas yet (they use 3D in sprite mode), so sprites are still opt-in with `?sprites=1`; the default flips once coverage reaches 112/112. GPU atlas clones are released between battles. `tools/audit_sprites.js` prints coverage.
 - **Balance:** `node sim.js 400 bot <hero>` for each hero, plus `FAC=<faction> node sim.js 300 bot knight` for mono-faction drafting; results are in the v20 notes.
+
+## v21 — sprites are now the default (`?sprites=0` = 3D fallback)
+- **Full sprite coverage:** naga and serpent fly atlases added; naga queen and dragon fly use tinted copies. `node tools/audit_sprites.js` → 112 spawnable, 67 own atlases, 45 tinted aliases, 0 missing, 0 without a 3D fallback. Sprite mode is on by default; `?sprites=0` forces the live 3D models.
+- **Visual QA (all 8 factions, default view, both sides):** serpent/dragon fly scaled to 0.62/0.64, manticore/scorpicore to 0.8/0.82 (they were taller than the tier-7 dragons), giant/titan up to 1.3/1.35 to fill their 2×2 footprint. Beholder re-rendered: darker mottled hide, warts, extra back eye-stalks, teeth.
+- **Dungeon balance:** Dungeon recruitment cards carry 25% more creatures (`FAC.dungeon.offer`). Mutare's passive: attack +3, defence +2, tier-7 HP +15%, recruits +10%.
+- README creature tables are regenerated from `units.js` (`node tools/readme_tables.js`), so the implemented/not-simulated columns now match v20's abilities (golem spell resistance, mage channelling, master genie casting, harpy hit-and-return, dragon spell immunity levels, …).

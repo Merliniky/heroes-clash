@@ -20,7 +20,7 @@ const FAC={
     t:['地狱火：攻击附带10%火焰伤害','火焰伤害20%','火焰伤害30%，烈焰护盾']},
   tower:{n:'塔楼',col:'#5fc8e8',icon:'🔮',lines:['gremlin','stoneGargoyle','stoneGolem','mage','genie','naga','giant'],
     t:['魔法学院：英雄法术伤害+8%','法术伤害+16%，远程单位伤害+15%','法术伤害+24%，远程伤害+30%，法力恢复+15%']},
-  dungeon:{n:'地下城',col:'#b04ac8',icon:'🕸️',lines:['troglodyte','harpy','beholder','medusa','minotaur','manticore','redDragon'],
+  dungeon:{n:'地下城',col:'#b04ac8',icon:'🕸️',offer:1.25,lines:['troglodyte','harpy','beholder','medusa','minotaur','manticore','redDragon'],
     t:['暗影之力：全体地下城单位 幸运+6%','幸运+12%，攻击+2','幸运+18%，攻击+4']},
   fortress:{n:'要塞',col:'#7a9a3a',icon:'🐊',lines:['gnoll','lizardman','serpentFly','basilisk','gorgon','wyvern','hydra'],
     t:['沼泽坚甲：全体要塞单位 防御+2','防御+4','防御+6，生命+10%']},
@@ -98,7 +98,7 @@ const HEROES=[
  {id:'ranger',n:'吉鲁',cls:'游侠',fac:'rampart',i:'🏹',col:'#4fb85a',cost:150,starter:'centaur',spells:['magicArrow','bless','cure'],pas:'箭术：全军攻击+2 防御+2，远程单位伤害+20%；招募数量+5%',m:st=>Object.assign({a:2,d:2},st.shots?{ab:{rngMul:1.2}}:{}),cnt:1.05},
  {id:'necro',n:'桑德罗',cls:'死灵法师',fac:'necro',i:'💀',col:'#9a6ad8',cost:200,starter:'skeleton',spells:['magicArrow','slow','cure'],pas:'通灵术：战后额外将击杀敌军的10%转化为骷髅兵',m:()=>null,raise:0.1},
  {id:'demoniac',n:'塞伦',cls:'恶魔术士',fac:'inferno',i:'🔥',col:'#e8503a',cost:200,starter:'imp',spells:['magicArrow','fireball','haste'],pas:'火焰魔法：火系法术伤害+50%，全军攻击+3 防御+1；招募数量+15%',m:()=>({a:3,d:1}),fireMul:1.5,cnt:1.15},
- {id:'overlord',n:'穆塔蕾',cls:'领主',fac:'dungeon',i:'🐉',col:'#b04ac8',cost:250,starter:'troglodyte',spells:['magicArrow','bloodlust','cure'],pas:'龙之亲和：全军攻击+4 防御+2，7级单位生命+20%；招募数量+25%',m:st=>Object.assign({a:4,d:2},st.lvl===7?{hpMul:1.2}:{}),cnt:1.25},
+ {id:'overlord',n:'穆塔蕾',cls:'领主',fac:'dungeon',i:'🐉',col:'#b04ac8',cost:250,starter:'troglodyte',spells:['magicArrow','bloodlust','cure'],pas:'龙之亲和：全军攻击+3 防御+2，7级单位生命+15%；招募数量+10%',m:st=>Object.assign({a:3,d:2},st.lvl===7?{hpMul:1.15}:{}),cnt:1.1},
  {id:'beastmaster',n:'塔扎',cls:'驯兽师',fac:'fortress',i:'🐊',col:'#7a9a3a',cost:200,starter:'gnoll',spells:['magicArrow','slow','cure'],pas:'护甲术：全军防御+1，生命+5%',m:()=>({d:1,hpMul:1.05})},
 ];
 const HEROM={};for(const h of HEROES)HEROM[h.id]=h;
@@ -165,7 +165,7 @@ function makeOffer(run){const s=run.stage,n=has(run,'medal')?4:3,L=maxLvl(s),own
     if(full){t=lineOf(pick(own).type);}else{const pool=ROSTER.filter(x=>U[x].lvl<=L&&U[x].lvl>=Math.max(1,L-3)&&!(run.lockU&&run.lockU.has(x)));
       const hf=(HEROM[run.hero]||{}).fac,rr=R();const fp=hf&&rr<0.3?pool.filter(x=>facOf(x)===hf):ownFac.length&&rr<0.65?pool.filter(x=>ownFac.includes(facOf(x))):pool;t=pick(fp.length?fp:pool);}
     if(cards.some(c=>c.type===t))continue;const curT=own.find(o=>lineOf(o.type)===t);const realT=curT?curT.type:t;
-    cards.push({kind:'unit',type:realT,count:cnt(realT,offerBudget(s)*(0.85+R()*0.3)*(has(run,'sash')?1.2:1)*(run.cntMul||1))});}
+    cards.push({kind:'unit',type:realT,count:cnt(realT,offerBudget(s)*(0.85+R()*0.3)*(has(run,'sash')?1.2:1)*(run.cntMul||1)*(FAC[facOf(realT)]&&FAC[facOf(realT)].offer||1))});}
   return cards;}
 function takeCard(run,c){const ev={};if(c.kind==='upgrade'){const k=run.army[c.from]||0;delete run.army[c.from];run.army[c.to]=(run.army[c.to]||0)+k+(c.bonus||0);if(run.form[c.from]){run.form[c.to]=run.form[c.from];}delete run.merges[c.from];ev.upgraded=c.to;return ev;}
   const merged=!!run.army[c.type];run.army[c.type]=(run.army[c.type]||0)+c.count;if(merged){run.merges[c.type]=(run.merges[c.type]||0)+1;ev.merged=true;

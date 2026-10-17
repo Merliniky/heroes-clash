@@ -8,7 +8,7 @@ while true; do
   pgrep -f pack15.py >/dev/null && continue
   if [ -n "$(git status --porcelain assets/spr)" ]; then
     new=$(git status --porcelain assets/spr | grep -o '[A-Za-z]*\.json' | sed 's/.json//' | tr '\n' ' ')
-    git add assets/spr && git -c user.name=Merliniky -c user.email=Merliniky@users.noreply.github.com commit -qm "v20 wip: atlases $new" && \
+    git add assets/spr && git -c user.name=Merliniky -c user.email=Merliniky@users.noreply.github.com commit -qm "v21 wip: atlases $new" && \
     git -c credential.helper= -c credential.helper='!/usr/local/bin/gh auth git-credential' push -q && echo "$(date +%T) pushed $new" >> /workspace/spr/ac.log
   fi
   [ -s /workspace/spr/qp.txt ] || pgrep -f "render.py" >/dev/null || pgrep -f qp.sh >/dev/null || { echo "$(date +%T) idle exit" >> /workspace/spr/ac.log; exit; }
