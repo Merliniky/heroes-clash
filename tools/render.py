@@ -2,7 +2,7 @@
 import bpy,sys,json,math,os,mathutils,time
 argv=sys.argv[sys.argv.index('--')+1:];JOB=json.load(open(argv[0]));UID=argv[1];J=JOB[UID]
 M='/workspace/heroes-clash/assets/models/';RAW='/workspace/models_raw/'
-OUT=f'/workspace/spr/out/{UID}';os.makedirs(OUT,exist_ok=True)
+PV=os.environ.get('PV');OUT=f'/workspace/spr/{"pv" if PV else "out"}/{UID}';os.makedirs(OUT,exist_ok=True)
 PPU=JOB.get('_ppu',256)  # render px per game world unit (2x supersampled)
 t0=time.time()
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -36,7 +36,24 @@ for m in bpy.data.materials:
     rc=J.get('recolor',{}).get(m.name.split('.')[0])
     if rc is not None and m.node_tree:
         for n in m.node_tree.nodes:
-            if n.type=='BSDF_PRINCIPLED':n.inputs['Base Color'].default_value=(*[(((rc>>s)&255)/255)**2.2 for s in (16,8,0)],1);n.inputs['Roughness'].default_value=0.55
+            if n.type=='BSDF_PRINCIPLED':n.inputs['Base Color'].default_value=(*[(((rc>>s)&255)/255)**2.2 for s in (16,8,0)],1);n.inputs['Roughness'].default_value=J.get('rough',0.7)
+if J.get('matte') is not None:
+    for m in bpy.data.materials:
+        if not m.node_tree:continue
+        for n in m.node_tree.nodes:
+            if n.type=='BSDF_PRINCIPLED':
+                n.inputs['Roughness'].default_value=J['matte']
+                if 'Specular IOR Level' in n.inputs:n.inputs['Specular IOR Level'].default_value=0.3
+if J.get('bump'):
+    for m in bpy.data.materials:
+        if not m.node_tree:continue
+        nt=m.node_tree;bs=[n for n in nt.nodes if n.type=='BSDF_PRINCIPLED']
+        if not bs or bs[0].inputs['Normal'].links:continue
+        v=nt.nodes.new('ShaderNodeTexVoronoi');v.inputs['Scale'].default_value=J['bump'][0];v.feature='DISTANCE_TO_EDGE'
+        bp=nt.nodes.new('ShaderNodeBump');bp.inputs['Strength'].default_value=J['bump'][1];bp.inputs['Distance'].default_value=0.02
+        nt.links.new(v.outputs['Distance'],bp.inputs['Height']);nt.links.new(bp.outputs['Normal'],bs[0].inputs['Normal'])
+        if J.get('rough') is not None:bs[0].inputs['Roughness'].default_value=J['rough']
+        if 'Specular IOR Level' in bs[0].inputs:bs[0].inputs['Specular IOR Level'].default_value=J.get('spec',0.5)
 if J.get('tint'):
     c=J['tint'];tint_mats(objs,tuple((((c>>s)&255)/255)**2.2 for s in (16,8,0)))
 class _A(dict):
@@ -47,16 +64,50 @@ class _A(dict):
 acts=_A()
 if not arm.animation_data:arm.animation_data_create()
 for t in arm.animation_data.nla_tracks[:]:arm.animation_data.nla_tracks.remove(t)
+def reset_pose(A):
+    if J.get('noreset'):return
+    for pb in A.pose.bones:
+        pb.location=(0,0,0);pb.rotation_quaternion=(1,0,0,0);pb.rotation_euler=(0,0,0);pb.scale=(1,1,1)
 def set_act(name,f):
-    a=acts[name];arm.animation_data.action=a;sc.frame_set(int(f));return a
+    a=acts[name];reset_pose(arm);arm.animation_data.action=a;sc.frame_set(int(f));return a
 # normalize height on idle pose
 set_act(J['anims']['idle'],acts[J['anims']['idle']].frame_range[0])
+if J.get('delv'):
+    import bmesh
+    for o in objs:
+        if o.type!='MESH' or not o.vertex_groups:continue
+        gi={g.index:g.name for g in o.vertex_groups};bm=bmesh.new();bm.from_mesh(o.data);dl=bm.verts.layers.deform.active
+        if dl:
+            kill=[v for v in bm.verts if v[dl] and gi[max(v[dl].items(),key=lambda x:x[1])[0]].startswith(tuple(J['delv']))]
+            bmesh.ops.delete(bm,geom=kill,context='VERTS');bm.to_mesh(o.data)
+        bm.free()
+R_=J.get('rider')
+if R_:
+    ro=imp(R_['f'])
+    for _o in [o for o in ro if o.name.startswith('Icosphere')]:ro.remove(_o);bpy.data.objects.remove(_o)
+    for o in ro:
+        if o.type=='MESH' and o.name.split('.')[0] in hideable and o.name.split('.')[0] not in show:o.hide_render=True
+    arm2=[o for o in ro if o.type=='ARMATURE'][0]
+    if not arm2.animation_data:arm2.animation_data_create()
+    for t in arm2.animation_data.nla_tracks[:]:arm2.animation_data.nla_tracks.remove(t)
+    a2=[a for a in bpy.data.actions if a.name.startswith(R_['act'])];a2.sort(key=lambda a:len(a.name));arm2.animation_data.action=a2[0]
+    r2=[o for o in ro if o.parent is None]
+    for o in r2:o.scale*=R_['s'];o.location*=R_['s']
+    bpy.context.view_layer.update()
+    pv=arm2.matrix_world@arm2.pose.bones['pelvis'].head
+    tg=arm.matrix_world@arm.pose.bones[R_['bone']].head+mathutils.Vector(R_.get('off',(0,0,0)))
+    for o in r2:o.location+=tg-pv
+    bpy.context.view_layer.update()
+    for o in r2:
+        mw=o.matrix_world.copy();o.parent=arm;o.parent_type='BONE';o.parent_bone=R_['bone'];bpy.context.view_layer.update();o.matrix_world=mw
+    bpy.context.view_layer.update()
+    objs+=ro
 dg=bpy.context.evaluated_depsgraph_get()
-def bbox():
+def bbox(ex=()):
     lo=mathutils.Vector((1e9,)*3);hi=-lo
     dg=bpy.context.evaluated_depsgraph_get()
     for o in bpy.data.objects:
-        if o.type!='MESH' or o.hide_render:continue
+        if o.type!='MESH' or o.hide_render or o.name.split('.')[0] in ex:continue
         e=o.evaluated_get(dg)
         for v in e.bound_box:
             w=e.matrix_world@mathutils.Vector(v);lo=mathutils.Vector(map(min,lo,w));hi=mathutils.Vector(map(max,hi,w))
@@ -64,6 +115,8 @@ def bbox():
 root=[o for o in objs if o.parent is None]
 lo,hi=bbox();H=J['h']*1.55;k=H/(hi.z-lo.z)
 for r in root:r.scale*=k;r.location*=k
+if J.get('squash'):
+    for r in root:r.scale=mathutils.Vector([a*b for a,b in zip(r.scale,J['squash'])])
 bpy.context.view_layer.update()
 WEP=set(J.get('wep',[]))|set(J.get('show',[]))
 def foot_z():
@@ -78,14 +131,14 @@ def foot_z():
     return z
 fz=foot_z();print('FOOT',fz,'BBOXLO',bbox()[0].z)
 # centre horizontally on the body (xy of idle bbox centre) and put soles on z=0
-lo,hi=bbox();cx,cyy=(lo.x+hi.x)/2,(lo.y+hi.y)/2
+lo,hi=bbox(WEP);cx,cyy=(lo.x+hi.x)/2,(lo.y+hi.y)/2
 if J.get('centerxy'):
     for r in root:r.location.x-=cx;r.location.y-=cyy
 for r in root:r.location.z-=fz
 bpy.context.view_layer.update()
 M0={r.name:r.matrix_world.copy() for r in root}
 def set_yaw(deg):
-    R=mathutils.Matrix.Rotation(math.radians(deg),4,'Z')
+    R=mathutils.Matrix.Rotation(math.radians(deg),4,'Z')@mathutils.Matrix.Rotation(math.radians(-J.get('pitch',0)),4,'X')
     for r in root:r.matrix_world=R@M0[r.name]
     bpy.context.view_layer.update()
 set_yaw(J.get('yaw',0))
@@ -148,14 +201,24 @@ bpy.context.view_layer.update()
 from bpy_extras.object_utils import world_to_camera_view
 a=world_to_camera_view(sc,co,mathutils.Vector((0,0,0)));meta['anchor']=[a.x*res,(1-a.y)*res]
 DIRS=J.get('dirs',[0,45,90,135,180]);meta['dirs']=DIRS
+if PV:
+    DIRS=[0,90,180];pa=PV.split(',');J['anims_n']={k:(v[0],1) for k,v in J['anims_n'].items() if k in pa}
 RB=J.get('refbone')
 def bone_xy():
     p=arm.matrix_world@arm.pose.bones[RB].head;return mathutils.Vector((p.x,p.y,0))
+ONLY=os.environ.get('ONLY');ONLY=set(ONLY.split(',')) if ONLY else None
 for di,a in enumerate(DIRS):
   for key,(name,n) in J['anims_n'].items():
+    if ONLY and key not in ONLY:
+        meta['anims'][key]=n;continue
     act=acts[name];f0,f1=act.frame_range;once=key in('death','attack','hit')
-    fr=[f0+(f1-f0)*i/(n-1 if once else n) for i in range(n)]
-    arm.animation_data.action=act
+    fr=[f0+(f1-f0)*i/(n-1 if once else n) for i in range(n)] if not PV else [f0+(f1-f0)*float(os.environ.get('PVT',0))]
+    reset_pose(arm);arm.animation_data.action=act
+    if R_ and R_.get('acts'):
+        ra=R_['acts'].get(key,R_['act']);a2=[x for x in bpy.data.actions if x.name.startswith(ra)];a2.sort(key=lambda x:len(x.name));a2=a2[0]
+        ad=arm2.animation_data;ad.action=None
+        for t in ad.nla_tracks[:]:ad.nla_tracks.remove(t)
+        reset_pose(arm2);tr=ad.nla_tracks.new();st=tr.strips.new('r',int(f0),a2);st.scale=max(0.05,(f1-f0)/max(1,a2.frame_range[1]-a2.frame_range[0]))
     th=J.get('yaw',0)+90-a+J.get('ayaw',{}).get(key,0)
     set_yaw(th)
     if RB:

@@ -18,6 +18,12 @@ for part in C['parts']:
         mw=o.matrix_world.copy();o.parent=A;o.matrix_world=mw
         for m in o.modifiers:
             if m.type=='ARMATURE':m.object=A
+        if part.get('dropbones'):
+            gi={g.index:g.name for g in o.vertex_groups};bm=bmesh.new();bm.from_mesh(o.data);dl=bm.verts.layers.deform.active
+            if dl:
+                kill=[v for v in bm.verts if v[dl] and gi[max(v[dl].items(),key=lambda x:x[1])[0]].startswith(tuple(part['dropbones']))]
+                bmesh.ops.delete(bm,geom=kill,context='VERTS');bm.to_mesh(o.data)
+            bm.free()
         if part.get('headonly'):
             gi={g.index:g.name for g in o.vertex_groups};bm=bmesh.new();bm.from_mesh(o.data);dl=bm.verts.layers.deform.active
             kill=[v for v in bm.verts if not v[dl] or not gi[max(v[dl].items(),key=lambda x:x[1])[0]].lower().startswith(('head','neck'))]
@@ -28,7 +34,7 @@ for m in bpy.data.materials:
     for k,tex in C.get('texswap',{}).items():
         if m.name.startswith(k) and m.node_tree:
             for n in m.node_tree.nodes:
-                if n.type=='TEX_IMAGE' and n.image and 'BaseColor' in n.image.name:
+                if n.type=='TEX_IMAGE' and n.image and ('BaseColor' in n.image.name or n.image.name.endswith('_Dark')) and not any(x in n.image.name for x in ('Normal','Rough','ORM')):
                     n.image=bpy.data.images.load(tex);print('SWAP',m.name)
 # props from glb files attached to bones
 for w in C.get('props',[]):
@@ -47,7 +53,27 @@ for w in C.get('props',[]):
     src['keep']=1
     for o in ko:
         if not o.get('keep'):bpy.data.objects.remove(o)
+W=C.get('wings')
+if W:
+    mat=bpy.data.materials.new('Wing');mat.use_nodes=True;bs=mat.node_tree.nodes['Principled BSDF'];bs.inputs['Base Color'].default_value=(*W.get('col',[0.95,0.93,0.88]),1);bs.inputs['Roughness'].default_value=0.75
+    if 'Subsurface Weight' in bs.inputs:pass
+    bpy.context.view_layer.update()
+    bh=A.matrix_world@A.pose.bones[W['bone']].head;sp=W.get('span',1.0);n=W.get('n',8)
+    for side in (1,-1):
+        for i in range(n):
+            t=i/(n-1);ang=math.radians(-15+t*95);L=sp*(1.0-0.45*t)*(1-0.25*abs(t-0.35))
+            d=mathutils.Vector((side*math.cos(ang),0.35+0.1*t,math.sin(ang))).normalized()
+            root=bh+mathutils.Vector((side*0.06,W.get('back',0.14),W.get('up',0.05)))
+            bpy.ops.mesh.primitive_uv_sphere_add(segments=12,ring_count=6,radius=1)
+            f=bpy.context.active_object;f.name=f'Wing_{side}_{i}'
+            q=mathutils.Vector((1,0,0)).rotation_difference(d)
+            f.rotation_mode='QUATERNION';f.rotation_quaternion=q;f.scale=(L/2,0.11*sp*(1-0.3*t),0.022*sp)
+            f.location=root+d*(L/2)
+            f.data.materials.append(mat)
+            bpy.context.view_layer.update();mw=f.matrix_world.copy()
+            f.parent=A;f.parent_type='BONE';f.parent_bone=W['bone'];bpy.context.view_layer.update();f.matrix_world=mw;f['keep']=1
+    bpy.context.view_layer.update()
 for o in list(bpy.data.objects):
-    if o.type=='MESH' and o.parent is None:bpy.data.objects.remove(o)
+    if o.type=='MESH' and o.parent is None and not o.get('keep'):bpy.data.objects.remove(o)
 bpy.ops.export_scene.gltf(filepath=C['out'],export_format='GLB',export_animation_mode='ACTIONS')
 print('PREP_DONE',[o.name for o in bpy.data.objects])
