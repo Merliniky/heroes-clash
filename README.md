@@ -384,7 +384,7 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Upgrades archDevil / efreetSultan / dreadKnight / silverPegasus / dendroidSoldier reuse the base atlas with a tint.
 - Tower / Dungeon / Fortress groundwork: humanoid sprite configs for gremlin, mage, troglodyte, minotaur and lizardman (Quaternius CC0 parts). They are not in the game yet — these factions have no rosters, 3D fallbacks or themes, so their atlases are not loaded.
 
-## v20 — all 8 SoD factions; sprites are now the default (`?sprites=0` = 3D)
+## v20 — all 8 SoD factions; sprite coverage 108/112 (sprites stay opt-in via `?sprites=1`)
 - **New factions:** Tower 塔楼, Dungeon 地下城 and Fortress 要塞. Each has 7 tiers plus upgrades, using exact HoMM3 SoD stats (from `units.js`, generated from CRTRAITS / VCMI). Stronghold now also offers the Roc / Thunderbird tier.
 - **Synergies (2/4/6 units):**
   - Tower: hero spell damage +8/16/24%, ranged damage +15/30% at tier 2/3, mana regen +15% at tier 3.
@@ -398,5 +398,5 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
   - Troglodyte blind/stone immunity, harpy strike-and-return, minotaur positive morale, serpent/dragon fly dispel, dragon fly weakness, wyvern monarch poison, master genie buffs allies, mage/arch mage −2 spell cost.
   - Drain no longer heals off undead/unliving targets.
 - **3D fallback for every unit:** tinted CC0 models (see CREDITS).
-- **Sprites:** new atlases for the three factions; upgrades are tinted aliases. Sprite mode is on by default and `?sprites=0` forces 3D. GPU atlas pages are released between battles.
+- **Sprites:** 18 new atlases for the three factions (gremlin + mage, genie, giant, troglodyte, harpy, beholder, medusa, minotaur, manticore, lizardman, wyvern, gnoll, basilisk, gorgon, hydra, stone gargoyle, stone golem); upgrades are tinted aliases. Naga/naga queen and serpent fly/dragon fly have no atlas yet (they use 3D in sprite mode), so sprites are still opt-in with `?sprites=1`; the default flips once coverage reaches 112/112. GPU atlas clones are released between battles. `tools/audit_sprites.js` prints coverage.
 - **Balance:** `node sim.js 400 bot <hero>` for each hero, plus `FAC=<faction> node sim.js 300 bot knight` for mono-faction drafting; results are in the v20 notes.

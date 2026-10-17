@@ -5,7 +5,9 @@ order=['pikeman','halberdier','archer','marksman','griffin','royalGriffin','swor
  'skeleton','walkingDead','wight','vampire','vampireLord','lich','blackKnight','boneDragon',
  'goblin','hobgoblin','wolfRider','orc','ogre','behemoth',
  'centaur','dwarf','battleDwarf','woodElf','pegasus','dendroidGuard','unicorn','greenDragon','goldDragon',
- 'imp','gog','hellHound','cerberus','demon','pitFiend','efreet','devil','redDragon','blackDragon']
+ 'imp','gog','hellHound','cerberus','demon','pitFiend','efreet','devil','redDragon','blackDragon',
+ 'gremlin','stoneGargoyle','stoneGolem','mage','genie','naga','giant','troglodyte','harpy','beholder','medusa','minotaur','manticore',
+ 'gnoll','lizardman','serpentFly','basilisk','gorgon','wyvern','hydra']
 units=[u for u in order if u in have]+[u for u in have if u not in order]
 _md=open(R+'models.js').read()
 units=[u for u in units if re.search(r'\b'+u+r'\b',_md)]  # only units the game can spawn (no MD -> atlas kept but not loaded)
@@ -15,6 +17,10 @@ alias={'skeletonWarrior':('skeleton',0xc8d4ff),'zombie':('walkingDead',0xc8e8a0)
  'wolfRaider':('wolfRider',0xffe0c0),'orcChieftain':('orc',0xffe0b0),'ogreMage':('ogre',0xc8d0ff),'cyclops':('ogre',0xd8e0c8),'cyclopsKing':('ogre',0xffe0a0),'roc':('griffin',0xa08060),'thunderbird':('griffin',0x90a0ff),
  'grandElf':('woodElf',0xe8ffd8),'silverPegasus':('pegasus',0xd8e8ff),'dendroidSoldier':('dendroidGuard',0xe0ffc0),'warUnicorn':('unicorn',0xfff0d0),
  'cerberus':('hellHound',0xffb0a0),'hornedDemon':('demon',0xffc8a0),'pitLord':('pitFiend',0xffd0a0),'devil':('pitFiend',0x9a6070),'archDevil':('devil',0xff9080),'efreetSultan':('efreet',0xffe070),
+ 'masterGremlin':('gremlin',0xd0dcff),'obsidianGargoyle':('stoneGargoyle',0x9088a8),'ironGolem':('stoneGolem',0xb8c8e0),'archMage':('mage',0xffe0ff),'masterGenie':('genie',0xd0f0ff),
+ 'nagaQueen':('naga',0xfff0b0),'titan':('giant',0xdce8ff),'infernalTroglodyte':('troglodyte',0xffb8a8),'harpyHag':('harpy',0xd8b8e8),'evilEye':('beholder',0xe0b0ff),
+ 'medusaQueen':('medusa',0xe0ffb8),'minotaurKing':('minotaur',0xffe0a0),'scorpicore':('manticore',0xff9c9c),'gnollMarauder':('gnoll',0xffd8b0),'lizardWarrior':('lizardman',0xb8ffd8),
+ 'dragonFly':('serpentFly',0xffb880),'greaterBasilisk':('basilisk',0xd0ffb0),'mightyGorgon':('gorgon',0xc0d8ff),'wyvernMonarch':('wyvern',0xffe890),'chaosHydra':('hydra',0xb0d0ff),
  # fallbacks while dedicated atlases render
  'halberdier':('pikeman',0xc4d0ff),'marksman':('archer',0xc8f0c0),'crusader':('swordsman',0xffd28a),'zealot':('monk',0xffe2a8),'champion':('cavalier',0xdde4ff),'archangel':('angel',0xffe6a0),
  'hobgoblin':('goblin',0xffc48a),'battleDwarf':('dwarf',0xffcfa0),'vampireLord':('vampire',0xffc0c0),'goldDragon':('greenDragon',0xffc840),'blackDragon':('greenDragon',0x605868)}
