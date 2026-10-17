@@ -21,3 +21,10 @@ js="const SPR_ALIAS={"+",".join(f"{k}:['{b}',0x{t:06x}]" for k,(b,t) in al.items
 s=re.sub(r"const SPR_UNITS=\[[^\]]*\];","const SPR_UNITS=["+",".join(f"'{u}'" for u in units)+"];",s)
 s=re.sub(r"const SPR_ALIAS=\{.*?\};",js,s,flags=re.S)
 open(R+'game3d.js','w').write(s);print(len(units),units);print(len(al),list(al))
+# remove stale atlas pages beyond each json's page count
+import json as _j
+for f in glob.glob(R+'assets/spr/*.json'):
+    u=os.path.basename(f)[:-5];n=len(_j.load(open(f))['pages'])
+    for p in glob.glob(R+f'assets/spr/{u}_p*.webp'):
+        i=int(p.rsplit('_p',1)[1][:-5])
+        if i>=n:os.remove(p);print('rm stale',p)

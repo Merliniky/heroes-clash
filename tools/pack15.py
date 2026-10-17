@@ -62,7 +62,7 @@ for u in sys.argv[1:]:
     frames=[[[None]*m['anims'][k] for k in ORDER] for di in range(ND)]
     for j,it in enumerate(items):
         p,x,y,w,h=rects[j];frames[it['di']][ORDER.index(it['k'])][it['i']]=[p,x,y,w,h,round(it['ax'],1),round(it['ay'],1)]
-    anims={k:{'row':ri,'n':m['anims'][k],'fps':FPS[k],'loop':k in('idle','walk')} for ri,k in enumerate(ORDER)}
+    anims={k:{'row':ri,'n':m['anims'][k],'fps':round(FPS[k]*m['anims'][k]/{'idle':6,'walk':8,'attack':8,'hit':4,'death':8}[k] if k!='idle' or m['anims'][k]<6 else FPS[k],2),'loop':k in('idle','walk')} for ri,k in enumerate(ORDER)}
     ppu=r/m['ext']*S
     meta={'v':15,'pages':sizes,'ppu':round(ppu,2),'head':round(head,1),'dirs':m['dirs'],'anims':anims,'frames':frames,'renderSecs':m['secs'],'hd':bool(m.get('hd')),'shadow':not J.get('noshadow')}
     json.dump(meta,open(f'{out}/{u}.json','w'),separators=(',',':'))

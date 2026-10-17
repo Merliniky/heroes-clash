@@ -233,23 +233,23 @@
 "anims_n": {
 "idle": [
 "CharacterArmature|Flying_Idle",
-8
+5
 ],
 "walk": [
 "CharacterArmature|Fast_Flying",
-8
+6
 ],
 "attack": [
 "CharacterArmature|Headbutt",
-8
+6
 ],
 "hit": [
 "CharacterArmature|HitReact",
-4
+3
 ],
 "death": [
 "CharacterArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -709,26 +709,26 @@
 "anims_n": {
 "idle": [
 "AnimalArmature|Idle",
-6
+5
 ],
 "walk": [
 "AnimalArmature|Walk",
-8
+6
 ],
 "attack": [
 "AnimalArmature|Attack_Kick",
-8
+6
 ],
 "hit": [
 "AnimalArmature|Idle_HitReact_Left",
-4
+3
 ],
 "death": [
 "AnimalArmature|Death",
-8
+6
 ]
 },
-"spp": 16
+"spp": 14
 },
 "gog": {
 "hd": 1,
@@ -913,27 +913,6 @@
 "t": "sphere",
 "bone": "ORG-head",
 "loc": [
-0,
-0.05,
-0.1
-],
-"s": [
-0.16,
-0.17,
-0.17
-],
-"col": [
-0.16,
-0.07,
-0.22
-],
-"rough": 0.9,
-"n": "Hood"
-},
-{
-"t": "sphere",
-"bone": "ORG-head",
-"loc": [
 0.035,
 -0.085,
 0.08
@@ -1015,8 +994,84 @@
 "emit": 3,
 "n": "StaffB",
 "nob": 1
+},
+{
+"t": "sphere",
+"bone": "ORG-head",
+"loc": [
+0,
+0.06,
+0.08
+],
+"s": [
+0.14,
+0.15,
+0.15
+],
+"col": [
+0.16,
+0.07,
+0.22
+],
+"rough": 0.9,
+"n": "Hood"
+},
+{
+"t": "cone",
+"bone": "ORG-head",
+"loc": [
+0,
+0.11,
+0.2
+],
+"rot": [
+-30,
+0,
+0
+],
+"s": [
+0.1,
+0.1,
+0.13
+],
+"r2": 0.0,
+"col": [
+0.16,
+0.07,
+0.22
+],
+"rough": 0.9,
+"n": "HoodTip"
+},
+{
+"t": "torus",
+"bone": "ORG-head",
+"loc": [
+0,
+-0.04,
+0.07
+],
+"rot": [
+80,
+0,
+0
+],
+"s": [
+0.12,
+0.12,
+0.12
+],
+"minor": 0.18,
+"col": [
+0.12,
+0.05,
+0.16
+],
+"rough": 0.9,
+"n": "HoodRim"
 }
-]
+],
+"spp": 14
 },
 "griffin": {
 "hd": 1,
@@ -1025,7 +1080,7 @@
 "f": "/workspace/hd/pp/wolf.glb",
 "h": 0.95,
 "yaw": 0,
-"pack": 0.42,
+"pack": 0.28,
 "q": 78,
 "matte": 0.8,
 "delv": [
@@ -1041,16 +1096,16 @@
 "addons": [
 {
 "t": "sphere",
-"bone": "Neck3",
+"bone": "Head",
 "loc": [
-0,
-0,
-0.05
+0.0,
+-0.24,
+-0.020000000000000004
 ],
 "s": [
-0.34,
-0.38,
-0.34
+0.414,
+0.4692,
+0.414
 ],
 "col": [
 0.45,
@@ -1062,33 +1117,14 @@
 "t": "sphere",
 "bone": "Head",
 "loc": [
-0,
--0.12,
-0.08
+0.0,
+-0.336,
+0.1
 ],
 "s": [
-0.345,
-0.391,
-0.345
-],
-"col": [
-0.45,
-0.3,
-0.13
-]
-},
-{
-"t": "sphere",
-"bone": "Head",
-"loc": [
-0,
--0.2,
-0.2
-],
-"s": [
-0.27599999999999997,
-0.299,
-0.1955
+0.33119999999999994,
+0.35879999999999995,
+0.2346
 ],
 "col": [
 0.82,
@@ -1100,9 +1136,9 @@
 "t": "cone",
 "bone": "Head",
 "loc": [
-0,
--0.5,
-0.02
+0.0,
+-0.696,
+-0.08
 ],
 "rot": [
 115,
@@ -1110,9 +1146,9 @@
 0
 ],
 "s": [
-0.11,
-0.11,
-0.2
+0.132,
+0.132,
+0.24
 ],
 "col": [
 0.85,
@@ -1125,14 +1161,14 @@
 "t": "sphere",
 "bone": "Head",
 "loc": [
-0.17,
--0.33,
-0.16
+0.20400000000000001,
+-0.492,
+0.06
 ],
 "s": [
-0.05,
-0.05,
-0.05
+0.06,
+0.06,
+0.06
 ],
 "col": [
 0.05,
@@ -1145,14 +1181,14 @@
 "t": "sphere",
 "bone": "Head",
 "loc": [
--0.17,
--0.33,
-0.16
+-0.20400000000000001,
+-0.492,
+0.06
 ],
 "s": [
-0.05,
-0.05,
-0.05
+0.06,
+0.06,
+0.06
 ],
 "col": [
 0.05,
@@ -1166,18 +1202,18 @@
 "bone": "Head",
 "loc": [
 0.13,
-0.12,
-0.33
+0.16999999999999998,
+0.21000000000000002
 ],
 "rot": [
--55,
+-80,
 0,
 15
 ],
 "s": [
-0.06,
-0.06,
-0.16
+0.05,
+0.05,
+0.13
 ],
 "col": [
 0.45,
@@ -1190,18 +1226,18 @@
 "bone": "Head",
 "loc": [
 -0.13,
-0.12,
-0.33
+0.16999999999999998,
+0.21000000000000002
 ],
 "rot": [
--55,
+-80,
 0,
 -15
 ],
 "s": [
-0.06,
-0.06,
-0.16
+0.05,
+0.05,
+0.13
 ],
 "col": [
 0.45,
@@ -1212,10 +1248,10 @@
 ],
 "wings": {
 "bone": "Torso2",
-"span": 2.1,
-"side": 0.22,
+"span": 3.045,
+"side": 0.3,
 "back": 0.0,
-"up": 0.18,
+"up": 0.3,
 "col": [
 0.42,
 0.28,
@@ -1226,11 +1262,11 @@
 0.44,
 0.24
 ],
-"w": 0.13,
-"n": 9,
-"amp": 34,
-"a0": 8,
-"fan": 78,
+"w": 0.16,
+"n": 11,
+"amp": 30,
+"a0": -5,
+"fan": 100,
 "sweep": 0.55
 },
 "anims": {
@@ -1257,7 +1293,13 @@
 "AnimalArmature|Death",
 8
 ]
-}
+},
+"squash": [
+1.15,
+0.78,
+0.85
+],
+"spp": 16
 },
 "royalGriffin": {
 "hd": 1,
@@ -1266,7 +1308,7 @@
 "f": "/workspace/hd/pp/wolf.glb",
 "h": 1.02,
 "yaw": 0,
-"pack": 0.42,
+"pack": 0.28,
 "q": 78,
 "matte": 0.8,
 "delv": [
@@ -1282,16 +1324,16 @@
 "addons": [
 {
 "t": "sphere",
-"bone": "Neck3",
+"bone": "Head",
 "loc": [
-0,
-0,
-0.05
+0.0,
+-0.24,
+-0.020000000000000004
 ],
 "s": [
-0.34,
-0.38,
-0.34
+0.414,
+0.4692,
+0.414
 ],
 "col": [
 0.9,
@@ -1303,33 +1345,14 @@
 "t": "sphere",
 "bone": "Head",
 "loc": [
-0,
--0.12,
-0.08
+0.0,
+-0.336,
+0.1
 ],
 "s": [
-0.345,
-0.391,
-0.345
-],
-"col": [
-0.9,
-0.88,
-0.82
-]
-},
-{
-"t": "sphere",
-"bone": "Head",
-"loc": [
-0,
--0.2,
-0.2
-],
-"s": [
-0.27599999999999997,
-0.299,
-0.1955
+0.33119999999999994,
+0.35879999999999995,
+0.2346
 ],
 "col": [
 0.97,
@@ -1341,9 +1364,9 @@
 "t": "cone",
 "bone": "Head",
 "loc": [
-0,
--0.5,
-0.02
+0.0,
+-0.696,
+-0.08
 ],
 "rot": [
 115,
@@ -1351,9 +1374,9 @@
 0
 ],
 "s": [
-0.11,
-0.11,
-0.2
+0.132,
+0.132,
+0.24
 ],
 "col": [
 0.85,
@@ -1366,14 +1389,14 @@
 "t": "sphere",
 "bone": "Head",
 "loc": [
-0.17,
--0.33,
-0.16
+0.20400000000000001,
+-0.492,
+0.06
 ],
 "s": [
-0.05,
-0.05,
-0.05
+0.06,
+0.06,
+0.06
 ],
 "col": [
 0.05,
@@ -1386,14 +1409,14 @@
 "t": "sphere",
 "bone": "Head",
 "loc": [
--0.17,
--0.33,
-0.16
+-0.20400000000000001,
+-0.492,
+0.06
 ],
 "s": [
-0.05,
-0.05,
-0.05
+0.06,
+0.06,
+0.06
 ],
 "col": [
 0.05,
@@ -1407,18 +1430,18 @@
 "bone": "Head",
 "loc": [
 0.13,
-0.12,
-0.33
+0.16999999999999998,
+0.21000000000000002
 ],
 "rot": [
--55,
+-80,
 0,
 15
 ],
 "s": [
-0.06,
-0.06,
-0.16
+0.05,
+0.05,
+0.13
 ],
 "col": [
 0.9,
@@ -1431,58 +1454,32 @@
 "bone": "Head",
 "loc": [
 -0.13,
-0.12,
-0.33
+0.16999999999999998,
+0.21000000000000002
 ],
 "rot": [
--55,
+-80,
 0,
 -15
 ],
 "s": [
-0.06,
-0.06,
-0.16
+0.05,
+0.05,
+0.13
 ],
 "col": [
 0.9,
 0.88,
 0.82
 ]
-},
-{
-"t": "torus",
-"bone": "Neck3",
-"loc": [
-0,
--0.05,
-0.0
-],
-"rot": [
-70,
-0,
-0
-],
-"s": [
-0.33,
-0.33,
-0.33
-],
-"minor": 0.12,
-"col": [
-0.95,
-0.75,
-0.25
-],
-"rough": 0.35
 }
 ],
 "wings": {
 "bone": "Torso2",
-"span": 2.35,
-"side": 0.22,
+"span": 3.4075,
+"side": 0.3,
 "back": 0.0,
-"up": 0.18,
+"up": 0.3,
 "col": [
 0.75,
 0.58,
@@ -1493,11 +1490,11 @@
 0.88,
 0.7
 ],
-"w": 0.13,
-"n": 9,
-"amp": 34,
-"a0": 8,
-"fan": 78,
+"w": 0.16,
+"n": 11,
+"amp": 30,
+"a0": -5,
+"fan": 100,
 "sweep": 0.55
 },
 "anims": {
@@ -1524,7 +1521,13 @@
 "AnimalArmature|Death",
 8
 ]
-}
+},
+"squash": [
+1.15,
+0.78,
+0.85
+],
+"spp": 16
 },
 "archangel": {
 "hd": 1,
@@ -1770,12 +1773,12 @@
 "n": "Plume"
 },
 {
-"t": "cube",
+"t": "cyl",
 "bone": "spine_03",
 "loc": [
-0,
+-0.15,
 0.17,
--0.25
+-0.27
 ],
 "rot": [
 -8,
@@ -1783,8 +1786,34 @@
 0
 ],
 "s": [
-0.2,
-0.015,
+0.058,
+0.026,
+0.36
+],
+"col": [
+0.5,
+0.05,
+0.05
+],
+"rough": 0.9,
+"n": "Cape"
+},
+{
+"t": "cyl",
+"bone": "spine_03",
+"loc": [
+-0.05,
+0.188,
+-0.27
+],
+"rot": [
+-8,
+0,
+0
+],
+"s": [
+0.058,
+0.026,
 0.36
 ],
 "col": [
@@ -1794,8 +1823,87 @@
 ],
 "rough": 0.9,
 "n": "Cape"
+},
+{
+"t": "cyl",
+"bone": "spine_03",
+"loc": [
+0.05,
+0.17,
+-0.27
+],
+"rot": [
+-8,
+0,
+0
+],
+"s": [
+0.058,
+0.026,
+0.36
+],
+"col": [
+0.5,
+0.05,
+0.05
+],
+"rough": 0.9,
+"n": "Cape"
+},
+{
+"t": "cyl",
+"bone": "spine_03",
+"loc": [
+0.15,
+0.188,
+-0.27
+],
+"rot": [
+-8,
+0,
+0
+],
+"s": [
+0.058,
+0.026,
+0.36
+],
+"col": [
+0.6,
+0.07,
+0.06
+],
+"rough": 0.9,
+"n": "Cape"
+},
+{
+"t": "cyl",
+"bone": "spine_03",
+"loc": [
+0,
+0.15,
+0.08
+],
+"rot": [
+0,
+90,
+0
+],
+"s": [
+0.03,
+0.03,
+0.2
+],
+"col": [
+0.55,
+0.06,
+0.05
+],
+"rough": 0.9,
+"n": "CapeTop"
 }
-]
+],
+"spp": 14
 },
 "zealot": {
 "hd": 1,
@@ -1844,26 +1952,32 @@
 "bone": "Head",
 "loc": [
 0,
-0.02,
-0.37
+0.03,
+0.4
+],
+"rot": [
+12,
+0,
+0
 ],
 "s": [
-0.13,
-0.13,
-0.13
+0.17,
+0.17,
+0.17
 ],
-"minor": 0.13,
+"minor": 0.2,
 "col": [
 1.0,
-0.85,
-0.35
+0.82,
+0.25
 ],
 "rough": 0.3,
-"emit": 2.0,
+"emit": 4.5,
 "nob": 1,
 "n": "Halo"
 }
-]
+],
+"spp": 14
 },
 "champion": {
 "hd": 1,
@@ -1964,23 +2078,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2005,23 +2119,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2048,23 +2162,23 @@
 "anims_n": {
 "idle": [
 "CharacterArmature|Flying_Idle",
-8
+5
 ],
 "walk": [
 "CharacterArmature|Fast_Flying",
-8
+6
 ],
 "attack": [
 "CharacterArmature|Headbutt",
-8
+6
 ],
 "hit": [
 "CharacterArmature|HitReact",
-4
+3
 ],
 "death": [
 "CharacterArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -2099,23 +2213,23 @@
 "anims_n": {
 "idle": [
 "CharacterArmature|Flying_Idle",
-8
+5
 ],
 "walk": [
 "CharacterArmature|Fast_Flying",
-8
+6
 ],
 "attack": [
 "CharacterArmature|Headbutt",
-8
+6
 ],
 "hit": [
 "CharacterArmature|HitReact",
-4
+3
 ],
 "death": [
 "CharacterArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -2150,23 +2264,23 @@
 "anims_n": {
 "idle": [
 "CharacterArmature|Flying_Idle",
-8
+5
 ],
 "walk": [
 "CharacterArmature|Fast_Flying",
-8
+6
 ],
 "attack": [
 "CharacterArmature|Headbutt",
-8
+6
 ],
 "hit": [
 "CharacterArmature|HitReact",
-4
+3
 ],
 "death": [
 "CharacterArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -2197,23 +2311,23 @@
 "anims_n": {
 "idle": [
 "CharacterArmature|Flying_Idle",
-8
+5
 ],
 "walk": [
 "CharacterArmature|Fast_Flying",
-8
+6
 ],
 "attack": [
 "CharacterArmature|Headbutt",
-8
+6
 ],
 "hit": [
 "CharacterArmature|HitReact",
-4
+3
 ],
 "death": [
 "CharacterArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -2372,23 +2486,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2440,23 +2554,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2485,23 +2599,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2530,23 +2644,23 @@
 "anims_n": {
 "idle": [
 "Pistol_Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Pistol_Shoot",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2570,23 +2684,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2664,23 +2778,23 @@
 "anims_n": {
 "idle": [
 "Idle_Loop",
-6
+5
 ],
 "walk": [
 "Walk_Loop",
-8
+6
 ],
 "attack": [
 "Sword_Attack",
-8
+6
 ],
 "hit": [
 "Hit_Chest",
-4
+3
 ],
 "death": [
 "Death01",
-8
+6
 ]
 },
 "q": 80,
@@ -2776,23 +2890,23 @@
 "anims_n": {
 "idle": [
 "AnimalArmature|Idle",
-6
+5
 ],
 "walk": [
 "AnimalArmature|Gallop",
-8
+6
 ],
 "attack": [
 "AnimalArmature|Attack",
-8
+6
 ],
 "hit": [
 "AnimalArmature|Idle_HitReact_Left",
-4
+3
 ],
 "death": [
 "AnimalArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -2817,23 +2931,23 @@
 "anims_n": {
 "idle": [
 "AnimalArmature|Idle",
-6
+5
 ],
 "walk": [
 "AnimalArmature|Gallop",
-8
+6
 ],
 "attack": [
 "AnimalArmature|Attack",
-8
+6
 ],
 "hit": [
 "AnimalArmature|Idle_HitReact_Left",
-4
+3
 ],
 "death": [
 "AnimalArmature|Death",
-8
+6
 ]
 },
 "recolor": {
@@ -2878,23 +2992,23 @@
 "anims_n": {
 "idle": [
 "AnimalArmature|Idle",
-6
+5
 ],
 "walk": [
 "AnimalArmature|Walk",
-8
+6
 ],
 "attack": [
 "AnimalArmature|Attack_Headbutt",
-8
+6
 ],
 "hit": [
 "AnimalArmature|Idle_HitReact_Left",
-4
+3
 ],
 "death": [
 "AnimalArmature|Death",
-8
+6
 ]
 },
 "matte": 0.85,
@@ -2965,23 +3079,23 @@
 "anims_n": {
 "idle": [
 "AnimalArmature|Idle",
-6
+5
 ],
 "walk": [
 "AnimalArmature|Walk",
-8
+6
 ],
 "attack": [
 "AnimalArmature|Attack_Headbutt",
-8
+6
 ],
 "hit": [
 "AnimalArmature|Idle_HitReact_Left",
-4
+3
 ],
 "death": [
 "AnimalArmature|Death",
-8
+6
 ]
 },
 "matte": 0.85,
@@ -3038,23 +3152,23 @@
 "anims_n": {
 "idle": [
 "AnimalArmature|Idle",
-6
+5
 ],
 "walk": [
 "AnimalArmature|Walk",
-8
+6
 ],
 "attack": [
 "AnimalArmature|Attack_Headbutt",
-8
+6
 ],
 "hit": [
 "AnimalArmature|Idle_HitReact_Left",
-4
+3
 ],
 "death": [
 "AnimalArmature|Death",
-8
+6
 ]
 },
 "matte": 0.85,
@@ -3097,15 +3211,15 @@
 "anims_n": {
 "idle": [
 "Idle",
-8
+5
 ],
 "walk": [
 "Walk",
-8
+6
 ],
 "attack": [
 "Attack",
-8
+6
 ],
 "hit": [
 "Melee_Hold",
@@ -3113,7 +3227,7 @@
 ],
 "death": [
 "Dying",
-8
+6
 ]
 },
 "spp": 14
