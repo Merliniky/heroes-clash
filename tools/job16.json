@@ -265,7 +265,8 @@
 70,
 0.8
 ],
-"matte": 0.88
+"matte": 0.88,
+"spp": 14
 },
 "monk": {
 "hd": 1,
@@ -859,7 +860,8 @@
 "Shoulder00",
 "Shoulder01",
 "MetalJaw",
-"Boots"
+"Boots",
+"SkeletonHair"
 ],
 "addons": [
 {
@@ -911,13 +913,13 @@
 "bone": "ORG-head",
 "loc": [
 0,
-0.03,
-0.11
+0.05,
+0.1
 ],
 "s": [
-0.13,
-0.14,
-0.15
+0.16,
+0.17,
+0.17
 ],
 "col": [
 0.16,
@@ -1980,7 +1982,8 @@
 8
 ]
 },
-"q": 80
+"q": 80,
+"spp": 14
 },
 "battleDwarf": {
 "hd": 1,
@@ -2025,7 +2028,8 @@
 1.22,
 1.22,
 1.0
-]
+],
+"spp": 14
 },
 "redDragon": {
 "f": "/workspace/hd/units/dragon_evolved.glb",
@@ -2075,7 +2079,8 @@
 70,
 0.8
 ],
-"matte": 0.88
+"matte": 0.88,
+"spp": 14
 },
 "blackDragon": {
 "f": "/workspace/hd/units/dragon_evolved.glb",
@@ -2125,7 +2130,8 @@
 70,
 0.8
 ],
-"matte": 0.88
+"matte": 0.88,
+"spp": 14
 },
 "goldDragon": {
 "f": "/workspace/hd/units/dragon_evolved.glb",
@@ -2171,7 +2177,8 @@
 "pitch": 22,
 "rough": 0.42,
 "spec": 0.6,
-"matte": 0.5
+"matte": 0.5,
+"spp": 14
 },
 "boneDragon": {
 "f": "/workspace/hd/units/dragon_evolved.glb",
@@ -2221,7 +2228,8 @@
 70,
 0.8
 ],
-"matte": 0.88
+"matte": 0.88,
+"spp": 14
 },
 "wight": {
 "hd": 1,
@@ -2302,7 +2310,8 @@
 "emit": 4,
 "n": "EyeGlow"
 }
-]
+],
+"spp": 14
 },
 "vampire": {
 "hd": 1,
@@ -2341,7 +2350,8 @@
 8
 ]
 },
-"q": 80
+"q": 80,
+"spp": 14
 },
 "vampireLord": {
 "hd": 1,
@@ -2408,7 +2418,8 @@
 "rough": 0.7,
 "n": "Cape"
 }
-]
+],
+"spp": 14
 },
 "orc": {
 "hd": 1,
@@ -2452,7 +2463,8 @@
 1.12,
 1.12,
 1.0
-]
+],
+"spp": 14
 },
 "ogre": {
 "hd": 1,
@@ -2496,7 +2508,8 @@
 1.35,
 1.35,
 1.0
-]
+],
+"spp": 14
 },
 "woodElf": {
 "hd": 1,
@@ -2535,7 +2548,8 @@
 8
 ]
 },
-"q": 80
+"q": 80,
+"spp": 14
 },
 "demon": {
 "hd": 1,
@@ -2628,7 +2642,8 @@
 "rough": 0.6,
 "n": "Horn"
 }
-]
+],
+"spp": 14
 },
 "pitFiend": {
 "hd": 1,
@@ -2743,7 +2758,8 @@
 "a0": -5,
 "fan": 75,
 "w": 0.16
-}
+},
+"spp": 14
 },
 "hellHound": {
 "hd": 1,
@@ -2783,7 +2799,8 @@
 "Main_Light": 9054738,
 "Eyes_Black": 16736272
 },
-"matte": 0.85
+"matte": 0.85,
+"spp": 14
 },
 "wolfRider": {
 "hd": 1,
@@ -2842,7 +2859,8 @@
 "wep": [
 "Axe_small"
 ],
-"pack": 0.42
+"pack": 0.42,
+"spp": 14
 },
 "unicorn": {
 "hd": 1,
@@ -2885,18 +2903,18 @@
 "bone": "Head",
 "loc": [
 0,
--0.6,
-0.6
+-0.28,
+0.28
 ],
 "rot": [
-35,
+40,
 0,
 0
 ],
 "s": [
-0.09,
-0.09,
-0.45
+0.05,
+0.05,
+0.22
 ],
 "col": [
 0.95,
@@ -2906,6 +2924,197 @@
 "rough": 0.4,
 "n": "Horn"
 }
+],
+"adds": "auto",
+"spp": 14
+},
+"blackKnight": {
+"hd": 1,
+"rim": 4.5,
+"centerxy": 1,
+"f": "/workspace/hd/pp/horse.glb",
+"h": 1.0,
+"yaw": 0,
+"pack": 0.42,
+"q": 78,
+"rider": {
+"f": "/workspace/hd/units/bkrider.glb",
+"act": "Sitting_Idle_Loop",
+"bone": "Torso2",
+"s": 2.8,
+"off": [
+0,
+0,
+0.35
+],
+"legk": {
+"thigh_l": 0.45,
+"thigh_r": 0.45,
+"calf_l": 0.75,
+"calf_r": 0.75
+}
+},
+"wep": [
+"Sword_big",
+"Shield_Heater"
+],
+"anims": {
+"idle": "AnimalArmature|Idle"
+},
+"anims_n": {
+"idle": [
+"AnimalArmature|Idle",
+6
+],
+"walk": [
+"AnimalArmature|Walk",
+8
+],
+"attack": [
+"AnimalArmature|Attack_Headbutt",
+8
+],
+"hit": [
+"AnimalArmature|Idle_HitReact_Left",
+4
+],
+"death": [
+"AnimalArmature|Death",
+8
 ]
+},
+"matte": 0.85,
+"recolor": {
+"Main": 1841694,
+"Main_Dark": 1052690,
+"Main_Light": 3814456,
+"Hair": 657930,
+"Muzzle": 2761766
+},
+"addons": [
+{
+"t": "cube",
+"bone": "spine_03",
+"loc": [
+0,
+0.17,
+-0.25
+],
+"rot": [
+-8,
+0,
+0
+],
+"s": [
+0.2,
+0.015,
+0.36
+],
+"col": [
+0.3,
+0.04,
+0.05
+],
+"rough": 0.8,
+"n": "Cape",
+"rider": 1
+}
+],
+"spp": 14
+},
+"pegasus": {
+"hd": 1,
+"rim": 4.5,
+"centerxy": 1,
+"f": "/workspace/hd/pp/whorse.glb",
+"h": 0.85,
+"yaw": 0,
+"pack": 0.42,
+"q": 78,
+"anims": {
+"idle": "AnimalArmature|Idle"
+},
+"anims_n": {
+"idle": [
+"AnimalArmature|Idle",
+6
+],
+"walk": [
+"AnimalArmature|Walk",
+8
+],
+"attack": [
+"AnimalArmature|Attack_Headbutt",
+8
+],
+"hit": [
+"AnimalArmature|Idle_HitReact_Left",
+4
+],
+"death": [
+"AnimalArmature|Death",
+8
+]
+},
+"matte": 0.85,
+"wings": {
+"bone": "Torso2",
+"span": 2.6,
+"side": 0.25,
+"back": 0.0,
+"up": 0.2,
+"col": [
+0.95,
+0.94,
+0.9
+],
+"col2": [
+0.85,
+0.86,
+0.9
+],
+"n": 9,
+"a0": 8,
+"fan": 78,
+"amp": 30,
+"sweep": 0.5
+},
+"spp": 14
+},
+"dendroidGuard": {
+"f": "/workspace/hd/units/fm_raw.glb",
+"h": 1.05,
+"yaw": 0,
+"centerxy": 1,
+"hd": 1,
+"rim": 4.5,
+"pack": 0.38,
+"q": 78,
+"anims": {
+"idle": "Idle"
+},
+"anims_n": {
+"idle": [
+"Idle",
+8
+],
+"walk": [
+"Walk",
+8
+],
+"attack": [
+"Attack",
+8
+],
+"hit": [
+"Melee_Hold",
+3
+],
+"death": [
+"Dying",
+8
+]
+},
+"spp": 14
 }
 }

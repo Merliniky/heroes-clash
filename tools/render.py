@@ -268,7 +268,7 @@ light('fill','SUN',1.3,(60,0,-150),(0.7,0.8,1.0),25);bpy.data.lights['fill'].use
 light('rim','SUN',J.get('rim',3.0),(-35,0,80),(1,0.95,0.9),4);bpy.data.lights['rim'].use_shadow=False
 if J.get('hd'):light('rim2','SUN',2.2,(-30,0,-20),(0.75,0.85,1.0),4);bpy.data.lights['rim2'].use_shadow=False
 w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(0.55,0.6,0.7,1);w.node_tree.nodes['Background'].inputs[1].default_value=0.45
-r=sc.render;r.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=JOB.get('_spp',24);sc.cycles.use_denoising=True;sc.cycles.max_bounces=4;r.use_persistent_data=True;sc.cycles.use_adaptive_sampling=True;sc.cycles.adaptive_threshold=0.02
+r=sc.render;r.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=J.get('spp',JOB.get('_spp',24));sc.cycles.use_denoising=True;sc.cycles.max_bounces=4;r.use_persistent_data=True;sc.cycles.use_adaptive_sampling=True;sc.cycles.adaptive_threshold=0.02
 sc.view_settings.view_transform='Standard';sc.view_settings.look='None';sc.view_settings.exposure=JOB.get('_exp',0.0)
 r.use_freestyle=bool(J.get('freestyle',False));r.line_thickness_mode='ABSOLUTE';r.line_thickness=J.get('line',JOB.get('_line',2.0))*PPU/256
 ls=sc.view_layers[0].freestyle_settings.linesets[0] if sc.view_layers[0].freestyle_settings.linesets else sc.view_layers[0].freestyle_settings.linesets.new('ls')
