@@ -98,3 +98,9 @@ No new third-party assets: the new enemy sprites (wight, vampire, orc, ogre, wol
 
 ## v18
 No new third-party assets (same CC0 sources as v16/v17: Quaternius UBC/outfits/UAL/weapons, Quaternius White Horse, Quaternius Dragon Evolved, plus procedural primitives).
+
+## v19
+No new third-party packs. Same CC0 sources as v16–v18: Quaternius Universal Base Characters / Modular Character Outfits – Fantasy / Universal Animation Library / weapons, Quaternius White Horse and Animated Animals (horse, wolf), plus procedural Blender primitives (halo, hood, cape pleats, horns, spikes, flames, wings, extra cerberus heads) made for this project (CC0).
+- **Dendroid Guard** — "Forest Monster" by Čestmír Dammer (CDmir), OpenGameArt, CC0 — https://opengameart.org/content/forest-monster (used with its tree intact).
+- **Pegasus** — Quaternius White Horse (CC0) with procedural feathered wings.
+- **Black Knight** — Quaternius Animated Animals Horse (CC0), rider from Quaternius UBC + outfits (CC0).

@@ -376,3 +376,10 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Dedicated gold, red and black dragon atlases (material recolours; gold is glossier); green dragon eyes amber.
 - New sprites: hobgoblin, battle dwarf, unicorn, pit fiend, vampire lord; wight now hovers (no baked contact shadow, blob shadow only).
 - Upgrades war unicorn / pit lord reuse the base atlas with a tint.
+
+## v19 — readable fixes, inferno, black knight, pegasus, dendroid (behind `?sprites=1`)
+- Exaggerated for phone scale and checked in the default camera: zealot has a large emissive gold halo above the head; lich has a tall pointed purple hood with a rim; crusader has a long, wide pleated red cape (alternating light/dark folds, gold top bar, white cross).
+- Boss intro: when sprites are on, the camera dolly stops farther away (≥ 8.5 units, scaled with the boss height) so the atlas is no longer magnified into blur.
+- New sprites: hell hound (darker, horns, glowing spine spikes and eyes), cerberus (three heads), efreet (legless, flames, hovering), devil (horns, tail, bat wings), black knight (mounted), pegasus, dendroid guard; griffin/royal griffin re-rendered without the upright wolf tail.
+- Upgrades archDevil / efreetSultan / dreadKnight / silverPegasus / dendroidSoldier reuse the base atlas with a tint.
+- Tower / Dungeon / Fortress groundwork: humanoid sprite configs for gremlin, mage, troglodyte, minotaur and lizardman (Quaternius CC0 parts). They are not in the game yet — these factions have no rosters, 3D fallbacks or themes, so their atlases are not loaded.

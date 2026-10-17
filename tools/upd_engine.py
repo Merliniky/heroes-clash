@@ -7,6 +7,8 @@ order=['pikeman','halberdier','archer','marksman','griffin','royalGriffin','swor
  'centaur','dwarf','battleDwarf','woodElf','pegasus','dendroidGuard','unicorn','greenDragon','goldDragon',
  'imp','gog','hellHound','cerberus','demon','pitFiend','efreet','devil','redDragon','blackDragon']
 units=[u for u in order if u in have]+[u for u in have if u not in order]
+_md=open(R+'models.js').read()
+units=[u for u in units if re.search(r'\b'+u+r'\b',_md)]  # only units the game can spawn (no MD -> atlas kept but not loaded)
 alias={'skeletonWarrior':('skeleton',0xc8d4ff),'zombie':('walkingDead',0xc8e8a0),'familiar':('imp',0xff9a7a),'centaurCaptain':('centaur',0xd8e8c0),
  'magog':('gog',0xffb070),'powerLich':('lich',0xd0b0ff),'ancientBehemoth':('behemoth',0xffb890),
  'wraith':('wight',0xc0ccff),'dreadKnight':('blackKnight',0xffb0a0),'ghostDragon':('boneDragon',0xb8d8ff),
