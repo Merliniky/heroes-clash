@@ -686,11 +686,11 @@
 "f": "/workspace/hd/units/centaurtop.glb",
 "act": "Idle_Loop",
 "bone": "Torso3",
-"s": 3.0,
+"s": 3.7,
 "off": [
 0,
--0.3,
-0.1
+-0.45,
+0.05
 ],
 "acts": {
 "idle": "Idle_Loop",
@@ -727,7 +727,8 @@
 "AnimalArmature|Death",
 8
 ]
-}
+},
+"spp": 16
 },
 "gog": {
 "hd": 1,
