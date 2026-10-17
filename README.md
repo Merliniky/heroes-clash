@@ -365,3 +365,8 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Style pass: walking dead, imp, monk, dwarf rebuilt on the same realistic UBC body set as the Castle units (no more cartoon Quaternius monsters among them); lich is now a skeleton in a robe; gog/imp/demons have horns; dwarf beard visible; dragon eyes amber.
 - Angel / archangel / griffin / pit fiend / imp wings flap; cavalier rider legs hang astride; centaur torso enlarged and moved to the front.
 - Theme enemies for stages 5–10: wight, vampire, vampire lord, black knight, bone dragon (necro); wolf rider, orc, ogre (stronghold); wood elf, pegasus, dendroid, unicorn, gold dragon (rampart); hell hound, demon, pit fiend (inferno); red/black dragons. Their upgrades use a tinted alias.
+
+## v17 — griffin rebuild + first theme-enemy batch (behind `?sprites=1`)
+- Griffin / royal griffin rebuilt: compact crouched lion body, eagle head lower and forward, larger spread wings; tier-3 sprite scale cut (no longer dragon-sized; royal griffin overlap fixed); lighter atlases.
+- New enemy sprites: wight, vampire (necro), bone dragon, orc, ogre, wolf rider (stronghold), wood elf (rampart), hell hound, demon (inferno). Their upgrades (wraith, ghost dragon, vampire lord, orc chieftain, ogre mage, wolf raider, grand elf, cerberus, horned demon) and cyclops reuse the base atlas with a tint.
+- Packer keeps animation duration when a unit is rendered with fewer frames.

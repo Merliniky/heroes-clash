@@ -92,3 +92,6 @@ All CC0 (public domain); credit given as courtesy.
 - **Lich** — "Skeleton Outlaw" (OpenGameArt, CC0, as v13 skeleton) with a procedural robe, hood, staff and glowing eyes.
 - **Dendroid Guard** — "Forest Monster" by CDmir (OpenGameArt, CC0), original bark/moss textures.
 - **Red / Black / Gold / Bone dragons** — Quaternius "Dragon Evolved" (CC0) material recolours (gold: lower roughness, more specular).
+
+## v17
+No new third-party assets: the new enemy sprites (wight, vampire, orc, ogre, wolf rider, wood elf, hell hound, demon, bone dragon) use the same CC0 sources listed under v16 (Quaternius UBC/outfits/UAL/weapons, Quaternius Wolf, Quaternius Dragon Evolved) plus procedural primitives.
