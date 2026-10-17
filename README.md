@@ -370,3 +370,9 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Griffin / royal griffin rebuilt: compact crouched lion body, eagle head lower and forward, larger spread wings; tier-3 sprite scale cut (no longer dragon-sized; royal griffin overlap fixed); lighter atlases.
 - New enemy sprites: wight, vampire (necro), bone dragon, orc, ogre, wolf rider (stronghold), wood elf (rampart), hell hound, demon (inferno). Their upgrades (wraith, ghost dragon, vampire lord, orc chieftain, ogre mage, wolf raider, grand elf, cerberus, horned demon) and cyclops reuse the base atlas with a tint.
 - Packer keeps animation duration when a unit is rendered with fewer frames.
+
+## v18 — fixes + dragons + more enemies (behind `?sprites=1`)
+- Zealot halo now bright and thick enough to read at phone scale; lich hood is a pointed cowl with a rim; crusader cape has cloth pleats and a top bar; centaur torso enlarged and moved to the front.
+- Dedicated gold, red and black dragon atlases (material recolours; gold is glossier); green dragon eyes amber.
+- New sprites: hobgoblin, battle dwarf, unicorn, pit fiend, vampire lord; wight now hovers (no baked contact shadow, blob shadow only).
+- Upgrades war unicorn / pit lord reuse the base atlas with a tint.

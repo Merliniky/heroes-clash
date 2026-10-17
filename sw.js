@@ -1,6 +1,6 @@
 // Offline cache. Bump VERSION on every deploy (index.html also cache-busts with ?v=).
-const VERSION='hc-v17';
-const CORE=['./','index.html','style.css?v=17','audio.js?v=17','units.js?v=17','core.js?v=17','models.js?v=17','hero.js?v=17','meta.js?v=17','game3d.js?v=17','lib/three.module.min.js?v=17',
+const VERSION='hc-v18';
+const CORE=['./','index.html','style.css?v=18','audio.js?v=18','units.js?v=18','core.js?v=18','models.js?v=18','hero.js?v=18','meta.js?v=18','game3d.js?v=18','lib/three.module.min.js?v=18',
   'lib/addons/loaders/GLTFLoader.js','lib/addons/utils/SkeletonUtils.js','lib/addons/utils/BufferGeometryUtils.js','manifest.webmanifest','icons/icon-192.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(CORE).catch(()=>{})).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});

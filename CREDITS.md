@@ -95,3 +95,6 @@ All CC0 (public domain); credit given as courtesy.
 
 ## v17
 No new third-party assets: the new enemy sprites (wight, vampire, orc, ogre, wolf rider, wood elf, hell hound, demon, bone dragon) use the same CC0 sources listed under v16 (Quaternius UBC/outfits/UAL/weapons, Quaternius Wolf, Quaternius Dragon Evolved) plus procedural primitives.
+
+## v18
+No new third-party assets (same CC0 sources as v16/v17: Quaternius UBC/outfits/UAL/weapons, Quaternius White Horse, Quaternius Dragon Evolved, plus procedural primitives).
