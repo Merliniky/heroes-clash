@@ -74,3 +74,12 @@ All CC0 (public domain); credit given as courtesy.
 - **Swordsman / Archer / Pikeman** — bodies, heads and animations: Quaternius *Universal Base Characters*, *Modular Character Outfits – Fantasy* (Ranger outfit for swordsman (recoloured blue) and archer, Peasant outfit for pikeman) and *Universal Animation Library* (Sword_Idle/Attack, Pistol_Idle/Shoot, Punch_Jab, Walk_Loop, Hit_Chest, Death01) — https://quaternius.itch.io . Sword, heater shield, spear: Quaternius *Medieval Weapons Pack*; helmets: Quaternius *Knight* pack (via https://github.com/trebeljahr/quaternius-showcase). Crossbow: KayKit Adventurers (Kay Lousberg). All CC0.
 - **Green Dragon** — Quaternius "Dragon Evolved" (Ultimate Monsters), https://poly.pizza/m/LlwD0QNUPj , CC0 (recoloured green).
 - Skeleton (OGA Skeleton Outlaw) and Behemoth (OGA Cethiel's Dragon 3D, Drummyfish) as in v13, CC0.
+
+## v15 sprites (`?sprites=1`) — all CC0
+- **Behemoth** — "Forest Monster" by Čestmír Dammer (CDmir), OpenGameArt, CC0 — https://opengameart.org/content/forest-monster (tree removed, skin texture recoloured brown).
+- **Cavalier / Centaur** — Quaternius *Animated Animals* Horse (poly.pizza, CC0) — https://poly.pizza/m/qvTrSG9pZF ; riders and centaur torso built from Quaternius *Universal Base Characters* + *Modular Character Outfits – Fantasy* + *Universal Animation Library* (CC0).
+- **Monk / Angel / Goblin / Dwarf** — Quaternius UBC heads + hair (Hair_Long, Hair_Beard), Fantasy outfits (recoloured: brown monk robe, white/gold angel, green goblin skin), UAL animations. Weapons: Quaternius *Medieval Weapons* (Bow_Wooden, Sword_Golden, Axe_small, Shield_Round_2, Spear); monk staff: KayKit Adventurers (Kay Lousberg). Angel wings modelled procedurally in Blender for this project (CC0).
+- **Imp** — Quaternius "Demon" (Ultimate Monsters), CC0 — https://poly.pizza/m/LnfIziKv4o
+- **Walking Dead** — Quaternius "Zombie", CC0 — https://poly.pizza/m/VlXjG0N8Eg
+- **Archer** now draws a wooden bow (Quaternius Medieval Weapons) — UAL has no bow clip, so the shoot is the UAL Pistol_Shoot two-arm aim with the bow held in the leading hand.
+- Upgraded creatures (halberdier, marksman, crusader, zealot, champion, archangel, skeleton warrior, zombie, hobgoblin, battle dwarf, familiar, centaur captain, ancient behemoth) reuse the base atlas with a tint.

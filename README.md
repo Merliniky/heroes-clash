@@ -352,3 +352,9 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Rendered with a 55° camera matching the portrait game camera; soles placed on z=0 from mesh vertices; baked shadow-catcher contact shadow + small blob; billboards anchored at the projected ground point and pushed toward the camera along the view ray so the lower body/shadow is never clipped.
 - Trimmed frames packed into 2048-wide atlas pages (GPU memory ~5–35 MB per unit instead of ~70+), premultiplied-alpha downscale (no fringes), 1 px external outline.
 - Projectiles now spawn offset toward the target; facing locks onto the wind-up target.
+
+## v15 — sprite roster expansion (behind `?sprites=1`)
+- Sprites for Castle pikeman, archer (now with a bow), swordsman (upright idle), monk, cavalier, angel; early enemies skeleton, walking dead, goblin, imp, centaur, dwarf; plus behemoth (new hulking CC0 "Forest Monster" body) and green dragon (smaller 2×2 footprint, nose-up hover so the front view shows the head, matte darker scales).
+- Upgrades reuse their base atlas with a tint + 8 % scale (halberdier, marksman, crusader, zealot, champion, archangel, …).
+- Atlases are fetched lazily the first time a unit type appears (≈0.5–0.9 MB per type), so a battle only downloads what is on the field.
+- Stronger baked contact shadows (faded with distance from the feet) + darker blob shadow.
