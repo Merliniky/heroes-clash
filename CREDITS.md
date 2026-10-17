@@ -83,3 +83,12 @@ All CC0 (public domain); credit given as courtesy.
 - **Walking Dead** — Quaternius "Zombie", CC0 — https://poly.pizza/m/VlXjG0N8Eg
 - **Archer** now draws a wooden bow (Quaternius Medieval Weapons) — UAL has no bow clip, so the shoot is the UAL Pistol_Shoot two-arm aim with the bow held in the leading hand.
 - Upgraded creatures (halberdier, marksman, crusader, zealot, champion, archangel, skeleton warrior, zombie, hobgoblin, battle dwarf, familiar, centaur captain, ancient behemoth) reuse the base atlas with a tint.
+
+## v16 sprites (`?sprites=1`) — all CC0, no AI-generated assets
+- **Griffin / Royal Griffin** — body: Quaternius *Low Poly Animals Animated* "Wolf" (poly.pizza, CC0) — https://poly.pizza/m/XU7oNeKShV (bundle: https://poly.pizza/bundle/Animated-Animal-Pack-ILAPXeUYiS), dog head removed and fur recoloured tawny/cream; eagle head, beak, ear tufts, feathered wings (flapping) and the royal collar are procedural Blender primitives made for this project (CC0). The 3D fallback for griffin is the existing Quaternius wolf (q_wolf2) with procedural wings.
+- **Hell Hound / Wolf Rider** — same Quaternius Wolf (recoloured); wolf rider = goblin built from Quaternius UBC + outfits.
+- **Champion / Unicorn / Pegasus / Black Knight** — Quaternius *Animated Animal Pack* Horse and White Horse (poly.pizza, CC0); unicorn horn, pegasus wings, plumes and capes are procedural primitives.
+- **Restyled / new humanoids** (walking dead, imp, monk, dwarf, halberdier, marksman, crusader, zealot, hobgoblin, battle dwarf, wight, vampire, vampire lord, orc, ogre, wood elf, demon, pit fiend, all riders) — Quaternius *Universal Base Characters*, *Modular Character Outfits – Fantasy* (Peasant / Ranger outfits, recoloured textures), *Universal Animation Library*; weapons/helmets/shields: Quaternius *Medieval Weapons* + *Knight* packs. Horns, halos, capes, plumes, glowing eyes, bat wings and the monk/zealot staffs are procedural primitives (CC0).
+- **Lich** — "Skeleton Outlaw" (OpenGameArt, CC0, as v13 skeleton) with a procedural robe, hood, staff and glowing eyes.
+- **Dendroid Guard** — "Forest Monster" by CDmir (OpenGameArt, CC0), original bark/moss textures.
+- **Red / Black / Gold / Bone dragons** — Quaternius "Dragon Evolved" (CC0) material recolours (gold: lower roughness, more specular).

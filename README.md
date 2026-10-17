@@ -358,3 +358,10 @@ faction win% (AI vs AI): castle 40%, rampart 57%, tower 55%, inferno 54%, necro 
 - Upgrades reuse their base atlas with a tint + 8 % scale (halberdier, marksman, crusader, zealot, champion, archangel, …).
 - Atlases are fetched lazily the first time a unit type appears (≈0.5–0.9 MB per type), so a battle only downloads what is on the field.
 - Stronger baked contact shadows (faded with distance from the feet) + darker blob shadow.
+
+## v16 — distinct upgrades, griffins, theme enemies (behind `?sprites=1`)
+- New **Griffin** (now part of the Castle line) and **Royal Griffin**: CC0 wolf body + procedural eagle head and flapping wings.
+- Upgrades get their own atlases with real differences: halberdier (halberd, blue tunic, plume), marksman (dark-brown ranger, longer bow), crusader (red tabard, gold sword, celtic shield, cape, plume), zealot (white/gold robe, gold staff, halo), champion (white horse, gold armour, celtic shield, plume), archangel (bigger wings, big sword, halo), hobgoblin / battle dwarf (helmets, shields).
+- Style pass: walking dead, imp, monk, dwarf rebuilt on the same realistic UBC body set as the Castle units (no more cartoon Quaternius monsters among them); lich is now a skeleton in a robe; gog/imp/demons have horns; dwarf beard visible; dragon eyes amber.
+- Angel / archangel / griffin / pit fiend / imp wings flap; cavalier rider legs hang astride; centaur torso enlarged and moved to the front.
+- Theme enemies for stages 5–10: wight, vampire, vampire lord, black knight, bone dragon (necro); wolf rider, orc, ogre (stronghold); wood elf, pegasus, dendroid, unicorn, gold dragon (rampart); hell hound, demon, pit fiend (inferno); red/black dragons. Their upgrades use a tinted alias.
