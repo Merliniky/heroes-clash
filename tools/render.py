@@ -65,10 +65,30 @@ root=[o for o in objs if o.parent is None]
 lo,hi=bbox();H=J['h']*1.55;k=H/(hi.z-lo.z)
 for r in root:r.scale*=k;r.location*=k
 bpy.context.view_layer.update()
-for r in root:r.matrix_world=mathutils.Matrix.Rotation(math.radians(J.get('yaw',0)),4,'Z')@r.matrix_world
-bpy.context.view_layer.update();lo,hi=bbox()
-for r in root:r.location.z-=lo.z
+WEP=set(J.get('wep',[]))|set(J.get('show',[]))
+def foot_z():
+    dg=bpy.context.evaluated_depsgraph_get();z=1e9
+    for o in bpy.data.objects:
+        if o.type!='MESH' or o.hide_render or o.name.split('.')[0] in WEP:continue
+        e=o.evaluated_get(dg);me=e.to_mesh();mw=e.matrix_world
+        for v in me.vertices:
+            w=(mw@v.co).z
+            if w<z:z=w
+        e.to_mesh_clear()
+    return z
+fz=foot_z();print('FOOT',fz,'BBOXLO',bbox()[0].z)
+# centre horizontally on the body (xy of idle bbox centre) and put soles on z=0
+lo,hi=bbox();cx,cyy=(lo.x+hi.x)/2,(lo.y+hi.y)/2
+if J.get('centerxy'):
+    for r in root:r.location.x-=cx;r.location.y-=cyy
+for r in root:r.location.z-=fz
 bpy.context.view_layer.update()
+M0={r.name:r.matrix_world.copy() for r in root}
+def set_yaw(deg):
+    R=mathutils.Matrix.Rotation(math.radians(deg),4,'Z')
+    for r in root:r.matrix_world=R@M0[r.name]
+    bpy.context.view_layer.update()
+set_yaw(J.get('yaw',0))
 # props on bones
 for p in J.get('props',[]):
     po=imp(p['file']);ms=[o for o in po if o.type=='MESH']
@@ -93,7 +113,7 @@ for p in J.get('props',[]):
     holder.scale=tuple(s/ (arm.matrix_world.to_scale()[0]) for s in holder.scale)
 # camera: orthographic, ~40 deg elevation, unit faces screen-right
 cam=bpy.data.cameras.new('cam');cam.type='ORTHO';co=bpy.data.objects.new('cam',cam);sc.collection.objects.link(co);sc.camera=co
-EL=math.radians(JOB.get('_elev',40));ext=J.get('extent',1.0)*H*1.9+0.3
+EL=math.radians(JOB.get('_elev',55));ext=J.get('extent',1.0)*H*1.9+0.3
 cy=H*0.5
 co.location=(-10*math.cos(EL),0,cy+10*math.sin(EL));d=mathutils.Vector((0,0,cy))-co.location
 co.rotation_euler=d.to_track_quat('-Z','Y').to_euler();cam.ortho_scale=ext
@@ -103,29 +123,51 @@ def light(n,t,e,rot,col,size=1):
     L=bpy.data.lights.new(n,t);L.energy=e;L.color=col
     if t=='SUN':L.angle=math.radians(size)
     o=bpy.data.objects.new(n,L);o.rotation_euler=[math.radians(a) for a in rot];sc.collection.objects.link(o)
-light('key','SUN',4.2,(50,0,-60),(1,0.92,0.78),8)
-light('fill','SUN',1.3,(60,0,-150),(0.7,0.8,1.0),25)
-light('rim','SUN',J.get('rim',3.0),(-35,0,80),(1,0.95,0.9),4)
-if J.get('hd'):light('rim2','SUN',2.2,(-30,0,-20),(0.75,0.85,1.0),4)
-w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(0.55,0.6,0.7,1);w.node_tree.nodes['Background'].inputs[1].default_value=0.6
-r=sc.render;r.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=JOB.get('_spp',24);sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
-sc.view_settings.view_transform='Standard';sc.view_settings.look='None';sc.view_settings.exposure=0.25
-r.use_freestyle=True;r.line_thickness_mode='ABSOLUTE';r.line_thickness=J.get('line',JOB.get('_line',2.0))
+light('key','SUN',J.get('key',3.4),(40,0,-90),(1,0.93,0.8),12)
+light('side','SUN',0.9,(55,0,-20),(1,0.95,0.85),20);bpy.data.lights['side'].use_shadow=False
+light('fill','SUN',1.3,(60,0,-150),(0.7,0.8,1.0),25);bpy.data.lights['fill'].use_shadow=False
+light('rim','SUN',J.get('rim',3.0),(-35,0,80),(1,0.95,0.9),4);bpy.data.lights['rim'].use_shadow=False
+if J.get('hd'):light('rim2','SUN',2.2,(-30,0,-20),(0.75,0.85,1.0),4);bpy.data.lights['rim2'].use_shadow=False
+w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(0.55,0.6,0.7,1);w.node_tree.nodes['Background'].inputs[1].default_value=0.45
+r=sc.render;r.engine='CYCLES';sc.cycles.device='CPU';sc.cycles.samples=JOB.get('_spp',24);sc.cycles.use_denoising=True;sc.cycles.max_bounces=4;r.use_persistent_data=True;sc.cycles.use_adaptive_sampling=True;sc.cycles.adaptive_threshold=0.02
+sc.view_settings.view_transform='Standard';sc.view_settings.look='None';sc.view_settings.exposure=JOB.get('_exp',0.0)
+r.use_freestyle=bool(J.get('freestyle',False));r.line_thickness_mode='ABSOLUTE';r.line_thickness=J.get('line',JOB.get('_line',2.0))*PPU/256
 ls=sc.view_layers[0].freestyle_settings.linesets[0] if sc.view_layers[0].freestyle_settings.linesets else sc.view_layers[0].freestyle_settings.linesets.new('ls')
-ls.select_by_visibility=True;ls.select_silhouette=True;ls.select_border=True;ls.select_crease=False
+ls.select_by_visibility=True;ls.select_silhouette=True;ls.select_border=False;ls.select_crease=False;ls.select_external_contour=False
 ls.linestyle=ls.linestyle or bpy.data.linestyles.new('L');ls.linestyle.color=(0.08,0.06,0.05);ls.linestyle.alpha=0.85
+sh=bpy.data.collections.new('shadow');sc.collection.children.link(sh)
+bpy.ops.mesh.primitive_plane_add(size=40,location=(0,0,0));pl=bpy.context.active_object
+for c in pl.users_collection:c.objects.unlink(pl)
+sh.objects.link(pl);pl.is_shadow_catcher=True
+if J.get('noshadow'):pl.hide_render=True
+ls.select_by_collection=True;ls.collection=sh;ls.collection_negation='EXCLUSIVE'
 r.image_settings.file_format='PNG';r.image_settings.color_mode='RGBA'
-meta={'hd':bool(J.get('hd')),'anims':{},'res':res,'ppu':PPU,'H':H,'ext':ext,'elev':JOB.get('_elev',40)}
+meta={'hd':bool(J.get('hd')),'anims':{},'res':res,'ppu':PPU,'H':H,'ext':ext,'elev':JOB.get('_elev',55)}
 # anchor: world origin projected
 bpy.context.view_layer.update()
 from bpy_extras.object_utils import world_to_camera_view
 a=world_to_camera_view(sc,co,mathutils.Vector((0,0,0)));meta['anchor']=[a.x*res,(1-a.y)*res]
-for key,(name,n) in J['anims_n'].items():
+DIRS=J.get('dirs',[0,45,90,135,180]);meta['dirs']=DIRS
+RB=J.get('refbone')
+def bone_xy():
+    p=arm.matrix_world@arm.pose.bones[RB].head;return mathutils.Vector((p.x,p.y,0))
+for di,a in enumerate(DIRS):
+  for key,(name,n) in J['anims_n'].items():
     act=acts[name];f0,f1=act.frame_range;once=key in('death','attack','hit')
     fr=[f0+(f1-f0)*i/(n-1 if once else n) for i in range(n)]
     arm.animation_data.action=act
+    th=J.get('yaw',0)+90-a+J.get('ayaw',{}).get(key,0)
+    set_yaw(th)
+    if RB:
+        sc.frame_set(int(f0));p0=bone_xy();sc.frame_set(int(f1));p1=bone_xy()
     for i,f in enumerate(fr):
-        sc.frame_set(int(f),subframe=f-int(f));r.filepath=f'{OUT}/{key}_{i:02d}.png';bpy.ops.render.render(write_still=True)
+        set_yaw(th);sc.frame_set(int(f),subframe=f-int(f))
+        if RB and key in ('walk','idle','attack','hit'):
+            # cancel linear root drift only (keep sway)
+            t=(f-f0)/max(1e-6,f1-f0);drift=p0+(p1-p0)*t;cur=bone_xy();off=-(drift-p0) if key=='walk' else -(cur-p0)*0
+            for rr in root:rr.matrix_world.translation+=off
+            bpy.context.view_layer.update()
+        r.filepath=f'{OUT}/d{di}_{key}_{i:02d}.png';bpy.ops.render.render(write_still=True)
     meta['anims'][key]=n
 meta['secs']=round(time.time()-t0,1)
 json.dump(meta,open(OUT+'/meta.json','w'))

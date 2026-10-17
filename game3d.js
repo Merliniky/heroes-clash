@@ -123,23 +123,41 @@ async function buildPart(f,def,tint){const g=await loadG(f);const o=SkeletonUtil
     o.updateMatrixWorld(true);const ws=bone.getWorldScale(new THREE.Vector3()).x;const H=measure(o).getSize(new THREE.Vector3()).y;
     holder.scale.setScalar(p.len*H/(L*ws));bone.add(holder);}
   return {o,anims:g.animations};}
-// ---- pre-rendered sprite pilot (?sprites=1): Blender-rendered atlases replace live 3D models ----
-const SPR_ON=/[?&]sprites=1/.test(location.search);const SPR={};const SPR_UNITS=['pikeman','archer','swordsman','skeleton','behemoth','greenDragon'];const sprLoader=new THREE.TextureLoader();
-function loadSpr(t){if(!SPR_ON||!SPR_UNITS.includes(t))return null;return SPR[t]||(SPR[t]=Promise.all([fetch(`assets/spr/${t}.json?v=13`).then(r=>r.json()),new Promise((res,rej)=>sprLoader.load(`assets/spr/${t}.webp?v=13`,res,undefined,rej))]).then(([m,tex])=>{tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;m.tex=tex;return m;}).catch(e=>{console.warn('spr',t,e);return null;}));}
+// ---- pre-rendered sprites (?sprites=1): Blender-rendered 5-direction atlases (mirrored to 8) replace live 3D models ----
+const SPR_ON=/[?&]sprites=1/.test(location.search);const SPR={};const SPR_UNITS=['pikeman','archer','swordsman','skeleton','behemoth','greenDragon'];const sprLoader=new THREE.TextureLoader();const SPR_V=14;
+function loadSpr(t){if(!SPR_ON||!SPR_UNITS.includes(t))return null;return SPR[t]||(SPR[t]=fetch(`assets/spr/${t}.json?v=${SPR_V}`).then(r=>r.json()).then(m=>Promise.all(m.pages.map((_,i)=>new Promise((res,rej)=>sprLoader.load(`assets/spr/${t}_p${i}.webp?v=${SPR_V}`,res,undefined,rej)))).then(tx=>{for(const x of tx){x.colorSpace=THREE.SRGBColorSpace;x.anisotropy=4;}m.tex=tx;return m;})).catch(e=>{console.warn('spr',t,e);return null;}));}
 const shadowTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');const g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(0,0,0,.42)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
 const shadowMat=new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false});const shadowGeo=new THREE.PlaneGeometry(1,1);shadowGeo.rotateX(-Math.PI/2);
-function makeSprite(v,m){const tex=m.tex.clone();tex.needsUpdate=true;tex.repeat.set(1/m.cols,1/m.rows);const mat=new THREE.SpriteMaterial({map:tex,alphaTest:0.4,transparent:false});
-  const sp=new THREE.Sprite(mat);sp.scale.set(m.fw/m.ppu,m.fh/m.ppu,1);sp.center.set(m.ax/m.fw,1-m.ay/m.fh);v.g.add(sp);v.inner.visible=false;
-  const sh=new THREE.Mesh(shadowGeo,shadowMat);const w=Math.max(0.45,Math.min(1.3,v.def.h*0.75));sh.scale.set(w,1,w*0.6);sh.position.y=0.02;sh.renderOrder=2;v.g.add(sh);
-  v.spr=sp;v.sprTex=tex;v.sprM=m;v.sprK='';v.sprT=0;v.sprFl=0;}
-const _cr=new THREE.Vector3(),_cu=new THREE.Vector3();
+// sprites are pushed toward the camera along the view ray (screen position unchanged, scale compensated) so the
+// baked contact shadow / feet below the ground anchor are never clipped by the ground plane
+const SPR_PUSH=1.6,SPR_SCALE=1.25;
+function makeSprite(v,m){const tx=m.tex.map(t=>{const c=t.clone();c.needsUpdate=true;return c;});
+  const mat=new THREE.SpriteMaterial({map:tx[0],transparent:true,alphaTest:0.02,depthWrite:false});
+  const sp=new THREE.Sprite(mat);sp.renderOrder=3;unitLayer.add(sp);v.inner.visible=false;
+  if(!m.shadow){const sh=new THREE.Mesh(shadowGeo,shadowMat);const w=Math.max(0.45,Math.min(1.3,v.def.h*0.75));sh.scale.set(w,1,w*0.6);sh.position.y=0.02;sh.renderOrder=2;v.g.add(sh);v.sprSh=sh;}
+  v.spr=sp;v.sprTx=tx;v.sprM=m;v.sprK='';v.sprT=0;v.sprFl=0;v.sprDir=-1;v.sprMir=false;v.sprPg=0;}
+const _cr=new THREE.Vector3(),_cu=new THREE.Vector3(),_cf=new THREE.Vector3(),_sp=new THREE.Vector3(),_cp=new THREE.Vector3();
+// facing angle of a unit relative to the camera: 0 = away from camera (screen up), 90 = screen right, 180 = toward camera, negative = left
+function camFacing(yaw){_cr.setFromMatrixColumn(camera.matrixWorld,0);_cr.y=0;_cr.normalize();_cf.setFromMatrixColumn(camera.matrixWorld,2);_cf.y=0;_cf.normalize().negate();
+  const fx=Math.sin(yaw),fz=Math.cos(yaw);return Math.atan2(fx*_cr.x+fz*_cr.z,fx*_cf.x+fz*_cf.z)*180/Math.PI;}
 function sprUpdate(v,dt){const m=v.sprM,u=v.u;let k=!u.alive?'death':(v.sprOne||(u.moving?'walk':'idle'));if(k==='walk'&&m.anims.walk.n<2)k='idle';
   if(k!==v.sprK){v.sprK=k;v.sprT=0;}v.sprT+=dt;const A=m.anims[k];let f=Math.floor(v.sprT*A.fps*(k==='attack'?(v.sprRate||1):1));
   if(A.loop)f%=A.n;else if(f>=A.n){f=A.n-1;if(k!=='death')v.sprOne=null;}
-  _cr.setFromMatrixColumn(camera.matrixWorld,0);const face=Math.sin(v.yaw)*_cr.x+Math.cos(v.yaw)*_cr.z>=0;
-  const cw=1/m.cols,ch=1/m.rows,t=v.sprTex;if(face){t.repeat.x=cw;t.offset.x=f*cw;v.spr.center.x=m.ax/m.fw;}else{t.repeat.x=-cw;t.offset.x=(f+1)*cw;v.spr.center.x=1-m.ax/m.fw;}
-  t.offset.y=1-(A.row+1)*ch;v.spr.position.y=v.inner.position.y;
-  v.sprFl=Math.max(0,v.sprFl-dt*5);v.spr.material.color.setScalar(1+v.sprFl*2.2);if(v.deadT>1.2)v.spr.material.opacity=1;}
+  // direction: nearest of the rendered angles (0,45,..180), mirrored for the left half; small hysteresis avoids flicker
+  const a=camFacing(v.yaw),aa=Math.abs(a),step=180/(m.dirs.length-1);let di=v.sprDir;
+  if(di<0||Math.abs(aa-di*step)>step*0.5+6)di=Math.max(0,Math.min(m.dirs.length-1,Math.round(aa/step)));
+  let mir=v.sprMir;if(v.sprDir<0||(a<-4&&!mir)||(a>4&&mir))mir=a<0;
+  v.sprDir=di;v.sprMir=mir;
+  // trimmed frame rect [page,x,y,w,h,anchorX,anchorY] inside a packed atlas page
+  const F=m.frames[di][A.row][f],pg=F[0],t=v.sprTx[pg],PW=m.pages[pg][0],PH=m.pages[pg][1];
+  if(pg!==v.sprPg){v.sprPg=pg;v.spr.material.map=t;v.spr.material.needsUpdate=true;}
+  t.repeat.set((mir?-1:1)*F[3]/PW,F[4]/PH);t.offset.set((mir?F[1]+F[3]:F[1])/PW,1-(F[2]+F[4])/PH);
+  v.spr.center.set(mir?1-F[5]/F[3]:F[5]/F[3],1-F[6]/F[4]);
+  // place: foot point (ground, plus hover for flyers), pushed toward camera, scale compensated for perspective
+  const gs=v.g.scale.x;if(u.alive)v.sprHy=v.inner.position.y;_sp.copy(v.g.position);_sp.y+=u.alive?v.inner.position.y:(v.sprHy||0);_cp.copy(camera.position).sub(_sp);const dist=_cp.length();const push=Math.min(SPR_PUSH,dist*0.3);
+  v.spr.position.copy(_sp).addScaledVector(_cp,push/dist);const ks=(dist-push)/dist*gs*SPR_SCALE;v.spr.scale.set(F[3]/m.ppu*ks,F[4]/m.ppu*ks,1);
+  v.sprFl=Math.max(0,v.sprFl-dt*5);v.spr.material.color.setScalar(1+v.sprFl*1.6);
+  v.spr.visible=v.g.visible;v.spr.material.opacity=u.alive?1:Math.max(0,1-Math.max(0,v.deadT-1.3)/0.9);}
 function ensureTpl(t){if(tplP[t])return tplP[t];const def=MD[t];
   tplP[t]=(async()=>{const main=await buildPart(def.f,def,def.tint);const root=new THREE.Group();root.add(main.o);
     main.o.updateMatrixWorld(true);let bb=measure(main.o);const h=bb.max.y-bb.min.y||1;const k=def.h/h;main.o.scale.setScalar(k);if(def.sx)main.o.scale.x*=def.sx,main.o.scale.z*=def.sx;
@@ -183,7 +201,7 @@ function playOne(v,k,dur){if(v.spr){const sk=k==='atk'||k==='shoot'?'attack':k==
   a.reset();a.enabled=true;a.setEffectiveWeight(1);
   if(dur){const ts=Math.min(2.6,Math.max(1,imp/dur));a.timeScale=ts;a.time=Math.max(0,imp-dur*ts);}else a.timeScale=k==='hit'?1.4:1;
   a.play();v.os=a;v.osK=k;v.osW=1;}
-function disposeViews(){for(const v of views.values()){unitLayer.remove(v.g);v.el.remove();v.mixer.stopAllAction();}views.clear();}
+function disposeViews(){for(const v of views.values()){unitLayer.remove(v.g);if(v.spr){unitLayer.remove(v.spr);v.spr.material.dispose();}v.el.remove();v.mixer.stopAllAction();}views.clear();}
 const tmpV=new THREE.Vector3();
 function unitWorld(u){const [x,z]=toW(u.x,u.y);return [x,z];}
 function updateView(v,dt,b){const u=v.u,def=v.def;const [x,z]=unitWorld(u);
@@ -245,7 +263,7 @@ const ptImg=(t,cls='')=>`<img class="pimg ${cls}" data-pt="${t}" src="data:image
 // ---------- DOM badges ----------
 function updateBadges(){const w=innerWidth,h=innerHeight;
   for(const v of views.values()){const u=v.u;if(!v.g.visible||!u.alive){v.el.style.display='none';continue;}
-    tmpV.set(0,v.def.h*(u.boss?1.5:1.08)+(v.def.fly||0)+(u.st.fly&&!v.def.fly?0.18:0),0);v.g.localToWorld(tmpV);if(v.spr){_cu.setFromMatrixColumn(camera.matrixWorld,1);tmpV.copy(v.g.position);tmpV.y+=v.spr.position.y;tmpV.addScaledVector(_cu,v.spr.scale.y*(1-v.spr.center.y)*0.92+0.08);}tmpV.project(camera);
+    tmpV.set(0,v.def.h*(u.boss?1.5:1.08)+(v.def.fly||0)+(u.st.fly&&!v.def.fly?0.18:0),0);v.g.localToWorld(tmpV);if(v.spr){_cu.setFromMatrixColumn(camera.matrixWorld,1);tmpV.copy(v.g.position);tmpV.y+=(v.sprHy||0);tmpV.addScaledVector(_cu,(v.sprM.head/v.sprM.ppu)*v.g.scale.x*SPR_SCALE+0.1);}tmpV.project(camera);
     const sx=(tmpV.x+1)/2*w,sy=(1-tmpV.y)/2*h;v.el.style.display='';v.el.style.transform=`translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) translate(-50%,-100%)`;
     if(v.lastCount!==u.count){if(v.lastCount>=0&&u.count<v.lastCount){v.el.classList.remove('bump');void v.el.offsetWidth;v.el.classList.add('bump');}v.lastCount=u.count;v.cntEl.textContent=u.count;}
     const hp=((u.count-1)*u.st.hp+u.top)/(u.start*u.st.hp);if(Math.abs(hp-v.lastHp)>0.002){v.lastHp=hp;v.hpEl.style.width=(Math.max(0,hp)*100).toFixed(1)+'%';}
