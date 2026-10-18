@@ -1,0 +1,104 @@
+// 3D model assignment per HoMM3 creature (all CC0 - see CREDITS.md). h = target height in grid cells (x UNIT_SCALE in renderer).
+// Upgraded creatures reuse the base creature's model with a size bump, tint shift and a golden glow (derived at the bottom).
+(function(root){
+const KK={idle:'Idle',walk:'Walking_A',run:'Running_A',atk:'1H_Melee_Attack_Chop',shoot:'1H_Ranged_Shoot',hit:'Hit_A',death:'Death_A',cheer:'Cheer',imp:0.42};
+const KS=Object.assign({},KK,{walk:'Walking_D_Skeletons'});
+const QC={idle:'Idle',walk:'Walk',run:'Run',atk:'Weapon',shoot:'Weapon',hit:'HitReact',death:'Death',imp:0.45};
+const QP=Object.assign({},QC,{atk:'Punch',shoot:'Punch'});
+const QE={idle:'Idle',walk:'Walk',run:'Run',atk:'Attack',shoot:'Attack',hit:'HitRecieve',death:'Death',imp:0.5};
+const QA={idle:'Idle',walk:'Walk',run:'Gallop',atk:'Attack',hit:'Idle_HitReact_Left',death:'Death',imp:0.45};
+const QH=Object.assign({},QA,{atk:'Attack_Kick'});
+const QD={idle:'Dragon_Flying',walk:'Dragon_Flying',run:'Dragon_Flying',atk:'Dragon_Attack',hit:'Dragon_Hit',death:'Dragon_Death',imp:0.45};
+const CA='CharacterArmature|';const QF={idle:CA+'Flying_Idle',walk:CA+'Fast_Flying',run:CA+'Fast_Flying',atk:CA+'Punch',shoot:CA+'Headbutt',hit:CA+'HitReact',death:CA+'Death',imp:0.45};
+const QW={idle:CA+'Idle',walk:CA+'Walk',run:CA+'Walk',atk:CA+'Bite_Front',shoot:CA+'Bite_Front',hit:CA+'HitRecieve',death:CA+'Death',imp:0.45};
+const KKW=['1H_Sword_Offhand','Badge_Shield','Rectangle_Shield','Round_Shield','Spike_Shield','1H_Sword','2H_Sword','1H_Axe_Offhand','Barbarian_Round_Shield','1H_Axe','2H_Axe','Mug','Spellbook','Spellbook_open','1H_Wand','2H_Staff','Knife_Offhand','1H_Crossbow','2H_Crossbow','Knife','Throwable'];
+const SPEAR={f:'n_medieval_weapons_pack_Spear',bone:'handslot.r',len:0.62,rot:[Math.PI/2,0,0]};
+const HORN={f:'n_medieval_weapons_pack_Spear',bone:'Head',len:0.5,rot:[0,0,0],horn:1};
+const M={
+  // ---- Castle ----
+  pikeman:{f:'k_Knight',c:KK,h:0.6,show:['Rectangle_Shield'],props:[SPEAR],atk:'1H_Melee_Attack_Stab',tint:0xb8c8ff,note:'KayKit Knight + spear'},
+  archer:{f:'k_Rogue_Hooded',c:KK,h:0.6,show:['2H_Crossbow'],note:'KayKit Rogue (hooded), crossbow'},
+  swordsman:{f:'k_Knight',c:KK,h:0.66,show:['1H_Sword','Badge_Shield'],tint:0xffc890,note:'KayKit Knight, sword + badge shield'},
+  monk:{f:'k_Mage',c:KK,h:0.64,show:['2H_Staff'],shoot:'Spellcast_Shoot',tint:0xfff0d0,note:'KayKit Mage, staff'},
+  cavalier:{f:'q_horse',c:QH,h:0.78,rider:{f:'k_Knight',show:['1H_Sword','Round_Shield'],clip:'Sit_Chair_Idle',atk:'1H_Melee_Attack_Chop',h:0.62,bone:'Body',y:0.18},tint:0xd8c2a0,note:'Quaternius Horse + KayKit Knight rider'},
+  angel:{f:'k_Knight',c:KK,h:0.95,show:['2H_Sword'],atk:'2H_Melee_Attack_Chop',tint:0xfff6dc,fly:0.3,glowC:0xfff0a0,wings:{c:0xfffaf0,s:1},note:'KayKit Knight, white/gold, hovering + halo glow + procedural flapping wings'},
+  // ---- Necropolis ----
+  skeleton:{f:'k_Skeleton_Minion',c:KS,h:0.56,props:[{f:'Skeleton_Blade',bone:'handslot.r',len:0.38}],note:'KayKit Skeleton Minion + blade'},
+  walkingDead:{f:'q_zombie',c:QP,h:0.6,tint:0xb0c890,note:'Quaternius Zombie'},
+  wight:{f:'q_ghost',c:QF,h:0.62,fly:0.2,tint:0xc8e0ff,glowC:0x9ad0ff,note:'Quaternius Ghost (Ultimate Monsters), spectral blue'},
+  vampire:{f:'k_Rogue_Hooded',c:KK,h:0.64,show:['Knife','Knife_Offhand'],atk:'1H_Melee_Attack_Stab',tint:0x8a3048,fly:0.12,note:'KayKit Rogue, crimson tint, hovering'},
+  lich:{f:'k_Skeleton_Mage',c:KS,h:0.68,props:[{f:'Skeleton_Staff',bone:'handslot.r',len:0.6}],shoot:'Spellcast_Shoot',tint:0xd8c8ff,note:'KayKit Skeleton Mage + staff'},
+  blackKnight:{f:'q_horse',c:QH,h:0.8,tint:0x3a3440,rider:{f:'k_Skeleton_Warrior',clip:'Sit_Chair_Idle',atk:'1H_Melee_Attack_Chop',h:0.6,bone:'Body',y:0.18},note:'Quaternius Horse (black) + KayKit Skeleton Warrior rider'},
+  boneDragon:{f:'q_dragon3',c:QF,h:1.0,tint:0xe8e2cc,fly:0.2,note:'Quaternius Dragon Evolved (Ultimate Monsters), bone-white'},
+  // ---- Stronghold ----
+  goblin:{f:'q_goblin',c:QC,h:0.46,note:'Quaternius Goblin'},
+  wolfRider:{f:'q_wolf2',c:QA,h:0.5,rider:{f:'q_goblin',clip:'Idle',atk:'Weapon',h:0.4,bone:'Body',y:0.12},tint:0x9a8a78,note:'Quaternius Wolf + Goblin rider'},
+  orc:{f:'q_orc',c:QC,h:0.64,note:'Quaternius Orc (axe thrower)'},
+  ogre:{f:'q_yeti2',c:QE,h:0.85,tint:0xc8a070,note:'Quaternius Yeti (enemy pack), tan tint'},
+  cyclops:{f:'q_giant',c:QE,h:1.0,tint:0x9aa0a8,note:'Quaternius Giant, stone grey (rock thrower)'},
+  behemoth:{f:'q_yeti',c:QP,h:1.2,tint:0x6a4a38,note:'Quaternius Yeti, big brown'},
+  // ---- Rampart ----
+  centaur:{f:'q_horse',c:QH,h:0.72,tint:0x8fb070,rider:{f:'k_Barbarian',show:['1H_Axe'],clip:'Sit_Chair_Idle',atk:'1H_Melee_Attack_Stab',h:0.55,bone:'Body',y:0.16},note:'Quaternius Horse + KayKit Barbarian (centaur stand-in)'},
+  dwarf:{f:'k_Barbarian',c:KK,h:0.46,show:['1H_Axe','Barbarian_Round_Shield'],sx:1.25,tint:0xffc9a0,note:'KayKit Barbarian, squat scale'},
+  woodElf:{f:'k_Rogue_Hooded',c:KK,h:0.62,show:['1H_Crossbow'],tint:0x9adf8a,note:'KayKit Rogue, forest-green tint'},
+  pegasus:{f:'q_horse',c:QH,h:0.75,tint:0xf4f4ff,fly:0.3,wings:{c:0xf8f8ff,s:1.25,z:0.05,y:0.62},note:'Quaternius Horse, white, flying + procedural flapping wings'},
+  dendroidGuard:{f:'q_giant',c:QE,h:0.9,tint:0x8fae5a,note:'Quaternius Giant (wooden), leafy tint'},
+  unicorn:{f:'q_horse',c:QH,h:0.8,tint:0xffffff,props:[HORN],note:'Quaternius Horse, white + horn'},
+  greenDragon:{f:'q_dragon2',c:QD,h:1.05,tint:0x5ccf5c,fly:0.25,note:'Quaternius Dragon, green'},
+  // ---- Inferno ----
+  imp:{f:'q_demon',c:QP,h:0.42,tint:0xff8a70,wings:{c:0x902018,s:0.9,y:0.62,bat:1},note:'Quaternius Demon, small red + bat wings'},
+  gog:{f:'q_wizard',c:QW,h:0.55,tint:0xff7a50,glowC:0xff6020,note:'Quaternius Wizard (Ultimate Monsters), fire-red (fireball thrower)'},
+  griffin:{f:'q_wolf2',c:QA,h:0.6,tint:0xc89a5a,fly:0.25,wings:{c:0x8a6030,s:1.2,z:0.05,y:0.5},note:'3D fallback: Quaternius Wolf, tawny + procedural wings (sprite: wolf body + procedural eagle head/wings)'},
+  hellHound:{f:'q_wolf2',c:QA,h:0.55,tint:0xd04020,note:'Quaternius Wolf, hellfire red'},
+  demon:{f:'q_demon',c:QC,h:0.74,note:'Quaternius Demon'},
+  pitFiend:{f:'q_demon2',c:QF,h:0.86,tint:0x9a6ac0,note:'Quaternius Demon (Ultimate Monsters variant), purple'},
+  efreet:{f:'q_hywirl',c:QF,h:0.8,tint:0xffa030,fly:0.15,glowC:0xffa020,note:'Quaternius Hywirl (Ultimate Monsters), flame orange whirlwind'},
+  devil:{f:'q_demon',c:QC,h:1.15,tint:0x50202a,wings:{c:0x401018,s:1.1,y:0.66,bat:1},note:'Quaternius Demon, near-black, large + bat wings'},
+  roc:{f:'q_wolf2',c:QA,h:0.68,tint:0x8a6a48,fly:0.3,wings:{c:0x5a4028,s:1.5,z:0.05,y:0.5},note:'3D fallback: Quaternius Wolf, brown + big procedural wings (roc)'},
+  // ---- Tower ----
+  gremlin:{f:'q_goblin',c:QC,h:0.42,tint:0x9ab4d8,note:'Quaternius Goblin, slate-blue (gremlin)'},
+  stoneGargoyle:{f:'q_demon',c:QC,h:0.55,tint:0x8c8c94,fly:0.15,wings:{c:0x6a6a72,s:0.95,y:0.62,bat:1},note:'Quaternius Demon, stone grey + bat wings (gargoyle)'},
+  stoneGolem:{f:'q_yeti2',c:QE,h:0.74,tint:0xa8a49a,note:'Quaternius Yeti variant, stone grey (golem)'},
+  mage:{f:'k_Mage',c:KK,h:0.64,show:['2H_Staff'],shoot:'Spellcast_Shoot',tint:0xb49aff,note:'KayKit Mage, violet'},
+  genie:{f:'q_hywirl',c:QF,h:0.8,tint:0x5aa0ff,fly:0.15,glowC:0x80c0ff,note:'Quaternius Hywirl, sky blue (genie)'},
+  naga:{f:'k_Rogue_Hooded',c:KK,h:0.74,show:['Knife','Knife_Offhand'],atk:'1H_Melee_Attack_Stab',tint:0xe0c060,note:'KayKit Rogue, gold, twin blades (naga)'},
+  // ---- Dungeon ----
+  troglodyte:{f:'q_orc',c:QC,h:0.5,tint:0xb4a4c4,note:'Quaternius Orc, small pale-violet (troglodyte)'},
+  harpy:{f:'q_demon',c:QC,h:0.5,tint:0xc8946a,fly:0.2,wings:{c:0x8a5a30,s:1.05,y:0.62},note:'Quaternius Demon, tawny + feathered wings (harpy)'},
+  beholder:{f:'q_ghost',c:QF,h:0.56,tint:0xd07aa8,fly:0.25,glowC:0xff70c0,note:'Quaternius Ghost, pink-violet floating (beholder)'},
+  medusa:{f:'k_Rogue_Hooded',c:KK,h:0.66,show:['2H_Crossbow'],tint:0x78c070,note:'KayKit Rogue, green, crossbow (medusa)'},
+  minotaur:{f:'q_orc',c:QC,h:0.8,tint:0x9a6a4a,props:[Object.assign({},HORN,{len:0.32})],note:'Quaternius Orc, brown + horn (minotaur)'},
+  manticore:{f:'q_wolf2',c:QA,h:0.62,tint:0xc05a3a,fly:0.25,wings:{c:0x7a2a20,s:1.2,z:0.05,y:0.5,bat:1},note:'Quaternius Wolf, red + bat wings (manticore)'},
+  // ---- Fortress ----
+  gnoll:{f:'q_goblin',c:QC,h:0.5,tint:0xc8a070,note:'Quaternius Goblin, hyena tan (gnoll)'},
+  lizardman:{f:'k_Rogue_Hooded',c:KK,h:0.6,show:['1H_Crossbow'],tint:0x5a9a7a,note:'KayKit Rogue, teal (lizardman archer)'},
+  serpentFly:{f:'q_demon',c:QC,h:0.36,tint:0x90c040,fly:0.35,wings:{c:0xd8f0a8,s:0.85,y:0.6},note:'Quaternius Demon, tiny green + wings (serpent fly)'},
+  basilisk:{f:'q_wolf2',c:QA,h:0.5,tint:0x6a9a4a,note:'Quaternius Wolf, lizard green (basilisk)'},
+  gorgon:{f:'q_horse',c:QH,h:0.76,tint:0x4a6a5a,props:[HORN],note:'Quaternius Horse, dark green-bronze + horn (gorgon)'},
+  wyvern:{f:'q_dragon3',c:QF,h:0.85,tint:0x8a9a4a,fly:0.2,note:'Quaternius Dragon Evolved, olive (wyvern)'},
+  hydra:{f:'q_dragon2',c:QD,h:1.0,tint:0x3a8a7a,fly:0.05,note:'Quaternius Dragon, teal (hydra)'},
+  // ---- boss-only / neutral ----
+  redDragon:{f:'q_dragon2',c:QD,h:1.15,tint:0xd84030,fly:0.25,note:'Quaternius Dragon, red'},
+  giant:{f:'q_giant',c:QE,h:1.35,note:'Quaternius Giant'},
+  troll:{f:'q_yeti',c:QP,h:0.9,tint:0x9fc59a,note:'Quaternius Yeti, mossy'},
+};
+const UPG={pikeman:'halberdier',archer:'marksman',griffin:'royalGriffin',swordsman:'crusader',monk:'zealot',cavalier:'champion',angel:'archangel',
+  skeleton:'skeletonWarrior',walkingDead:'zombie',wight:'wraith',vampire:'vampireLord',lich:'powerLich',blackKnight:'dreadKnight',boneDragon:'ghostDragon',
+  goblin:'hobgoblin',wolfRider:'wolfRaider',orc:'orcChieftain',ogre:'ogreMage',cyclops:'cyclopsKing',behemoth:'ancientBehemoth',
+  centaur:'centaurCaptain',dwarf:'battleDwarf',woodElf:'grandElf',pegasus:'silverPegasus',dendroidGuard:'dendroidSoldier',unicorn:'warUnicorn',greenDragon:'goldDragon',
+  roc:'thunderbird',gremlin:'masterGremlin',stoneGargoyle:'obsidianGargoyle',stoneGolem:'ironGolem',mage:'archMage',genie:'masterGenie',naga:'nagaQueen',giant:'titan',
+  troglodyte:'infernalTroglodyte',harpy:'harpyHag',beholder:'evilEye',medusa:'medusaQueen',minotaur:'minotaurKing',manticore:'scorpicore',
+  gnoll:'gnollMarauder',lizardman:'lizardWarrior',serpentFly:'dragonFly',basilisk:'greaterBasilisk',gorgon:'mightyGorgon',wyvern:'wyvernMonarch',hydra:'chaosHydra',
+  imp:'familiar',gog:'magog',hellHound:'cerberus',demon:'hornedDemon',pitFiend:'pitLord',efreet:'efreetSultan',devil:'archDevil',redDragon:'blackDragon'};
+// per-upgrade visual tweaks (tint override / extra hand item); everything else inherits + glow
+const UPV={halberdier:{tint:0xd8e4ff},crusader:{show:['2H_Sword'],atk:'2H_Melee_Attack_Chop',tint:0xffe0a0},marksman:{tint:0xc8ffd0},zealot:{tint:0xffd890},
+  skeletonWarrior:{f:'k_Skeleton_Warrior',props:[{f:'Skeleton_Axe',bone:'handslot.r',len:0.36},{f:'Skeleton_Shield_Small_A',bone:'handslot.l',len:0.3}],tint:null},
+  zombie:{tint:null},goldDragon:{tint:0xffc840},ghostDragon:{tint:0xb8d8ff},blackDragon:{tint:0x302838},archDevil:{tint:0x701020},
+  powerLich:{tint:0xb090ff},grandElf:{tint:0x7ad070},silverPegasus:{tint:0xd8e8ff},familiar:{tint:0xff5040},cerberus:{tint:0x902010},efreetSultan:{tint:0xffd040},
+  thunderbird:{tint:0x7a90ff},masterGremlin:{tint:0xb8c8f0},obsidianGargoyle:{tint:0x3a3640},ironGolem:{tint:0x7a8494},archMage:{tint:0xd0b8ff},masterGenie:{tint:0x9ad0ff},nagaQueen:{tint:0xffd870},titan:{tint:0xd8e4ff},
+  infernalTroglodyte:{tint:0xd08070},harpyHag:{tint:0x8a6a9a},evilEye:{tint:0xa050c0},medusaQueen:{tint:0xa0d860},minotaurKing:{tint:0xc08a4a},scorpicore:{tint:0x902830},
+  gnollMarauder:{tint:0xa87a50},lizardWarrior:{tint:0x3a8a5a},dragonFly:{tint:0xff9a40},greaterBasilisk:{tint:0x4a8a3a},mightyGorgon:{tint:0x3a5a6a},wyvernMonarch:{tint:0xb0a040},chaosHydra:{tint:0x2a6a8a}};
+for(const b in UPG){const u=UPG[b];if(!M[b])continue;M[u]=Object.assign({},M[b],{h:M[b].h*1.07,glow:1},UPV[u]||{});M[u].note=(M[b].note||'')+' · upgraded: larger + golden glow';}
+const PROPS=['n_CommonTree_1','n_CommonTree_3','n_PineTree_1','n_Bush_1','n_BushBerries_1','n_Rock_1','n_Rock_2','n_Rock_Moss_1','n_medieval_village_pack_Fence','n_Flowers'];
+const api={M,KKW,PROPS,UPG};if(typeof module!=='undefined')module.exports=api;else root.MODELS=api;
+})(this);

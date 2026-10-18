@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1b2440">
+<title>英雄冲突 · Heroes Clash — 3D英雄无敌自走棋</title>
+<meta name="description" content="英雄无敌3原版数值的3D自走棋小游戏：布阵、英雄法术、宝物、种族羁绊、首领战、每日挑战。手机浏览器即点即玩。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="英雄冲突"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:type" content="website"><meta property="og:title" content="英雄冲突 · Heroes Clash"><meta property="og:description" content="3D英雄无敌自走棋：布阵、法术、宝物、羁绊、首领战。你能打到第几关？">
+<meta property="og:image" content="https://merliniky.github.io/heroes-clash/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:url" content="https://merliniky.github.io/heroes-clash/">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="英雄冲突 · Heroes Clash"><meta name="twitter:image" content="https://merliniky.github.io/heroes-clash/og.jpg">
+<link rel="stylesheet" href="style.css?v=21">
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="uiLayer"></div>
+<div id="hud" class="hidden">
+  <div class="pill" id="stagePill"><span class="lbl" id="stageLbl">关卡</span><b id="stageNum">1</b></div>
+  <div class="pill vs"><span class="blue" id="pCount">0</span><i>VS</i><span class="red" id="eCount">0</span></div>
+  <button class="pill btn" id="speedBtn">1×</button>
+  <button class="pill btn" id="muteBtn">⚙️</button>
+</div>
+<div id="hint" class="hidden">👆 点敌人：集火 · 点己方近战：待命</div>
+<div id="banner" class="hidden"></div>
+<div id="errToast"></div>
+<div id="flash"></div>
+<div id="reticle" class="hidden"></div>
+<div id="spellName"></div>
+<div id="tip"></div>
+<div id="coach"></div>
+<div id="artRow" class="hidden"></div>
+<div id="synPanel" class="hidden"></div>
+<div id="bossBar" class="hidden"><div id="bossName"></div><div class="bb"><i id="bossFill"></i></div></div>
+<div id="deployBar" class="hidden">
+  <div id="deployTheme"></div>
+  <div class="dbtns"><button class="dbtn gray" id="autoBtn">🔄 自动布阵</button><button class="dbtn go" id="fightBtn">⚔ 开战</button></div>
+</div>
+<div id="spellBar" class="hidden">
+  <div class="mana"><span id="heroLv">英雄 Lv1</span><div class="mb"><i id="manaFill"></i></div><span id="manaTxt">0/0</span></div>
+  <div id="spellBtns"></div>
+</div>
+<div id="reward" class="overlay">
+  <div class="draft-head"><div class="dh1" id="rwTitle">选择奖励</div><div class="dh2" id="rwSub"></div></div>
+  <div class="rcards" id="rwCards"></div>
+  <div class="rwAct"><button class="rwOk" id="rwOk" disabled>点选一项</button><button class="skip" id="rwSkip">跳过</button></div>
+</div>
+
+<div id="title" class="overlay show">
+  <div class="logo"><div class="l1">英雄冲突</div><div class="l2">HEROES CLASH</div></div>
+  <div class="tagline">十五关 · 布阵 · 英雄法术 · 宝物 · 种族羁绊 · 首领战</div>
+  <div class="heroes" id="titleHeroes"></div>
+  <div class="tmeta" id="titleMeta"></div>
+  <div class="vsBanner hidden" id="vsBanner"></div>
+  <button class="big-btn" id="startBtn">开始征程</button>
+  <div class="tbtns"><button class="tbtn" id="dailyBtn">📅 每日挑战</button><button class="tbtn" id="campBtn">🏕 营地</button></div>
+  <div class="dstreak" id="dStreak"></div>
+  <button class="tbtn install hidden" id="installBtn">📲 添加到主屏幕</button>
+  <button class="titleGear" id="titleGear">⚙️</button>
+  <div class="foot">英雄无敌3·死亡阴影 原版数值 · 3D 模型均为 CC0（见 CREDITS.md）</div>
+</div>
+
+<div id="heroSel" class="overlay">
+  <div class="draft-head"><div class="dh1">选择英雄</div><div class="dh2" id="hsSub">选择阵营英雄：起始部队、法术、被动与招募偏向各不相同</div></div>
+  <div class="hcards" id="hsCards"></div>
+  <button class="skip" id="hsBack">返回</button>
+</div>
+<div id="camp" class="overlay">
+  <div class="draft-head"><div class="dh1">🏕 营地</div><div class="dh2" id="campGold"></div></div>
+  <div class="ctabs" id="campTabs"><button data-t="up" class="on">强化</button><button data-t="hero">英雄</button><button data-t="unlock">解锁</button><button data-t="ach">成就</button><button data-t="codex">图鉴</button></div>
+  <div class="cbody" id="campBody"></div>
+  <button class="skip" id="campBack">返回</button>
+</div>
+<div id="sndPanel" class="hidden">
+  <label>🎵 音乐 <input type="range" id="volM" min="0" max="1" step="0.05"></label>
+  <label>🔔 音效 <input type="range" id="volS" min="0" max="1" step="0.05"></label>
+  <button id="muteToggle"></button>
+  <label class="tg"><input type="checkbox" id="setTips"> 隐藏提示与教程</label>
+  <label class="tg"><input type="checkbox" id="setSpeed"> 默认 2× 速度</label>
+</div>
+<div id="toasts"></div>
+<div id="bossCard" class="hidden"><div class="bc1" id="bcName"></div><div class="bc2" id="bcSub"></div><div class="bc3" id="bcDesc"></div></div>
+<div id="chest" class="overlay"><div class="chestBox" id="chestBox">🧰</div><div class="chestGold" id="chestGold">+0</div><div class="chestSub" id="chestSub">点击开启宝箱</div></div>
+<div id="rageFx"></div>
+<div id="streak" class="hidden"></div>
+<div id="draft" class="overlay">
+  <div class="draft-head"><div class="dh1" id="draftTitle">第 1 关</div><div class="dh2" id="draftSub">选择一支援军加入你的部队</div></div>
+  <div class="cards" id="cards"></div>
+  <div class="army-strip" id="armyStrip"></div>
+</div>
+
+<div id="gameover" class="overlay">
+  <div class="go-title" id="goTitle">胜利</div>
+  <div class="go-sub" id="goSub"></div>
+  <div class="heroes" id="goArt"></div>
+  <div class="go-stats" id="goStats"></div>
+  <div class="goGold" id="goGold"></div>
+  <div class="share" id="shareBox"><img id="shareImg" alt="战绩卡"><div class="sbtns"><button class="tbtn" id="shareBtn">📤 分享战绩</button><button class="tbtn" id="copyBtn">🔗 复制挑战链接</button></div></div>
+  <button class="big-btn" id="goEndless">♾ 进入无尽模式</button>
+  <div class="gobtns"><button class="big-btn" id="goBtn">再来一局</button><button class="tbtn" id="goCamp">🏕 营地</button></div>
+</div>
+
+<div id="result" class="overlay">
+  <div class="res-box">
+    <div class="res-title" id="resTitle">胜利！</div>
+    <div class="res-sub" id="resSub"></div>
+    <div class="res-list" id="resList"></div>
+    <button class="big-btn" id="resBtn">继续</button>
+  </div>
+</div>
+<script src="audio.js?v=21"></script>
+<script src="units.js?v=21"></script>
+<script src="core.js?v=21"></script>
+<script src="models.js?v=21"></script>
+<script src="hero.js?v=21"></script>
+<script src="meta.js?v=21"></script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js?v=21","three/addons/":"./lib/addons/"}}</script>
+<script type="module" src="game3d.js?v=21"></script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+</body>
+</html>
