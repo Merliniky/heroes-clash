@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1b2440">
+<title>宝石塔防 · 英雄冲突 Heroes Clash</title>
+<meta name="description" content="英雄冲突的宝石塔防模式：每回合放置5颗随机宝石，保留一颗成塔，其余变成石头搭建迷宫，抵御英雄无敌3的生物大军。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="td.css?v=22">
+</head>
+<body class="td">
+<canvas id="cv"></canvas>
+<div id="uiLayer"></div>
+<div id="tdHud" class="hidden">
+  <div class="pill"><span class="lbl">波次</span><b id="hWave">1</b><i class="dim">/20</i></div>
+  <div class="pill"><span class="ic">❤️</span><b id="hLives">20</b></div>
+  <div class="pill"><span class="ic">💰</span><b id="hGold">0</b></div>
+  <button class="pill btn" id="speedBtn">1×</button>
+  <button class="pill btn" id="muteBtn">🔊</button>
+  <button class="pill btn" id="homeBtn">🏠</button>
+</div>
+<div id="tdNext" class="hidden"></div>
+<div id="tdPanel" class="hidden">
+  <div id="pBuild">
+    <div class="pt"><b id="bTitle">建造阶段</b><span id="bCount">放置宝石 0/5</span></div>
+    <div class="slots" id="bSlots"></div>
+    <div class="phint" id="bHint">点空地预览路线，再点一次放置宝石</div>
+    <div class="pbtns"><button class="dbtn up" id="upBtn">🎲 宝石概率</button><button class="dbtn gray" id="rockBtn">🪨 移除石头</button><button class="dbtn gray" id="oddsBtn">📊</button></div>
+  </div>
+  <div id="pKeep" class="hidden">
+    <div class="pt"><b>选择保留一颗</b><span>其余宝石将变成石头</span></div>
+    <div class="kopts" id="kOpts"></div>
+    <div class="pbtns"><button class="dbtn go" id="keepBtn" disabled>点选一项</button></div>
+  </div>
+  <div id="pWave" class="hidden">
+    <div class="pt"><b id="wTitle">第1波</b><span id="wLeft"></span></div>
+    <div class="wbar"><i id="wFill"></i></div>
+    <div class="phint">点防御塔查看射程 · 敌人走完迷宫会扣除生命</div>
+  </div>
+</div>
+<div id="tdTip"></div>
+<div id="toasts"></div>
+<div id="flash"></div>
+<div id="banner2"></div>
+<div id="tdTitle" class="overlay show">
+  <div class="logo"><div class="l1">宝石塔防</div><div class="l2">HEROES CLASH · GEM TD</div></div>
+  <div class="tdrules">
+    <p>💎 每回合在空地上放置 <b>5 颗随机宝石</b></p>
+    <p>🏰 保留 <b>1 颗</b>成为防御塔，其余 <b>4 颗变成石头</b>——用它们搭建迷宫</p>
+    <p>🚩 敌人必须依次经过 <b>6 个检查点</b>，不能完全堵死道路</p>
+    <p>✨ 2 颗相同宝石可合成更高品质，4 颗相同直接跳两级；集齐配方可合成特殊宝石</p>
+    <p>🎲 用金币提升宝石概率，获得更高品质的宝石</p>
+  </div>
+  <div class="tmeta" id="tdBest"></div>
+  <button class="big-btn" id="tdStart">开始游戏</button>
+  <div class="tbtns"><a class="tbtn" href="./">⚔ 返回自走棋</a><button class="tbtn" id="recipeBtn">📜 宝石图鉴</button></div>
+  <div class="foot">英雄无敌3 生物 · 预渲染精灵素材均为 CC0（见 CREDITS.md）· 灵感来自魔兽争霸3 Gem TD</div>
+</div>
+<div id="tdOver" class="overlay">
+  <div class="go-title" id="oTitle">防线失守</div>
+  <div class="go-sub" id="oSub"></div>
+  <div class="tbtns"><button class="big-btn" id="oAgain">再来一局</button></div>
+  <div class="tbtns"><button class="tbtn" id="oCont" style="display:none">♾ 继续无尽模式</button><a class="tbtn" href="./">⚔ 返回自走棋</a></div>
+</div>
+<div id="tdBook" class="overlay"><div class="book" id="bookBody"></div><div class="tbtns"><button class="tbtn" id="bookClose">关闭</button></div></div>
+<script src="audio.js?v=22"></script>
+<script src="td_core.js?v=22"></script>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js?v=21","three/addons/":"./lib/addons/"}}</script>
+<script type="module" src="td.js?v=22"></script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+</body>
+</html>

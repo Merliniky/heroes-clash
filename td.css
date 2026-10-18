@@ -1,0 +1,55 @@
+/* 宝石塔防 mode (td.html) — builds on style.css */
+#tdHud{position:fixed;top:max(8px,env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:5;padding:0 6px;pointer-events:none}
+#tdHud .pill{padding:5px 9px;font-size:16px;gap:3px;border-radius:12px}
+#tdHud .pill.btn{pointer-events:auto;cursor:pointer;color:#fff;font-family:inherit;min-width:38px;justify-content:center}
+#tdHud .ic{font-size:13px}#tdHud .dim{font-style:normal;font-size:12px;color:#aab4dc}
+#tdHud .pill.flash{animation:pflash .5s}
+@keyframes pflash{0%{transform:scale(1.25);border-color:#ff5a4a}100%{transform:scale(1)}}
+#tdNext{position:fixed;top:calc(max(8px,env(safe-area-inset-top)) + 44px);left:50%;transform:translateX(-50%);z-index:5;pointer-events:none;
+  background:rgba(14,20,44,.82);border:1.5px solid #3c4a80;border-radius:10px;padding:4px 10px;font:800 13px/1.3 system-ui,"PingFang SC",sans-serif;white-space:nowrap;display:flex;align-items:center;gap:6px}
+#tdNext img{width:22px;height:22px;object-fit:contain}
+#tdNext .tag{font-size:11px;padding:1px 5px;border-radius:6px;background:#3a4677}
+#tdNext .tag.fly{background:#3b6fd0}#tdNext .tag.fast{background:#c87a18}#tdNext .tag.boss{background:#c0283a}#tdNext .tag.tank{background:#6a6a7a}
+#tdPanel{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(rgba(14,19,42,.0),rgba(14,19,42,.92) 18%,#0e132a);}
+#tdPanel .pt{display:flex;justify-content:space-between;align-items:baseline;font:900 15px/1.2 system-ui,"PingFang SC",sans-serif;padding:0 4px 6px}
+#tdPanel .pt span{font-size:12px;color:#b9c3ea;font-weight:700}
+#tdPanel .phint{font:700 12px/1.3 system-ui,"PingFang SC",sans-serif;color:#9fb0e8;text-align:center;margin:6px 0 4px;min-height:16px}
+#tdPanel .phint.bad{color:#ff8a7a}
+.pbtns{display:flex;gap:8px;justify-content:center}
+.pbtns .dbtn{padding:10px 12px;font-size:14px}
+.dbtn.up{background:linear-gradient(#7a5cff,#4b34c8)}.dbtn.on{background:linear-gradient(#ff9a3a,#d8641a)}
+.dbtn:disabled{opacity:.45;animation:none}
+.slots{display:flex;gap:6px;justify-content:center}
+.slot{width:58px;height:62px;border-radius:12px;background:#1d2650;border:2px solid #2e3a72;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 10px/1.15 system-ui,"PingFang SC",sans-serif;color:#cdd6ff;text-align:center}
+.slot.next{border-color:#ffd75e;box-shadow:0 0 12px rgba(255,215,94,.35)}
+.slot .q{font-size:18px;color:#56619a}
+.gemi{width:24px;height:24px;transform:rotate(45deg);border-radius:4px;background:linear-gradient(135deg,#fff 0%,var(--gc) 35%,var(--gc) 65%,rgba(0,0,0,.45) 100%);box-shadow:0 0 8px var(--gc),inset 0 0 0 1.5px rgba(255,255,255,.55);margin:2px 0 6px}
+.gemi.sp{border-radius:50%;transform:none;box-shadow:0 0 12px var(--gc),inset 0 0 0 2px #ffe27a}
+.pips{display:flex;gap:2px;justify-content:center;margin-top:1px}.pips i{width:5px;height:5px;border-radius:50%;background:#3a4577}.pips i.on{background:#ffd75e}
+.kopts{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+.kopts::-webkit-scrollbar{display:none}
+.kopt{flex:0 0 auto;width:74px;border-radius:12px;background:#1d2650;border:2px solid #2e3a72;padding:6px 3px 5px;display:flex;flex-direction:column;align-items:center;font:800 10.5px/1.2 system-ui,"PingFang SC",sans-serif;color:#dfe5ff;text-align:center;cursor:pointer}
+.kopt .kind{font-size:9.5px;padding:1px 5px;border-radius:6px;background:#38427a;margin-bottom:3px;color:#cfd8ff}
+.kopt.combine2 .kind,.kopt.combine4 .kind{background:#2f7a4a;color:#e6ffe9}.kopt.special{border-color:#c9a23a}.kopt.special .kind{background:#b8861a;color:#fff6d6}
+.kopt .st{font-size:9.5px;color:#9fb0e8;margin-top:2px;font-weight:700}
+.kopt.sel{border-color:#ffd75e;box-shadow:0 0 14px rgba(255,215,94,.55);transform:translateY(-2px)}
+.wbar{height:10px;border-radius:6px;background:#1d2650;border:1.5px solid #2e3a72;overflow:hidden;margin:2px 6px}.wbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff7a4a,#ffd75e);transition:width .25s}
+#tdTip{position:fixed;z-index:20;pointer-events:none;opacity:0;transition:opacity .15s;background:rgba(14,20,44,.95);border:1.5px solid #6c86d8;border-radius:12px;padding:8px 10px;max-width:230px;font:700 12px/1.45 system-ui,"PingFang SC",sans-serif;color:#e6ebff}
+#tdTip.show{opacity:1}#tdTip b{font-size:14px}#tdTip .eff{color:#ffd75e}#tdTip .dim{color:#9fb0e8}
+.tdrules{max-width:340px;margin:14px 18px 12px;background:rgba(16,22,48,.75);border:1.5px solid #3c4a80;border-radius:14px;padding:10px 12px;font:700 13px/1.6 system-ui,"PingFang SC",sans-serif;color:#dfe5ff}
+.tdrules b{color:#ffd75e}
+#tdTitle a.tbtn,#tdOver a.tbtn{text-decoration:none;display:inline-block}
+#tdTitle{background:radial-gradient(ellipse at 50% 35%,rgba(60,40,120,.55),rgba(8,10,25,.92))}
+#tdOver{background:rgba(8,10,25,.8)}
+.book{max-width:360px;max-height:70vh;overflow:auto;margin:0 14px;background:rgba(16,22,48,.95);border:1.5px solid #3c4a80;border-radius:14px;padding:10px 12px;font:700 12px/1.5 system-ui,"PingFang SC",sans-serif;color:#dfe5ff}
+.book h3{font-size:14px;color:#ffd75e;margin:8px 0 4px}.book .row{display:flex;gap:8px;align-items:center;margin:4px 0}.book .row .gemi{flex:0 0 auto;width:16px;height:16px;margin:0 4px}
+.book table{border-collapse:collapse;width:100%;font-size:11px}.book td,.book th{border:1px solid #2e3a72;padding:2px 3px;text-align:center}
+.ftxt{position:fixed;z-index:4;pointer-events:none;font:900 13px/1 system-ui,"PingFang SC",sans-serif;color:#fff;text-shadow:0 2px 0 #000,0 0 4px #000;transform:translate(-50%,-50%);animation:ftup .9s ease-out forwards}
+.ftxt.crit{color:#ffe14a;font-size:15px}.ftxt.gold{color:#ffd75e;font-size:11px}.ftxt.leak{color:#ff5a4a;font-size:15px}
+@keyframes ftup{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-200%) scale(1)}}
+#banner2{position:fixed;left:0;right:0;top:38%;text-align:center;z-index:7;pointer-events:none;font:900 34px/1.1 system-ui,"PingFang SC",sans-serif;color:#fff;text-shadow:0 3px 0 #000,0 0 18px rgba(0,0,0,.6);opacity:0}
+#banner2.show{animation:bnr 1.6s ease-out}
+#banner2 small{display:block;font-size:15px;color:#ffd75e;margin-top:4px}
+@keyframes bnr{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.05)}70%{opacity:1;transform:scale(1)}100%{opacity:0}}
+#tdPanel>div.hidden{display:none}
+#tdOver .go-title{font-size:58px;white-space:nowrap;letter-spacing:4px}

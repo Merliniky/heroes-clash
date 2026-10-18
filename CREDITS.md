@@ -111,3 +111,7 @@ No new third-party packs; every asset is CC0.
 - Beholder and serpent fly are built entirely from procedural primitives, driven by a hidden UAL skeleton.
 - Manticore and basilisk use the Quaternius *Animated Animals* Wolf; gorgon uses the Quaternius Horse; wyvern and hydra use Quaternius *Dragon Evolved* (Ultimate Monsters). All are recoloured, with procedural parts added: wings, scorpion tail, mane, spikes, horns, and extra hydra heads/necks.
 - The 3D fallbacks reuse the CC0 models already listed above (KayKit and Quaternius), tinted per unit.
+
+## v22 — Gem TD mode
+- No new assets. The gems, pedestals, rocks and checkpoint markers are procedural three.js geometry. Enemies reuse the CC0 creature sprite atlases listed above, and the sounds are the existing procedural `audio.js` set.
+- The game rules are inspired by the Warcraft III custom map *Gem TD*. No content from it is used.
