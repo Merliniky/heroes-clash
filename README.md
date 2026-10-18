@@ -447,3 +447,13 @@ Play: `td.html`, `index.html?mode=td`, or the mode switch on the title screen. T
   |---|---|---|---|---|
   | greedy | 100% | 100% | 98% | 65% |
   | random | 100% | 35% | 3% | 0% |
+
+## v24: Gem TD readability at full-board zoom
+- **Towers:** gems are about 1.6× bigger and towers 1.3× taller, with bright stone. A saturated gem-coloured rim sits at the top and at the base, and every tower has a ground glow, so colour and type read across the whole board.
+- **Boulders:** darker, browner and lower, so they no longer look like towers.
+- **Attack effects:** bolts are about 1.55× bigger, with a bigger muzzle flash. Every hit now draws a gem-coloured impact ring and a bigger burst, and the frost, poison and splash effects are larger.
+- **Damage numbers:** bigger, heavily outlined and pop-scaled. The gold-reward text is offset so it doesn't cover the damage number.
+- **Enemies:** red ground rings (pink for bosses), larger shadows, and bigger health bars (always shown for bosses).
+- **Path:** half as many chevrons, with a calmer flow animation.
+- **Fixes:** the first-round tutorial now actually appears (it was hidden by a startup order bug), and the HUD wave label no longer wraps.
+- **Performance:** each tower body is baked into one vertex-coloured mesh and gems no longer cast shadows. With 16 towers, draw calls dropped from 380 to 238.

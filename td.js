@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import {SPR_UNITS,SPR_ALIAS,SPR_K,SPR_V} from './sprdata.js?v=22';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 const T=window.TD,S=SFX.S,$=id=>document.getElementById(id);
 const DEBUG=/[?&]debug/.test(location.search);
 const W=T.W,H=T.H,W2=W/2,H2=H/2;
@@ -112,9 +113,10 @@ function camFacing(yaw){_cr.setFromMatrixColumn(camera.matrixWorld,0);_cr.y=0;_c
 const UNIT_K=0.95,SPR_PUSH=1.6;
 const views=new Map();const unitLayer=new THREE.Group();scene.add(unitLayer);
 const hpBgM=new THREE.SpriteMaterial({color:0x10131f,depthTest:false,transparent:true,opacity:0.85});const hpFgM={n:new THREE.SpriteMaterial({color:0xff4a3a,depthTest:false}),b:new THREE.SpriteMaterial({color:0xff2a8a,depthTest:false}),p:new THREE.SpriteMaterial({color:0x5fdc5a,depthTest:false}),s:new THREE.SpriteMaterial({color:0x6ab8ff,depthTest:false})};
+const eRingGeo=new THREE.RingGeometry(0.3,0.4,24).rotateX(-Math.PI/2);const eRingM=new THREE.MeshBasicMaterial({color:0xff3b3b,transparent:true,opacity:0.85,depthWrite:false});const eRingB=new THREE.MeshBasicMaterial({color:0xff2a8a,transparent:true,opacity:0.9,depthWrite:false});
 const _slowC=new THREE.Color(0x8ab8ff),_poisC=new THREE.Color(0x7aff7a);
 function makeView(e){const g=new THREE.Group();const [x,z]=cw(e.x,e.y);g.position.set(x,0,z);unitLayer.add(g);
-  const sh=new THREE.Mesh(shadowGeo,shadowMat);sh.position.y=0.02;sh.renderOrder=2;const sw=e.boss?1.1:0.55;sh.scale.set(sw,1,sw*0.6);g.add(sh);
+  const sh=new THREE.Mesh(shadowGeo,shadowMat);sh.position.y=0.02;sh.renderOrder=2;const sw=e.boss?1.1:0.55;sh.scale.set(sw*1.15,1,sw*0.75);g.add(sh);if(!e.fly){const rg=new THREE.Mesh(eRingGeo,e.boss?eRingB:eRingM);rg.position.y=0.03;rg.renderOrder=2;rg.scale.setScalar(e.boss?1.6:0.95);g.add(rg);}
   const bg=new THREE.Sprite(hpBgM);bg.center.set(0,0.5);bg.renderOrder=8;const fg=new THREE.Sprite(hpFgM.n);fg.center.set(0,0.5);fg.renderOrder=9;scene.add(bg);scene.add(fg);
   const v={e,g,sh,bg,fg,spr:null,yaw:Math.PI,hover:e.fly?0.55:0,k:UNIT_K*(SPR_K[e.type]||1)*(e.boss?1.7:1),deadT:0,sprK:'',sprT:0,sprDir:-1,sprMir:false,sprPg:0,flash:0,topY:0.7,born:now()};
   const tint=SPR_ALIAS[e.type]?new THREE.Color(SPR_ALIAS[e.type][1]):new THREE.Color(1,1,1);v.tint=tint;
@@ -140,9 +142,9 @@ function updateViews(dt){for(const v of [...views.values()]){const e=v.e;
     if(!e.alive){v.deadT+=dt;if(e.leaked&&v.deadT>0.25||v.deadT>0.95){dropView(v);continue;}}
     else{const [x,z]=cw(e.x,e.y);const dx=x-v.g.position.x,dz=z-v.g.position.z;if(dx*dx+dz*dz>1e-6)v.yaw=Math.atan2(dx,dz);v.g.position.set(x,0,z);}
     if(v.spr&&v.m)sprUpdate(v,dt);
-    const show=e.alive&&e.hp<e.maxHp;v.bg.visible=v.fg.visible=show;
-    if(show){const bw=e.boss?1.1:0.6,y=v.topY+0.12;v.bg.position.set(v.g.position.x-bw/2-0.02,y,v.g.position.z);v.bg.scale.set(bw+0.04,0.1,1);
-      const p=Math.max(0,e.hp/e.maxHp);v.fg.material=e.boss?hpFgM.b:e.poisonT>0?hpFgM.p:e.slowT>0?hpFgM.s:hpFgM.n;v.fg.position.set(v.g.position.x-bw/2,y,v.g.position.z+0.001);v.fg.scale.set(bw*p,0.065,1);}}}
+    const show=e.alive&&(e.hp<e.maxHp||e.boss);v.bg.visible=v.fg.visible=show;
+    if(show){const bw=e.boss?1.3:0.8,y=v.topY+0.14;v.bg.position.set(v.g.position.x-bw/2-0.03,y,v.g.position.z);v.bg.scale.set(bw+0.06,0.15,1);
+      const p=Math.max(0,e.hp/e.maxHp);v.fg.material=e.boss?hpFgM.b:e.poisonT>0?hpFgM.p:e.slowT>0?hpFgM.s:hpFgM.n;v.fg.position.set(v.g.position.x-bw/2,y,v.g.position.z+0.001);v.fg.scale.set(bw*p,0.1,1);}}}
 // ---------- gem towers: stone pedestal + big faceted glowing gem; ornaments grow with quality; specials have their own silhouettes ----------
 const lathe=(pts,seg)=>{const g=new THREE.LatheGeometry(pts.map(([x,y])=>new THREE.Vector2(x,y)),seg);g.computeVertexNormals();return g;};
 const GEO={
@@ -167,7 +169,7 @@ const auraTex=cnv(128,128,(x)=>{x.translate(64,64);for(let i=0;i<24;i++){x.rotat
   x.strokeStyle='rgba(255,140,60,.9)';x.lineWidth=3;x.beginPath();x.arc(0,0,60,0,7);x.stroke();});
 const auraGeo=new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2);const haloGeo=new THREE.CircleGeometry(1,24).rotateX(-Math.PI/2);
 const SP_SHAPE={silver:'diamond',malachite:'opal',jade:'opal',starRuby:'star',gold:'diamond',bloodstone:'ruby'};
-const QS_=[0.33,0.37,0.41,0.46,0.52],QH=[0.16,0.26,0.36,0.46,0.58];
+const QS_=[0.54,0.6,0.66,0.73,0.82],QH=[0.16,0.26,0.36,0.46,0.58];
 function mesh(geo,mat,x=0,y=0,z=0,sx=1,sy=sx,sz=sx){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;m.receiveShadow=true;return m;}
 function gemInfo(type,special){return special?T.SPECIAL[type]:T.GEMS[type];}
 function gemMesh(type,col,s){const g=new THREE.Group();const M=gemMat(col);
@@ -184,8 +186,9 @@ const gemEnv=(()=>{const es=new THREE.Scene();const sky=new THREE.Mesh(new THREE
 const kitGemMats={};
 const gemRamp=(()=>{const d=new Uint8Array([70,70,70,255,140,140,140,255,205,205,205,255,255,255,255,255]);const t=new THREE.DataTexture(d,4,1);t.minFilter=t.magFilter=THREE.NearestFilter;t.needsUpdate=true;return t;})();
 function kitGemMat(col,own){const make=()=>new THREE.MeshToonMaterial({color:col,emissive:col,emissiveIntensity:0.18,gradientMap:gemRamp,flatShading:true});if(own)return make();return kitGemMats[col]||(kitGemMats[col]=make());}
-const KMAT={stone_d:tmat(0x665e74),stone_l:tmat(0x948ba4),stone_t:tmat(0xb4abc0),gold:tmat(0xffc83a,0x6a4a00,0.3),iron:tmat(0x4a4552),obsidian:tmat(0x2e2236,0x300010,0.35),jade:tmat(0xbfeccc),marble:tmat(0xeef0f6),wood:tmat(0x8a5a30),roof:tmat(0x2f9a5a)};
-const bandMats={};const bandMat=col=>bandMats[col]||(bandMats[col]=tmat(new THREE.Color(col).multiplyScalar(0.9).getHex(),col,0.15));
+const KMAT={stone_d:tmat(0x8e90b4),stone_l:tmat(0xcfd2e8),stone_t:tmat(0xeceef8),gold:tmat(0xffc83a,0x6a4a00,0.3),iron:tmat(0x4a4552),obsidian:tmat(0x2e2236,0x300010,0.35),jade:tmat(0xbfeccc),marble:tmat(0xeef0f6),wood:tmat(0x8a5a30),roof:tmat(0x2f9a5a)};
+const bandMats={};const bandMat=col=>bandMats[col]||(bandMats[col]=tmat(col,col,0.55));
+const rimMats={};const rimMat=col=>rimMats[col]||(rimMats[col]=new THREE.MeshBasicMaterial({color:col}));const rimGeo=new THREE.TorusGeometry(0.4,0.055,6,28).rotateX(Math.PI/2);const TOWER_H=1.32;
 let KIT=null;
 const GEM_CUT={diamond:'brilliant',ruby:'oval',emerald:'step',topaz:'cushion',sapphire:'hex',aquamarine:'long',opal:'cabochon',amethyst:'cluster',
   silver:'brilliant',malachite:'cabochon',jade:'cabochon',starRuby:'star',gold:'brilliant',bloodstone:'oval'};
@@ -195,15 +198,29 @@ new GLTFLoader().load('assets/td/towers.glb?v=23',gl=>{const root=gl.scene;const
   for(const c of ['brilliant','oval','cushion','step','hex','long','cabochon','cluster','star']){const o=root.getObjectByName('gem_'+c);let m=null;o.traverse(x=>{if(x.isMesh&&!m)m=x;});K.gem[c]=m.geometry;}
   for(const s of Object.keys(T.SPECIAL)){K.sp[s]=root.getObjectByName('sp_'+s);K.anchor[s]=root.getObjectByName('anchor_'+s).position.y;}
   KIT=K;if(G.g)syncBoard(null,true);},undefined,e=>console.warn('tower kit',e));
-function kitClone(src,col){const o=src.clone(true);o.position.set(0,0,0);o.traverse(x=>{if(x.isMesh){if(x.userData.mn==='band')x.material=bandMat(col);else if(x.userData.mn==='gemc')x.material=kitGemMat(col);}});return o;}
-function kitGem(type,col,s,own){const cut=GEM_CUT[type]||'brilliant';const geo=KIT.gem[cut];const m=new THREE.Mesh(geo,kitGemMat(col,own));m.scale.setScalar(s*(cut==='cluster'?1.4:cut==='hex'||cut==='long'?1:1.12));m.castShadow=true;const g=new THREE.Group();g.add(m);if(cut!=='cluster'&&cut!=='hex'&&cut!=='long'){m.rotation.x=-0.95;g.userData.spinM=m;}g.userData.mat=m.material;return g;}
-const VCOL={diamond:0xbfe2ff,opal:0xff9ad8,silver:0xc8dcff,topaz:0xffb21a,jade:0x4adc80};
+// each kit part is merged once into one geometry per material name, so a tower costs a handful of draw calls
+const kitMerged=new Map();
+function kitParts(src){let P=kitMerged.get(src);if(P)return P;src.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(src.matrixWorld).invert();const by={};
+  src.traverse(x=>{if(!x.isMesh)return;let g=x.geometry.clone();g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv,x.matrixWorld));for(const k of Object.keys(g.attributes))if(k!=='position'&&k!=='normal')g.deleteAttribute(k);if(g.index)g=g.toNonIndexed();(by[x.userData.mn]||(by[x.userData.mn]=[])).push(g);});
+  P=Object.entries(by).map(([mn,gs])=>({mn,geo:gs.length>1?mergeGeometries(gs):gs[0],mat:KMAT[mn]}));kitMerged.set(src,P);return P;}
+// body = every non-gem part baked into ONE vertex-coloured mesh per (part, gem colour); crystals stay a separate gem-material mesh
+const kitBodies=new Map();const VC_BOOST={gold:0xffd650,band:null};
+function kitBody(src,col){const key=src.name+'|'+col;let geo=kitBodies.get(key);if(geo)return geo;const gs=[];const c=new THREE.Color();
+  for(const p of kitParts(src)){if(p.mn==='gemc')continue;const g=p.geo.clone();if(p.mn==='band')c.setHex(col);else if(VC_BOOST[p.mn])c.setHex(VC_BOOST[p.mn]);else c.copy((p.mat||KMAT.stone_l).color);
+    const n=g.attributes.position.count,a=new Float32Array(n*3);for(let i=0;i<n;i++){a[i*3]=c.r;a[i*3+1]=c.g;a[i*3+2]=c.b;}g.setAttribute('color',new THREE.BufferAttribute(a,3));gs.push(g);}
+  geo=gs.length>1?mergeGeometries(gs):gs[0];kitBodies.set(key,geo);return geo;}
+function kitClone(src,col){const o=new THREE.Group();const m=new THREE.Mesh(kitBody(src,col),vtoon);m.castShadow=m.receiveShadow=true;o.add(m);
+  for(const p of kitParts(src))if(p.mn==='gemc'){const g=new THREE.Mesh(p.geo,kitGemMat(col));g.castShadow=false;o.add(g);}return o;}
+const rimGeos=new Map();function rimPair(top,s){const key=top.toFixed(3)+'_'+s.toFixed(3);let g=rimGeos.get(key);if(!g){const a=rimGeo.clone().scale(s,s,s).translate(0,top+0.02,0),b=rimGeo.clone().scale(1.12,1.12,1.12).translate(0,0.05,0);g=mergeGeometries([a,b]);rimGeos.set(key,g);}return g;}
+function kitGem(type,col,s,own){const cut=GEM_CUT[type]||'brilliant';const geo=KIT.gem[cut];const m=new THREE.Mesh(geo,kitGemMat(col,own));m.scale.setScalar(s*(cut==='cluster'?1.4:cut==='hex'||cut==='long'?1:1.12));m.castShadow=false;const g=new THREE.Group();g.add(m);if(cut!=='cluster'&&cut!=='hex'&&cut!=='long'){m.rotation.x=-0.95;g.userData.spinM=m;}g.userData.mat=m.material;return g;}
+const VCOL={diamond:0x8fd4ff,opal:0xff9ad8,silver:0xc8dcff,topaz:0xffb21a,jade:0x4adc80};
 function makeGemObj(type,q,special,tower){const G0=gemInfo(type,special),col=VCOL[type]??new THREE.Color(G0.col).getHex();const g=new THREE.Group();const ud=g.userData;ud.col=col;
   let gy,gs;
-  if(KIT&&(special||tower)){gs=special?0.5:QS_[q];const body=kitClone(special?KIT.sp[type]:KIT.ped[q],col);g.add(body);const top=KIT.anchor[special?type:'q'+q];gy=top+gs*0.95;
+  if(KIT&&(special||tower)){gs=special?0.78:QS_[q];const body=kitClone(special?KIT.sp[type]:KIT.ped[q],col);body.scale.y=TOWER_H;g.add(body);const top=KIT.anchor[special?type:'q'+q]*TOWER_H;gy=top+gs*0.8;
+    g.add(new THREE.Mesh(rimPair(top,0.75+gs*0.35),rimMat(col)));
     if(special&&type==='silver'){const rg=new THREE.Group();for(let i=0;i<3;i++){const r=mesh(PG.ring,tmat(0xdfe8ff,0x6080c0,0.4),0,0,0,0.9-i*0.12);r.rotation.set(1.2+i*0.5,i,0);rg.add(r);}rg.position.y=gy;g.add(rg);ud.orbit=rg;}
-    if(!special&&q>=3){const orb=new THREE.Group();for(let i=0;i<3;i++){const a=i*2.094;orb.add(mesh(PG.shard,kitGemMat(col),Math.cos(a)*0.46,0,Math.sin(a)*0.46));}orb.position.y=gy;g.add(orb);ud.orbit=orb;}
-    if(!special&&q>=2||special){const halo=new THREE.Mesh(haloGeo,haloMat(col));halo.position.y=0.015;halo.scale.setScalar(0.6+q*0.08);g.add(halo);ud.halo=halo;}}
+    if(!special&&q>=3){const orb=new THREE.Group();for(let i=0;i<3;i++){const a=i*2.094;orb.add(mesh(PG.shard,kitGemMat(col),Math.cos(a)*0.62,0,Math.sin(a)*0.62));}orb.children.forEach(x=>x.castShadow=false);orb.position.y=gy;g.add(orb);ud.orbit=orb;}
+    {const halo=new THREE.Mesh(haloGeo,haloMat(col));halo.position.y=0.015;halo.scale.setScalar(0.62+(special?4:q)*0.05);g.add(halo);ud.halo=halo;}}
   else if(special){gs=0.48;gy=buildSpecial(g,type,col);}
   else if(tower){const h=QH[q];g.add(mesh(PG.base,STONE_D,0,0.08));g.add(mesh(PG.col,STONE_L,0,0.16+h/2,0,1,h,1));
     const band=mesh(PG.band,tmat(new THREE.Color(col).multiplyScalar(0.85).getHex()),0,0.16+h*0.55);g.add(band);
@@ -213,7 +230,7 @@ function makeGemObj(type,q,special,tower){const G0=gemInfo(type,special),col=VCO
     gs=QS_[q];gy=0.16+h+0.12+gs*0.62;
     if(q>=3){const orb=new THREE.Group();for(let i=0;i<3;i++){const a=i*2.094;orb.add(mesh(PG.shard,gemMat(col),Math.cos(a)*0.42,0,Math.sin(a)*0.42));}orb.position.y=gy;g.add(orb);ud.orbit=orb;}
     if(q>=2){const halo=new THREE.Mesh(haloGeo,haloMat(col));halo.position.y=0.015;halo.scale.setScalar(0.55+q*0.08);g.add(halo);ud.halo=halo;}}
-  else{g.add(mesh(PG.socket,tmat(0xcbb48a),0,0.04));gs=0.36+q*0.04;gy=0.12+gs*0.75;const halo=new THREE.Mesh(haloGeo,haloMat(col));halo.position.y=0.015;halo.scale.setScalar(0.5);g.add(halo);ud.halo=halo;}
+  else{g.add(mesh(PG.socket,tmat(0xcbb48a),0,0.04));gs=0.5+q*0.05;gy=0.12+gs*0.75;const halo=new THREE.Mesh(haloGeo,haloMat(col));halo.position.y=0.015;halo.scale.setScalar(0.5);g.add(halo);ud.halo=halo;}
   const gem=KIT?kitGem(type,col,gs*(tower||special?1.25:1.1),tower||special):gemMesh(special?(SP_SHAPE[type]):type,col,gs*(tower||special?1.25:1.1));gem.position.y=gy;g.add(gem);
   const gl=new THREE.Sprite(tower||special?glowMat(col).clone():glowMat(col));gl.material.opacity=0.2;gl.scale.setScalar(gs*(special?3.4:2.8));gl.position.y=gy;gl.renderOrder=4;g.add(gl);
   ud.k=tower||special?1.28:1.2;g.scale.setScalar(ud.k);ud.gem=gem;ud.glow=gl;ud.spin=0.5+Math.random()*0.6;ud.h0=gy;ud.gs=gs;ud.seed=Math.random()*9;return g;}
@@ -231,7 +248,7 @@ function buildSpecial(g,type,col){const ud=g.userData;g.add(mesh(PG.base,STONE_D
 function addAura(g,rng,col){const m=new THREE.Mesh(auraGeo,new THREE.MeshBasicMaterial({map:auraTex,color:col,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false}));m.scale.set(rng,1,rng);m.position.y=0.03;m.renderOrder=1;g.add(m);g.userData.auraM=m;}
 // ---------- rocks: chunky stylised boulders, instanced; neighbouring rocks get a bridging boulder so they read as walls ----------
 function rockGeo(seed){const g=new THREE.IcosahedronGeometry(0.5,1);const p=g.attributes.position;const h=(x,y,z)=>{const s=Math.sin(x*12.9898+y*78.233+z*37.719+seed*13.1)*43758.5453;return s-Math.floor(s);};
-  const col=[];const top=new THREE.Color(0xaeaab8),base=new THREE.Color(0x6a6676),moss=new THREE.Color(0x86a85a),c=new THREE.Color();
+  const col=[];const top=new THREE.Color(0x8a7864),base=new THREE.Color(0x4a3e34),moss=new THREE.Color(0x5f7a3c),c=new THREE.Color();
   for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);const k=0.82+h(+x.toFixed(3),+y.toFixed(3),+z.toFixed(3))*0.32;x*=k;z*=k;y*=k;if(y<0)y*=0.35;y+=0.06;p.setXYZ(i,x*1.05,y*0.92,z*1.05);}
   g.computeVertexNormals();const n=g.attributes.normal;
   for(let i=0;i<p.count;i+=3){let ny=(n.getY(i)+n.getY(i+1)+n.getY(i+2))/3;c.copy(base).lerp(top,Math.max(0,Math.min(1,ny*0.9+0.25)));if(ny>0.8&&h(i,seed,1)<0.35)c.lerp(moss,0.55);for(let j=0;j<3;j++)col.push(c.r,c.g,c.b);}
@@ -242,10 +259,10 @@ let rockList=[];const rockBorn=new Map();let rockAnim=0;
 const hsh=(a,b)=>{const s=Math.sin(a*127.1+b*311.7)*43758.5453;return s-Math.floor(s);};
 function rebuildRocks(){const g=G.g;rockList=[];const isR=(c,r)=>c>=0&&r>=0&&c<W&&r<H&&g.grid[T.idx(c,r)]===1;
   for(let r=0;r<H;r++)for(let c=0;c<W;c++){if(!isR(c,r))continue;const k=T.idx(c,r),h1=hsh(c,r),h2=hsh(r,c+7);
-    rockList.push({k,v:(h1*3)|0,x:c,z:r,s:1.0+h1*0.14,sy:0.9+h2*0.35,ry:h2*6.28});
+    rockList.push({k,v:(h1*3)|0,x:c,z:r,s:0.95+h1*0.12,sy:0.6+h2*0.22,ry:h2*6.28});
     rockList.push({k,v:((h2*3)|0),x:c+(h1-0.5)*0.5,z:r+0.3,s:0.38,sy:0.7,ry:h1*6});
-    if(isR(c+1,r))rockList.push({k,k2:T.idx(c+1,r),v:((h1*7)|0)%3,x:c+0.5,z:r+(h2-0.5)*0.12,s:0.7,sy:0.85,ry:h1*3});
-    if(isR(c,r+1))rockList.push({k,k2:T.idx(c,r+1),v:((h2*7)|0)%3,x:c+(h1-0.5)*0.12,z:r+0.5,s:0.7,sy:0.85,ry:h2*3});}
+    if(isR(c+1,r))rockList.push({k,k2:T.idx(c+1,r),v:((h1*7)|0)%3,x:c+0.5,z:r+(h2-0.5)*0.12,s:0.66,sy:0.6,ry:h1*3});
+    if(isR(c,r+1))rockList.push({k,k2:T.idx(c,r+1),v:((h2*7)|0)%3,x:c+(h1-0.5)*0.12,z:r+0.5,s:0.66,sy:0.6,ry:h2*3});}
   writeRocks();}
 const _rm=new THREE.Matrix4(),_rq=new THREE.Quaternion(),_rv=new THREE.Vector3(),_rs=new THREE.Vector3(),_ry=new THREE.Vector3(0,1,0);
 function bornK(k,t){const b=rockBorn.get(k);if(b==null)return 1;const a=(t-b)/0.42;if(a<0)return 0;if(a>=1){return 1;}return a;}
@@ -286,13 +303,13 @@ function setTrail(p){if(p===trailPath)return;trailPath=p;trailSteps=[];if(!p){fo
   for(let i=0;i<p.length;i++){const [c,r]=p[i];const k=T.idx(c,r);if(!cells.has(k)){cells.add(k);const [x,z]=cw(c,r);_pm.compose(_pv.set(x,0.006,z),_pq.identity(),_ps.set(1,1,1));edgeT.setMatrixAt(nT,_pm);_pm.compose(_pv.set(x,0.011,z),_pq,_ps);dirtT.setMatrixAt(nT++,_pm);}
     if(i>0){const [a,b]=p[i-1];const kk=Math.min(T.idx(a,b),k)+'_'+Math.max(T.idx(a,b),k);const [x0,z0]=cw(a,b),[x1,z1]=cw(c,r);const ang=Math.atan2(x1-x0,z1-z0);
       if(!conns.has(kk)){conns.add(kk);_pq.setFromAxisAngle(_ry,ang);_pm.compose(_pv.set((x0+x1)/2,0.007,(z0+z1)/2),_pq,_ps);edgeC.setMatrixAt(nC,_pm);_pm.compose(_pv.set((x0+x1)/2,0.012,(z0+z1)/2),_pq,_ps);dirtC.setMatrixAt(nC++,_pm);}
-      trailSteps.push([(x0+x1)/2,(z0+z1)/2,ang+Math.PI]);}}
+      if(i%2===1)trailSteps.push([(x0+x1)/2,(z0+z1)/2,ang+Math.PI]);}}
   edgeT.count=dirtT.count=nT;edgeC.count=dirtC.count=nC;for(const m of [edgeT,edgeC,dirtT,dirtC])m.instanceMatrix.needsUpdate=true;
   chev.count=Math.min(PCAP,trailSteps.length);for(let i=0;i<chev.count;i++){const [x,z,a]=trailSteps[i];_pq.setFromAxisAngle(_ry,a);_pm.compose(_pv.set(x,0.02,z),_pq,_ps.set(1,1,1));chev.setMatrixAt(i,_pm);chev.setColorAt(i,_cc.setRGB(1,1,1));}
   chev.instanceMatrix.needsUpdate=true;if(chev.instanceColor)chev.instanceColor.needsUpdate=true;}
 const CH_BASE=new THREE.Color(0x9a6634),CH_GOLD=new THREE.Color(0xffe066),CH_RED=new THREE.Color(0xff3a2a),CH_PREV=new THREE.Color(0xfff27a);
-function drawChevrons(build,preview,red){const n=chev.count;if(!n)return;const t=now();const head=flowT>=0?(t-flowT)*42:-99;if(flowT>=0&&head>n+20)flowT=-1;
-  const idle=build?((t*14)%(n+40)):-99;chevM.opacity=build?0.9:0.5;
+function drawChevrons(build,preview,red){const n=chev.count;if(!n)return;const t=now();const head=flowT>=0?(t-flowT)*21:-99;if(flowT>=0&&head>n+20)flowT=-1;
+  const idle=build?((t*7)%(n+20)):-99;chevM.opacity=build?0.9:0.5;
   for(let i=0;i<n;i++){let f=Math.exp(-Math.pow((i-head)/4,2));const f2=build?Math.exp(-Math.pow((i-idle)/6,2))*0.55:0;
     _cc.copy(red?CH_RED:preview?CH_PREV:CH_BASE);if(!red)_cc.lerp(CH_GOLD,Math.min(1,f+f2));if(f>0.05){_cc.multiplyScalar(1+f*0.6);}chev.setColorAt(i,_cc);}
   chev.instanceColor.needsUpdate=true;}
@@ -337,29 +354,29 @@ const towerTop=tw=>{const ob=objs.get(T.idx(tw.c,tw.r));return ob?ob.o.userData.
 function chargeFx(ev){const ob=objs.get(T.idx(ev.tw.c,ev.tw.r));if(!ob)return;ob.ch={t:0,dur:Math.max(0.12,ev.dur),col:new THREE.Color(ev.col).getHex()};if(Math.random()<0.55)S.charge();}
 function shotFx(ev){const tw=ev.tw,e=ev.e,v=views.get(e.id);const st=STY[tw.type]||STY.diamond;const ob=objs.get(T.idx(tw.c,tw.r));const [x0,z0]=cw(tw.c,tw.r);const y0=towerTop(tw);
   const tx=v?v.g.position.x:cw(e.x,e.y)[0],tz=v?v.g.position.z:cw(e.x,e.y)[1],ty=(v?v.hover:0)+0.4;
-  const col=new THREE.Color(ev.col).getHex();const s=st.s*(ev.crit?1.35:1)*(ev.n>2?0.8:1);
+  const col=new THREE.Color(ev.col).getHex();const s=st.s*1.55*(ev.crit?1.35:1)*(ev.n>2?0.8:1);
   const core=spawn(ORB,{x:x0,y:y0,z:z0,life:9,s0:s*1.9,col:st.tc,a:1});const head=spawn(ADD,{x:x0,y:y0,z:z0,life:9,s0:s*1.1,col:0xffffff,a:0.9});
   shots.push({head,core,x0,y0,z0,tx,ty,tz,v,t:0,dur:ev.tt,st,col,ev,s});
   if(ob){ob.ch=null;ob.pulse=1;}
   // release: muzzle flash + burst ring + sound (one per volley)
-  glowFlash(x0,y0,z0,col,1.5+s,0.2);glowFlash(x0,y0,z0,0xffffff,0.8,0.1);sparks(x0,y0,z0,col,6,1.8,0.12,0.3);
-  if(ev.n>1){for(let k=1;k<=8;k++){const f=k/9;spawn(ADD,{x:x0+(tx-x0)*f,y:y0+(ty-y0)*f,z:z0+(tz-z0)*f,life:0.2,s0:0.16,s1:0.04,col:st.tc,a:0.8});}}
+  glowFlash(x0,y0,z0,col,2.0+s*1.4,0.22);glowFlash(x0,y0,z0,0xffffff,1.1,0.1);sparks(x0,y0,z0,st.tc,9,2.2,0.17,0.32);
+  if(ev.n>1){for(let k=1;k<=8;k++){const f=k/9;spawn(ADD,{x:x0+(tx-x0)*f,y:y0+(ty-y0)*f,z:z0+(tz-z0)*f,life:0.24,s0:0.26,s1:0.06,col:st.tc,a:0.9});}}
   if(!ob||!ob.snd||now()-ob.snd>0.1){if(ob)ob.snd=now();(S[st.snd]||S.ping)();}}
 function stepShots(dt){for(let i=shots.length-1;i>=0;i--){const s=shots[i];s.t+=dt;const k=Math.min(1,s.t/s.dur);if(s.v&&!s.v.gone){s.tx=s.v.g.position.x;s.tz=s.v.g.position.z;}
     const x=s.x0+(s.tx-s.x0)*k,z=s.z0+(s.tz-s.z0)*k,y=s.y0+(s.ty-s.y0)*k+Math.sin(k*Math.PI)*s.st.arc*(1+Math.hypot(s.tx-s.x0,s.tz-s.z0)*0.3);
     for(const p of [s.head,s.core])if(p){p.x=x;p.y=y;p.z=z;}
     spawn(ORB,{x,y,z,life:s.st.tl,s0:s.s*1.4,s1:s.s*0.2,col:s.st.tc,a:0.8});
-    if(s.st.smoke&&Math.random()<0.6)spawn(SMK,{x,y,z,life:0.45,s0:0.16,s1:0.38,col:0x5a4a45,a:0.5,vy:0.4});
+    if(s.st.smoke&&Math.random()<0.6)spawn(SMK,{x,y,z,life:0.45,s0:0.24,s1:0.55,col:0x5a4a45,a:0.5,vy:0.4});
     if(s.st.drip&&Math.random()<0.35)spawn(ADD,{x,y,z,vy:-0.5,g:5,life:0.4,s0:0.12,s1:0.05,col:s.st.tc});
     if(k>=1){for(const p of [s.head,s.core])if(p)p.age=p.life;shots.splice(i,1);}}}
 // impact: hit flash + knockback wobble + burst + damage number + the gem's own effect
 function hitFx(ev){const tw=ev.tw,e=ev.e,v=views.get(e.id);const st=STY[tw.type]||STY.diamond;const col=new THREE.Color(ev.col).getHex();
   let x,z;if(v&&!v.gone){x=v.g.position.x;z=v.g.position.z;}else[x,z]=cw(ev.x,ev.y);const y=(v?v.hover:0)+0.4;
   if(v){v.flash=1;v.wob=1;}
-  glowFlash(x,y,z,col,ev.crit?2.0:1.1,0.16);sparks(x,y,z,st.tc,ev.crit?16:8,ev.crit?2.8:1.8,ev.crit?0.18:0.13,0.4);
+  glowFlash(x,y,z,col,ev.crit?3.0:1.9,0.2);glowFlash(x,y,z,0xffffff,ev.crit?1.6:0.9,0.09);sparks(x,y,z,st.tc,ev.crit?20:12,ev.crit?3.2:2.3,ev.crit?0.26:0.19,0.45);ringFx(x,z,st.tc,ev.crit?1.1:0.7,0.3,0.06);
   const s=T.towerStats(tw);
-  if(s.slow){ringFx(x,z,0x9ad8ff,0.75,0.45,0.06);for(let i=0;i<6;i++){const a=i/6*6.28;spawn(ADD,{x:x+Math.cos(a)*0.2,y:y-0.1,z:z+Math.sin(a)*0.2,vx:Math.cos(a)*0.9,vy:0.5,vz:Math.sin(a)*0.9,drag:3,life:0.5,s0:0.13,s1:0.05,col:0xe6f6ff});}if(Math.random()<0.5)S.ice();}
-  if(s.poison){for(let i=0;i<7;i++)spawn(ADD,{x:x+(Math.random()-0.5)*0.35,y:y-0.2+Math.random()*0.2,z:z+(Math.random()-0.5)*0.35,vy:0.5+Math.random()*0.6,life:0.5+Math.random()*0.5,s0:0.07,s1:0.16,col:0x6aff6a,a:0.85});if(Math.random()<0.4)S.goo();}
+  if(s.slow){ringFx(x,z,0x9ad8ff,1.15,0.5,0.07);for(let i=0;i<8;i++){const a=i/6*6.28;spawn(ADD,{x:x+Math.cos(a)*0.2,y:y-0.1,z:z+Math.sin(a)*0.2,vx:Math.cos(a)*0.9,vy:0.5,vz:Math.sin(a)*0.9,drag:3,life:0.55,s0:0.2,s1:0.07,col:0xe6f6ff});}if(Math.random()<0.5)S.ice();}
+  if(s.poison){for(let i=0;i<7;i++)spawn(ADD,{x:x+(Math.random()-0.5)*0.35,y:y-0.2+Math.random()*0.2,z:z+(Math.random()-0.5)*0.35,vy:0.5+Math.random()*0.6,life:0.5+Math.random()*0.5,s0:0.11,s1:0.26,col:0x6aff6a,a:0.9});if(Math.random()<0.4)S.goo();}
   if(s.shred)sparks(x,y-0.1,z,0x9a5aff,5,1.2,0.1,0.35);
   if(ev.crit){dmgText(x,y+0.45,z,'暴击! '+Math.round(ev.d),'crit');glowFlash(x,y,z,0xffffff,2.4,0.12);shake(0.06);S.crit();}
   else if(ev.d>0){const p=pendDmg.get(e.id)||{sum:0,t:0,x,y,z};p.sum+=ev.d;p.x=x;p.y=y;p.z=z;pendDmg.set(e.id,p);}
@@ -386,7 +403,7 @@ const toScreen=(()=>{const v=new THREE.Vector3();return (x,y,z)=>{v.set(x,y,z).p
 const dmgPool=[];for(let i=0;i<26;i++){const d=document.createElement('div');d.className='dmg';document.body.appendChild(d);dmgPool.push({d,busy:false});}
 function dmgText(x,y,z,s,cls){const slot=dmgPool.find(p=>!p.busy);if(!slot)return;const [sx,sy]=toScreen(x,y,z);const d=slot.d;slot.busy=true;d.className='dmg '+(cls||'');d.textContent=s;d.style.left=sx+'px';d.style.top=sy+'px';
   const big=cls==='crit'||cls==='big';const dx=(Math.random()-0.5)*24;
-  d.animate([{opacity:0,transform:'translate(-50%,-50%) scale(.4)'},{opacity:1,transform:`translate(calc(-50% + ${dx*0.3}px),-90%) scale(${big?1.35:1.05})`,offset:0.18},{opacity:1,transform:`translate(calc(-50% + ${dx*0.7}px),-160%) scale(1)`,offset:0.6},{opacity:0,transform:`translate(calc(-50% + ${dx}px),-230%) scale(.9)`}],{duration:big?950:700,easing:'ease-out'}).onfinish=()=>{slot.busy=false;d.style.opacity=0;};}
+  d.animate([{opacity:0,transform:'translate(-50%,-50%) scale(.3)'},{opacity:1,transform:`translate(calc(-50% + ${dx*0.3}px),-90%) scale(${big?1.7:1.45})`,offset:0.14},{opacity:1,transform:`translate(calc(-50% + ${dx*0.5}px),-120%) scale(1)`,offset:0.32},{opacity:1,transform:`translate(calc(-50% + ${dx*0.7}px),-170%) scale(1)`,offset:0.7},{opacity:0,transform:`translate(calc(-50% + ${dx}px),-230%) scale(.9)`}],{duration:big?1050:820,easing:'ease-out'}).onfinish=()=>{slot.busy=false;d.style.opacity=0;};}
 function ftxt(x,y,z,s,cls){dmgText(x,y,z,s,cls||'big');}
 const coinPool=[];for(let i=0;i<16;i++){const d=document.createElement('div');d.className='coinfx';document.body.appendChild(d);coinPool.push({d,busy:false});}
 function coinFly(x,y,z,n=1){const tgt=$('hGold').parentNode.getBoundingClientRect();const tx=tgt.left+16,ty=tgt.top+tgt.height/2;const [sx,sy]=toScreen(x,y,z);
@@ -476,8 +493,8 @@ let pathShown=null;function setPath(p){pathShown=p;setTrail(p);}
 // ---------- flow ----------
 function startGame(g){SFX.init();SFX.setTrack('battle');G.g=g;G.ghost=null;G.rockMode=false;G.sel=null;G.tutC=null;
   for(const v of [...views.values()])dropView(v);rockBorn.clear();rockList=[];G.firstSync=false;for(const [k,v] of objs)scene.remove(v.o);objs.clear();syncBoard();setPath(G.g.path);flowT=now();
-  $('tdTitle').classList.remove('show');$('tdOver').classList.remove('show');for(const id of ['tdHud','tdNext','tdPanel'])$(id).classList.remove('hidden');G.g.events.length=0;renderBuild();nextInfo();G.phase='play';
-  G.snap=T.snapshot(g);G.snapW=g.wave+1;hud();}
+  $('tdTitle').classList.remove('show');$('tdOver').classList.remove('show');for(const id of ['tdHud','tdNext','tdPanel'])$(id).classList.remove('hidden');G.g.events.length=0;G.phase='play';renderBuild();nextInfo();
+  G.snap=T.snapshot(g);G.snapW=g.wave+1;hud();setTimeout(tut,60);}
 function newGame(){S.go();const g=T.newGame(DEBUG&&/[?&]seed=(\d+)/.test(location.search)?+RegExp.$1:undefined);
   if(DEBUG&&/[?&]gold=(\d+)/.test(location.search))g.gold=+RegExp.$1;if(DEBUG&&/[?&]spd=(\d+)/.test(location.search)){G.speed=+RegExp.$1;$('speedBtn').textContent=G.speed+'×';}
   startGame(g);banner('第 1 回合','放置 5 颗宝石','build');}
@@ -526,10 +543,10 @@ function processEvents(){const g=G.g;for(const ev of g.events){
    case 'charge':chargeFx(ev);break;
    case 'shot':shotFx(ev);break;
    case 'hit':hitFx(ev);break;
-   case 'splash':{const [x,z]=cw(ev.x,ev.y);const c=new THREE.Color(ev.col).getHex();ringFx(x,z,c,ev.r,0.4);ringFx(x,z,0xffb04a,ev.r*0.6,0.3);puffs(x,0.25,z,6,0x8a7060,0.35,1.6,0.5);sparks(x,0.3,z,0xff9a3a,10,2.4,0.13);if(Math.random()<0.35)S.boom();break;}
+   case 'splash':{const [x,z]=cw(ev.x,ev.y);const c=new THREE.Color(ev.col).getHex();ringFx(x,z,c,ev.r,0.4);ringFx(x,z,0xffb04a,ev.r*0.6,0.3);puffs(x,0.25,z,6,0x8a7060,0.35,1.6,0.5);sparks(x,0.3,z,0xff9a3a,14,2.8,0.2);if(Math.random()<0.35)S.boom();break;}
    case 'burn':{const [x,z]=cw(ev.tw.c,ev.tw.r);ringFx(x,z,0xff5a3a,ev.rng,0.55,0.06);for(const e of g.enemies)if(e.alive&&Math.hypot(e.x-ev.tw.c,e.y-ev.tw.r)<=ev.rng){const [ex,ez]=cw(e.x,e.y);spawn(ADD,{x:ex+(Math.random()-0.5)*0.3,y:0.2,z:ez,vy:1.2,life:0.45,s0:0.3,s1:0.05,col:0xff6a2a});}const ob=objs.get(T.idx(ev.tw.c,ev.tw.r));if(ob)ob.pulse=1;if(Math.random()<0.3)S.fire();break;}
    case 'die':{const v=views.get(ev.e.id);const [x,z]=cw(ev.e.x,ev.e.y);const y=(v?v.hover:0)+0.3;if(v)v.deadT=0;puffs(x,y,z,ev.e.boss?14:7,0xffffff,ev.e.boss?0.7:0.36,1,0.55);sparks(x,y+0.2,z,0xffd75e,ev.e.boss?20:5,1.6,0.1);
-     coinFly(x,y+0.3,z,ev.e.boss?4:1);dmgText(x,y+0.6,z,'+'+ev.gold+'💰','gold');S.poof();if(ev.e.boss){S.boom();shake(0.35);flash('rgba(255,215,94,.3)');}waveProg();hud();break;}
+     coinFly(x,y+0.3,z,ev.e.boss?4:1);dmgText(x+0.55,y+1.0,z,'+'+ev.gold+'💰','gold');S.poof();if(ev.e.boss){S.boom();shake(0.35);flash('rgba(255,215,94,.3)');}waveProg();hud();break;}
    case 'leak':{const [x,z]=cw(ev.e.x,ev.e.y);dmgText(x,0.9,z,'−'+ev.cost+'❤','leak');S.lifeLost();flash('rgba(255,40,30,.3)');shake(ev.cost>1?0.45:0.16);ringFx(x,z,0xff3a3a,1.2,0.4);const p=$('hLives').parentNode;bump(p);p.classList.remove('flash');void p.offsetWidth;p.classList.add('flash');waveProg();hud();break;}
    case 'waveClear':{S.coin();S.go();toast(`✅ 第${ev.w}波完成 · 奖励 +${ev.bonus}💰`,'gold');clearSel();setPath(g.path);bump($('hGold').parentNode);break;}
    case 'build':if(G.phase==='play'&&g.wave>0&&!g.over){G.snap=T.snapshot(g);G.snapW=g.wave+1;renderBuild();nextInfo();SFX.setTrack('battle');flowT=now()+0.3;setTimeout(()=>{if(g.phase==='build')banner(`第 ${g.wave+1} 回合`,'放置 5 颗宝石','build');},700);}break;

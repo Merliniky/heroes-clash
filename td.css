@@ -86,8 +86,8 @@ body.td{font-family:"PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft Y
 .book h3{font-size:14px;color:#ffd75e;margin:8px 0 4px}.book .row{display:flex;gap:8px;align-items:center;margin:4px 0}.book .row .gsvg{flex:0 0 auto}
 .book table{border-collapse:collapse;width:100%;font-size:11px}.book td,.book th{border:1px solid #2e3a72;padding:2px 3px;text-align:center}
 /* ---- floating numbers + coins ---- */
-.dmg{position:fixed;left:0;top:0;z-index:4;pointer-events:none;opacity:0;font:900 14px/1 "PingFang SC",system-ui,sans-serif;color:#fff;-webkit-text-stroke:3px #1a0d00;paint-order:stroke fill;white-space:nowrap;will-change:transform}
-.dmg.crit{color:#ffe14a;font-size:20px}.dmg.gold{color:#ffd75e;font-size:13px}.dmg.leak{color:#ff5a4a;font-size:20px}.dmg.big{color:#fff;font-size:15px}
+.dmg{position:fixed;left:0;top:0;z-index:4;pointer-events:none;opacity:0;font:900 19px/1 "Arial Black","PingFang SC",system-ui,sans-serif;color:#fff;-webkit-text-stroke:5px #160a00;paint-order:stroke fill;text-shadow:0 3px 0 #160a00;white-space:nowrap;will-change:transform;letter-spacing:.5px}
+.dmg.crit{color:#ffe14a;font-size:27px;-webkit-text-stroke:6px #4a0d00}.dmg.gold{color:#ffd75e;font-size:17px}.dmg.leak{color:#ff5a4a;font-size:26px}.dmg.big{color:#fff;font-size:20px}
 .coinfx{position:fixed;left:0;top:0;z-index:8;width:18px;height:18px;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle at 35% 30%,#fff6b0,#ffd24a 45%,#d88a10);border:2px solid #6a3a00;box-shadow:0 2px 0 rgba(0,0,0,.35);will-change:transform}
 /* ---- banners ---- */
 #banner2{position:fixed;left:0;right:0;top:34%;z-index:7;pointer-events:none;display:flex;justify-content:center;opacity:0}
@@ -113,3 +113,4 @@ body.td{font-family:"PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft Y
 #tutBub{position:fixed;left:50%;bottom:226px;transform:translateX(-50%);z-index:8;pointer-events:none;opacity:0;transition:opacity .2s;background:#fff;color:#1a2050;border:3px solid #0d1430;border-radius:14px;padding:8px 12px;font:900 13px/1.4 "PingFang SC",system-ui,sans-serif;text-align:center;box-shadow:0 4px 0 #0d1430;white-space:nowrap}
 #tutBub::after{content:"";position:absolute;left:50%;bottom:-11px;margin-left:-8px;border:8px solid transparent;border-top-color:#0d1430;border-bottom:0}
 #tutBub.show{opacity:1}
+#tdHud .pill{white-space:nowrap}#tdHud .pill .lbl{white-space:nowrap;font-size:13px}#tdHud .pill .dim{font-size:12px}
