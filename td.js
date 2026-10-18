@@ -165,7 +165,7 @@ const PG={base:new THREE.CylinderGeometry(0.43,0.47,0.16,8),col:new THREE.Cylind
 const gemMats={};const gemMat=col=>gemMats[col]||(gemMats[col]=new THREE.MeshPhongMaterial({color:col,emissive:col,emissiveIntensity:0.32,specular:0xffffff,shininess:120,flatShading:true}));
 const glowMats={};const glowMat=col=>glowMats[col]||(glowMats[col]=new THREE.SpriteMaterial({map:glowTex,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0.35}));
 const haloMats={};const haloMat=col=>haloMats[col]||(haloMats[col]=new THREE.MeshBasicMaterial({map:glowTex,color:col,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending,depthWrite:false}));
-const auraTex=cnv(128,128,(x)=>{x.translate(64,64);for(let i=0;i<24;i++){x.rotate(Math.PI/12);const g=x.createLinearGradient(0,44,0,64);g.addColorStop(0,'rgba(255,200,80,0)');g.addColorStop(0.6,'rgba(255,120,40,.9)');g.addColorStop(1,'rgba(255,60,20,0)');x.fillStyle=g;x.beginPath();x.moveTo(-5,48);x.quadraticCurveTo(0,30+Math.random()*10,5,48);x.lineTo(4,63);x.lineTo(-4,63);x.fill();}
+const auraTex=cnv(128,128,(x)=>{x.translate(64,64);for(let i=0;i<24;i++){x.rotate(Math.PI/12);const g=x.createLinearGradient(0,44,0,64);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(0.6,'rgba(255,255,255,.95)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.beginPath();x.moveTo(-5,48);x.quadraticCurveTo(0,30+Math.random()*10,5,48);x.lineTo(4,63);x.lineTo(-4,63);x.fill();}
   x.strokeStyle='rgba(255,140,60,.9)';x.lineWidth=3;x.beginPath();x.arc(0,0,60,0,7);x.stroke();});
 const auraGeo=new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2);const haloGeo=new THREE.CircleGeometry(1,24).rotateX(-Math.PI/2);
 const SP_SHAPE={silver:'diamond',malachite:'opal',jade:'opal',starRuby:'star',gold:'diamond',bloodstone:'ruby'};
@@ -245,7 +245,9 @@ function buildSpecial(g,type,col){const ud=g.userData;g.add(mesh(PG.base,STONE_D
   if(type==='bloodstone'){g.add(mesh(PG.col,OBS,0,0.5,0,0.9,0.7,0.9));for(let i=0;i<5;i++){const a=i*Math.PI*2/5+0.3;const s=mesh(PG.spike,OBS,Math.cos(a)*0.34,0.62,Math.sin(a)*0.34,1.3,1.4,1.3);s.rotation.set(Math.sin(a)*0.35,0,-Math.cos(a)*0.35);g.add(s);}g.add(mesh(PG.cap,tmat(0x5a1020,0x400010,0.5),0,0.9));ud.aura=1;return 1.32;}
   return 1.2;}
 // burn-aura ring (Star Ruby / Bloodstone) — a flame circle at the tower's range
-function addAura(g,rng,col){const m=new THREE.Mesh(auraGeo,new THREE.MeshBasicMaterial({map:auraTex,color:col,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false}));m.scale.set(rng,1,rng);m.position.y=0.03;m.renderOrder=1;g.add(m);g.userData.auraM=m;}
+function addAura(g,rng,col){const m=new THREE.Mesh(auraGeo,new THREE.MeshBasicMaterial({map:auraTex,color:col,transparent:true,opacity:0.5,depthWrite:false}));m.scale.set(rng,1,rng);m.position.y=0.03;m.renderOrder=1;g.add(m);g.userData.auraM=m;
+  const e=new THREE.Mesh(auraEdge,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.75,depthWrite:false}));e.scale.set(rng,1,rng);e.position.y=0.035;e.renderOrder=1;g.add(e);}
+const auraEdge=new THREE.RingGeometry(0.955,1,64).rotateX(-Math.PI/2);
 // ---------- rocks: chunky stylised boulders, instanced; neighbouring rocks get a bridging boulder so they read as walls ----------
 function rockGeo(seed){const g=new THREE.IcosahedronGeometry(0.5,1);const p=g.attributes.position;const h=(x,y,z)=>{const s=Math.sin(x*12.9898+y*78.233+z*37.719+seed*13.1)*43758.5453;return s-Math.floor(s);};
   const col=[];const top=new THREE.Color(0x8a7864),base=new THREE.Color(0x4a3e34),moss=new THREE.Color(0x5f7a3c),c=new THREE.Color();
@@ -274,7 +276,7 @@ function writeRocks(){const t=now();const cnt=[0,0,0];let anim=false;
 // ---------- board objects (towers + this round's gems) ----------
 const objs=new Map();// cell index -> {o, kind, born}
 function setObj(c,r,o,kind,born){const k=T.idx(c,r);const old=objs.get(k);if(old)scene.remove(old.o);if(!o){objs.delete(k);return;}const [x,z]=cw(c,r);o.position.set(x,0,z);scene.add(o);objs.set(k,{o,kind,born:born??now(),pulse:0});o.scale.setScalar(0.001);}
-function towerObj(t){const o=makeGemObj(t.type,t.q,t.special,true);if(t.special){const s=T.towerStats(t);if(s.burn)addAura(o,s.rng,t.type==='bloodstone'?0xff3a3a:0xff7a4a);}return o;}
+function towerObj(t){const o=makeGemObj(t.type,t.q,t.special,true);if(t.special){const s=T.towerStats(t);if(s.burn)addAura(o,s.rng,t.type==='bloodstone'?0xc8102e:0xff8a1a);}return o;}
 function syncBoard(born,quiet){// rebuild from game state (after keep / rock removal / new game / retry). born: {cellIndex: time} for delayed pop-ins
   born=born||{};const keep=new Map();for(const [k,v] of objs)keep.set(k,v);
   for(const [k,v] of objs)scene.remove(v.o);objs.clear();
@@ -442,7 +444,7 @@ const QCLS=['q0','q1','q2','q3','q4'];
 function pips(q){return `<div class="pips">${[0,1,2,3,4].map(i=>`<i class="${i<=q?'on':''}"></i>`).join('')}</div>`;}
 const gemName=(type,q,special)=>special?T.SPECIAL[type].n:T.QN[q]+T.GEMS[type].n;
 const curWave=g=>(g.phase==='wave'||g.phase==='over'||g.over)?g.wave:g.wave+1;
-function hud(){const g=G.g;$('hWave').textContent=Math.max(1,curWave(g));$('hLives').textContent=g.lives;$('hGold').textContent=g.gold;
+function hud(){const g=G.g;$('hWave').textContent=Math.max(1,curWave(g));$('hWave').nextElementSibling.textContent=curWave(g)>20?'/∞':'/20';$('hLives').textContent=g.lives;$('hGold').textContent=g.gold;
   const ch=g.chance,cost=T.UPCOST[ch];const ub=$('upBtn');ub.innerHTML=cost?`<span class="bi">🎲</span><span>概率 Lv${ch}<small>${cost}💰 升级</small></span>`:`<span class="bi">🎲</span><span>概率 Lv${ch}<small>已满级</small></span>`;ub.disabled=!cost||g.gold<cost;
   $('rockBtn').innerHTML=G.rockMode?`<span class="bi">✖</span><span>取消<small>移除模式</small></span>`:`<span class="bi">⛏</span><span>移除石头<small>${T.ROCK_COST}💰/块</small></span>`;$('rockBtn').classList.toggle('on',G.rockMode);}
 function nextInfo(){const g=G.g;const w=curWave(g);const d=T.waveDef(w);const tags=[d.fly?'<span class="tag fly">飞行</span>':'',d.fast?'<span class="tag fast">快速</span>':'',d.boss?'<span class="tag boss">首领</span>':'',d.tank?'<span class="tag tank">重甲</span>':''].join('');
@@ -602,7 +604,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(0.05,clock.getDe
     if(ud.gem){const sm=ud.gem.userData.spinM;if(sm)sm.rotation.y+=dt*(ud.spin+ck*9);else ud.gem.rotation.y+=dt*(ud.spin+ck*9);if(v.kind==='tower')ud.glow.material.opacity=0.18+ck*0.5+v.pulse*0.4;const p=v.pulse;ud.gem.position.y=ud.h0+Math.sin(t*2.2+ud.seed)*0.04+p*0.06+ck*0.05;const sc=1+p*0.18+ck*0.32;ud.gem.scale.set(sc,sc*(1-p*0.1),sc);if(ud.gem.userData.mat&&v.kind==='tower')ud.gem.userData.mat.emissiveIntensity=0.28+ck*1.5+p*0.9;
       ud.glow.scale.setScalar(ud.gs*(2.6+p*2+ck*2.2+Math.sin(t*3+ud.seed)*0.2));if(p)v.pulse=Math.max(0,p-dt*5);}
     if(ud.orbit)ud.orbit.rotation.y+=dt*1.6;if(ud.halo)ud.halo.material.opacity=0.45+Math.sin(t*2+ud.seed)*0.15;
-    if(ud.auraM){ud.auraM.rotation.y+=dt*0.6;ud.auraM.material.opacity=(g&&g.phase==='wave'?0.55:0.2)+Math.sin(t*4)*0.08;}}
+    if(ud.auraM){ud.auraM.rotation.y+=dt*0.6;ud.auraM.material.opacity=(g&&g.phase==='wave'?0.75:0.5)+Math.sin(t*4)*0.08;}}
   if(ghostGem.visible){ghostGem.userData.gem.rotation.y+=dt*2;ghostGem.userData.gem.position.y=0.5+Math.sin(t*4)*0.05;}
   for(const mk of markers){mk.ring.material.opacity=0.65+Math.sin(t*3)*0.25;}
   for(const m of marks)m.rotation.y+=dt*1.5;

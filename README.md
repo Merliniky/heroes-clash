@@ -457,3 +457,11 @@ Play: `td.html`, `index.html?mode=td`, or the mode switch on the title screen. T
 - **Path:** half as many chevrons, with a calmer flow animation.
 - **Fixes:** the first-round tutorial now actually appears (it was hidden by a startup order bug), and the HUD wave label no longer wraps.
 - **Performance:** each tower body is baked into one vertex-coloured mesh and gems no longer cast shadows. With 16 towers, draw calls dropped from 380 to 238.
+
+## v25: QA fixes
+- **Burn auras:** Star Ruby (orange) and Bloodstone (crimson) auras now use normal blending with white flame art and a crisp edge ring. Before, additive blending on green grass turned both of them yellow.
+- **HUD:** in endless mode after wave 20 the wave pill shows `/∞` instead of `21/20`.
+- **QA:**
+  - waves 17–20 played on live with real taps (a debug skip to wave 16) end in a 3-star victory screen, and endless mode continues from it;
+  - the first-round tutorial runs end to end;
+  - retry works from round 1 and from round 2, and the restored state matches the snapshot.
