@@ -10,24 +10,24 @@ const QN=['碎裂的','有瑕疵的','普通的','无瑕的','完美的'];
 const QS=['碎','瑕','普','无','完'];
 const QMUL=[1,2.3,5,11,24];             // damage multiplier by quality
 const GEMS={
-  amethyst:{n:'紫水晶',col:'#b45cff',dmg:8,rng:4.6,cd:1.0,air:2.4,ground:0.45,shred:1,d:'对空：对飞行×2.4，对地面×0.45；命中降低护甲'},
-  aquamarine:{n:'海蓝宝石',col:'#46e0e6',dmg:3.4,rng:2.4,cd:0.36,d:'极快攻击速度，射程短'},
-  diamond:{n:'钻石',col:'#f2f6ff',dmg:9,rng:3.1,cd:0.9,groundOnly:1,crit:0.25,critM:2.5,d:'只攻击地面；25%暴击（伤害×2.5）'},
-  emerald:{n:'祖母绿',col:'#3fd46a',dmg:3.5,rng:3.1,cd:0.9,poison:1.6,slowP:0.1,d:'剧毒：持续伤害3秒，并减速10%'},
-  opal:{n:'蛋白石',col:'#ffd0e8',dmg:2.5,rng:2.8,cd:1.0,aura:0.12,d:'光环：射程内其他塔攻击速度提升'},
-  ruby:{n:'红宝石',col:'#ff3b3b',dmg:6,rng:2.8,cd:1.0,splash:1.25,splashP:0.5,d:'溅射：目标周围敌人受到50%伤害'},
-  sapphire:{n:'蓝宝石',col:'#3a6bff',dmg:4,rng:3.4,cd:1.0,slow:0.25,d:'冰霜：减速敌人2秒'},
-  topaz:{n:'黄玉',col:'#ffc23a',dmg:3,rng:3.0,cd:0.9,multi:2,d:'多重射击：同时攻击多个目标'},
+  amethyst:{n:'紫水晶',col:'#b45cff',dmg:10.8,rng:4.6,cd:1.35,wind:0.4,air:2.4,ground:0.45,shred:1,d:'对空：对飞行×2.4，对地面×0.45；命中降低护甲'},
+  aquamarine:{n:'海蓝宝石',col:'#46e0e6',dmg:6.42,rng:2.4,cd:0.68,wind:0.22,d:'极快攻击速度，射程短'},
+  diamond:{n:'钻石',col:'#f2f6ff',dmg:11.5,rng:3.1,cd:1.15,wind:0.32,groundOnly:1,crit:0.25,critM:2.5,d:'只攻击地面；25%暴击（伤害×2.5）'},
+  emerald:{n:'祖母绿',col:'#3fd46a',dmg:4.67,rng:3.1,cd:1.2,wind:0.3,poison:1.6,slowP:0.1,d:'剧毒：持续伤害3秒，并减速10%'},
+  opal:{n:'蛋白石',col:'#ffd0e8',dmg:3.25,rng:2.8,cd:1.3,wind:0.32,aura:0.12,d:'光环：射程内其他塔攻击速度提升'},
+  ruby:{n:'红宝石',col:'#ff3b3b',dmg:8.1,rng:2.8,cd:1.35,wind:0.38,splash:1.25,splashP:0.5,d:'溅射：目标周围敌人受到50%伤害'},
+  sapphire:{n:'蓝宝石',col:'#3a6bff',dmg:5,rng:3.4,cd:1.25,wind:0.32,slow:0.25,d:'冰霜：减速敌人2秒'},
+  topaz:{n:'黄玉',col:'#ffc23a',dmg:3.83,rng:3.0,cd:1.15,wind:0.3,multi:2,d:'多重射击：同时攻击多个目标'},
 };
 const GTYPES=Object.keys(GEMS);
 // special recipe towers (classic Gem TD 3-gem recipes)
 const SPECIAL={
-  silver:{n:'白银',col:'#d8dde6',dmg:30,rng:3.3,cd:0.9,splash:1.4,splashP:0.6,slow:0.3,recipe:[['topaz',0],['diamond',0],['sapphire',0]],d:'冰霜溅射：范围伤害并减速30%'},
-  malachite:{n:'孔雀石',col:'#1fb58a',dmg:14,rng:3.6,cd:0.55,multi:4,recipe:[['opal',0],['emerald',0],['aquamarine',0]],d:'多重射击：同时攻击4个目标（空/地）'},
-  jade:{n:'玉石',col:'#7fe0a0',dmg:45,rng:3.6,cd:0.9,poison:22,slowP:0.25,gold:1,recipe:[['emerald',2],['opal',2],['sapphire',1]],d:'剧毒减速，击杀额外+1金币'},
-  starRuby:{n:'星彩红宝石',col:'#ff5a7a',dmg:0,rng:2.6,cd:1,burn:28,recipe:[['ruby',0],['ruby',1],['amethyst',0]],d:'灼烧光环：每秒伤害范围内所有敌人'},
-  gold:{n:'黄金',col:'#ffd23a',dmg:140,rng:4.2,cd:1.1,crit:0.3,critM:3,shred:4,recipe:[['amethyst',4],['amethyst',1],['diamond',1]],d:'30%暴击（×3），命中大幅降低护甲'},
-  bloodstone:{n:'血石',col:'#c0102a',dmg:90,rng:3.2,cd:0.9,splash:1.5,splashP:0.6,burn:90,recipe:[['ruby',4],['aquamarine',3],['amethyst',2]],d:'血之光环：强力灼烧光环+溅射攻击'},
+  silver:{n:'白银',col:'#d8dde6',dmg:38.33,rng:3.3,cd:1.15,wind:0.34,splash:1.4,splashP:0.6,slow:0.3,recipe:[['topaz',0],['diamond',0],['sapphire',0]],d:'冰霜溅射：范围伤害并减速30%'},
+  malachite:{n:'孔雀石',col:'#1fb58a',dmg:22.91,rng:3.6,cd:0.9,wind:0.28,multi:4,recipe:[['opal',0],['emerald',0],['aquamarine',0]],d:'多重射击：同时攻击4个目标（空/地）'},
+  jade:{n:'玉石',col:'#7fe0a0',dmg:60,rng:3.6,cd:1.2,wind:0.32,poison:22,slowP:0.25,gold:1,recipe:[['emerald',2],['opal',2],['sapphire',1]],d:'剧毒减速，击杀额外+1金币'},
+  starRuby:{n:'星彩红宝石',col:'#ff5a7a',dmg:0,rng:2.6,cd:1.0,wind:0.3,burn:28,recipe:[['ruby',0],['ruby',1],['amethyst',0]],d:'灼烧光环：每秒伤害范围内所有敌人'},
+  gold:{n:'黄金',col:'#ffd23a',dmg:190.91,rng:4.2,cd:1.5,wind:0.45,crit:0.3,critM:3,shred:4,recipe:[['amethyst',4],['amethyst',1],['diamond',1]],d:'30%暴击（×3），命中大幅降低护甲'},
+  bloodstone:{n:'血石',col:'#c0102a',dmg:120,rng:3.2,cd:1.2,wind:0.38,splash:1.5,splashP:0.6,burn:90,recipe:[['ruby',4],['aquamarine',3],['amethyst',2]],d:'血之光环：强力灼烧光环+溅射攻击'},
 };
 // gem-chance level: quality odds (percent for chipped..perfect) and upgrade costs
 const ODDS=[[100,0,0,0,0],[70,30,0,0,0],[60,30,10,0,0],[50,30,20,0,0],[40,30,20,10,0],[30,30,30,10,0],[20,30,30,20,0],[10,30,30,25,5],[0,20,30,30,20]];
@@ -41,19 +41,20 @@ const WAVES=[null,
  {t:'naga',n:'娜迦'},{t:'wyvern',n:'双足飞龙',fly:1},{t:'redDragon',n:'红龙',fly:1},{t:'hydra',n:'九头蛇',tank:1},{t:'boneDragon',n:'骨龙王',boss:1},
 ];
 function waveDef(w){const base=WAVES[(w-1)%MAXW+1],loop=Math.floor((w-1)/MAXW);
-  const E=(typeof process!=='undefined'&&process.env)||{};const hp0=(+E.HPB||11)*Math.pow(+E.HPG||1.45,w-1)*Math.pow(1.6,loop);
+  const E=(typeof process!=='undefined'&&process.env)||{};const hp0=(+E.HPB||15)*Math.pow(+E.HPG||1.45,w-1)*Math.pow(1.6,loop);
   const cnt=base.boss?1:base.fast?12:base.fly?8:10;
   let hp=hp0*(base.tank?1.6:1)*(base.fast?0.7:1)*(base.fly?0.85:1)*(base.boss?22:1);
   const armor=Math.floor(w/4)+(base.tank?3:0)+(base.boss?4:0);
-  const spd=(base.fast?2.4:base.boss?1.0:base.tank?1.15:1.55)*(base.fly?1.0:1);
+  const spd=(base.fast?1.6:base.boss?0.68:base.tank?0.78:1.02)*(base.fly?1.0:1);
   const gold=base.boss?25+w*2:1+Math.floor(w/5);
-  return Object.assign({w,cnt,hp:Math.round(hp),armor,spd,gold,gap:base.fast?0.55:base.boss?0:0.85},base);}
+  return Object.assign({w,cnt,hp:Math.round(hp),armor,spd,gold,gap:base.fast?0.85:base.boss?0:1.3},base);}
 // ---------- rng ----------
-function rng(seed){let s=seed>>>0||1;return ()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+// rng state lives on the game object (g.rs) so a game can be snapshotted/restored (retry)
+function rngOf(g){if(g.rs==null)g.rs=(g.seed>>>0)||1;return ()=>{let s=g.rs;s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;g.rs=s;return s/4294967296;};}
 // ---------- state ----------
 function newGame(seed){const g={seed:seed||((Math.random()*1e9)|0),R:null,wave:0,lives:LIVES,gold:10,chance:0,grid:[],towers:[],phase:'build',
-  placed:[],pend:[],enemies:[],spawnQ:[],t:0,kills:0,leaks:0,events:[],path:null,nextId:1,best:0,over:false,won:false,stats:{dmg:{}}};
-  g.R=rng(g.seed);for(let i=0;i<W*H;i++)g.grid.push(0); // 0 free, 1 rock, 2 tower, 3 placed-this-round gem
+  placed:[],pend:[],enemies:[],spawnQ:[],hits:[],t:0,kills:0,leaks:0,events:[],path:null,nextId:1,best:0,over:false,won:false,stats:{dmg:{}}};
+  g.R=rngOf(g);for(let i=0;i<W*H;i++)g.grid.push(0); // 0 free, 1 rock, 2 tower, 3 placed-this-round gem
   g.path=findPath(g);startBuild(g);return g;}
 const idx=(c,r)=>r*W+c;
 const reserved=(c,r)=>WAYS.some(([x,y])=>x===c&&y===r);
@@ -69,7 +70,7 @@ function findPath(g,block=-1){let full=[];for(let i=0;i<WAYS.length-1;i++){const
 function flyPath(){return WAYS.map(p=>p.slice());}
 // ---------- build phase ----------
 function rollQuality(g){const o=ODDS[g.chance];let x=g.R()*100;for(let q=0;q<5;q++){x-=o[q];if(x<0)return q;}return 0;}
-function startBuild(g){g.phase='build';g.placed=[];g.events.push({k:'build'});}
+function startBuild(g){g.phase='build';g.placed=[];g.hits=[];for(const t of g.towers){t.wind=0;t.cd=0;t.lock=null;}g.events.push({k:'build'});}
 // test a placement: returns {ok, reason, path}
 function testPlace(g,c,r){if(g.phase!=='build'||g.placed.length>=5)return {ok:false,reason:'现在不能放置'};
   if(c<0||r<0||c>=W||r>=H)return {ok:false,reason:'超出地图'};
@@ -109,13 +110,28 @@ function towerStats(tw){if(tw.special){const S=SPECIAL[tw.type];return Object.as
   if(G.poison)s.poison=G.poison*m*DM;if(G.slow)s.slow=Math.min(0.55,G.slow+tw.q*0.05);if(G.multi)s.multi=G.multi+Math.floor(tw.q/1.5);
   if(G.aura)s.aura=G.aura+tw.q*0.05;if(G.crit)s.crit=G.crit+tw.q*0.03;if(G.splash)s.splash=G.splash+tw.q*0.12;if(G.shred)s.shred=G.shred+tw.q;return s;}
 // ---------- wave phase ----------
-function startWave(g){g.wave++;const d=waveDef(g.wave);g.cur=d;g.phase='wave';g.spawnQ=[];for(let i=0;i<d.cnt;i++)g.spawnQ.push(i*d.gap+1.4);g.waveT=0;g.waveLeft=d.cnt;g.events.push({k:'wave',d});}
+function startWave(g){g.wave++;const d=waveDef(g.wave);g.cur=d;g.phase='wave';g.spawnQ=[];for(let i=0;i<d.cnt;i++)g.spawnQ.push(i*d.gap+2.4);g.waveT=0;g.waveLeft=d.cnt;g.events.push({k:'wave',d});}
 function pathLen(pts){let L=0;for(let i=1;i<pts.length;i++)L+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);return L;}
 function spawnEnemy(g){const d=g.cur;const pts=d.fly?flyPath():g.path;const e={id:g.nextId++,type:d.t,name:d.n,hp:d.hp,maxHp:d.hp,armor:d.armor,spd:d.spd,fly:!!d.fly,boss:!!d.boss,pts,seg:0,s:0,x:pts[0][0],y:pts[0][1],
   slowT:0,slowP:0,poisonT:0,poisonD:0,shred:0,alive:true,dir:[0,1],gold:d.gold,dist:0};g.enemies.push(e);g.events.push({k:'spawn',e});}
 function armorMul(a){return a>=0?1-0.06*a/(1+0.06*a):2-Math.pow(0.94,-a);}
 function hurt(g,e,dmg,tw,kind){if(!e.alive)return;const a=e.armor-e.shred;const d=dmg*armorMul(a);e.hp-=d;if(tw){tw.dmg+=d;}
   if(e.hp<=0){e.alive=false;g.kills++;let gold=e.gold;if(tw&&tw.special&&SPECIAL[tw.type].gold)gold+=SPECIAL[tw.type].gold;g.gold+=gold;if(tw)tw.kills++;g.events.push({k:'die',e,gold});}}
+const PSPD=8;               // projectile speed (cells/s) -> travel 0.15-0.6s
+function targets(g,t,s,slack){const c=g.enemies.filter(e=>e.alive&&!(s.groundOnly&&e.fly)&&Math.hypot(e.x-t.c,e.y-t.r)<=s.rng+slack);c.sort((a,b)=>b.dist-a.dist);return c;}
+function release(g,t,s){const n=s.multi||1;let tg=(t.lock||[]).map(id=>g.enemies.find(e=>e.id===id)).filter(e=>e&&e.alive&&Math.hypot(e.x-t.c,e.y-t.r)<=s.rng+0.8);
+  if(tg.length<n)for(const e of targets(g,t,s,0)){if(tg.length>=n)break;if(!tg.includes(e))tg.push(e);}
+  t.lock=null;t.cd=Math.max(0.05,s.cd-(s.wind||0.3));if(!tg.length){t.cd=0;return;}
+  for(const e of tg){let d=s.dmg;if(s.air&&e.fly)d*=s.air;else if(s.ground&&!e.fly)d*=s.ground;let crit=false;if(s.crit&&g.R()<s.crit){d*=s.critM;crit=true;}
+    const tt=Math.hypot(e.x-t.c,e.y-t.r)/PSPD+0.08;g.hits.push({t:tt,e,tw:t,d,crit,s});g.events.push({k:'shot',tw:t,e,crit,col:s.col,tt,n:tg.length});}}
+function land(g,h){const e=h.e,s=h.s,t=h.tw,d=h.d;if(!g.towers.includes(t))return;
+  let dealt=0;if(e.alive){const hp0=e.hp;hurt(g,e,d,t);dealt=Math.max(0,hp0-Math.max(0,e.hp));
+    if(s.shred)e.shred=Math.max(e.shred,s.shred);
+    if(s.slow){e.slowT=2;e.slowP=Math.max(e.slowP,s.slow);}
+    if(s.slowP&&!s.slow){e.slowT=Math.max(e.slowT,1.5);e.slowP=Math.max(e.slowP,s.slowP);}
+    if(s.poison){e.poisonT=3;e.poisonD=Math.max(e.poisonD,s.poison);e.poisonBy=t;}}
+  g.events.push({k:'hit',tw:t,e,crit:h.crit,d:dealt,col:s.col,x:e.x,y:e.y});
+  if(s.splash){for(const o of g.enemies)if(o!==e&&o.alive&&o.fly===e.fly&&Math.hypot(o.x-e.x,o.y-e.y)<=s.splash){hurt(g,o,d*s.splashP,t);if(s.slow){o.slowT=2;o.slowP=Math.max(o.slowP,s.slow);}}g.events.push({k:'splash',x:e.x,y:e.y,r:s.splash,col:s.col,fly:e.fly});}}
 function stepWave(g,dt){g.waveT+=dt;g.t+=dt;
   while(g.spawnQ.length&&g.spawnQ[0]<=g.waveT){g.spawnQ.shift();spawnEnemy(g);}
   // enemies move
@@ -131,20 +147,20 @@ function stepWave(g,dt){g.waveT+=dt;g.t+=dt;
   g.towers.forEach((t,i)=>{const s=st[i];if(s.aura)g.towers.forEach((o,j)=>{if(j!==i&&Math.hypot(o.c-t.c,o.r-t.r)<=s.rng)aspd[j]=Math.max(aspd[j],1+s.aura);});});
   g.towers.forEach((t,i)=>{const s=st[i];
     if(s.burn){for(const e of g.enemies)if(e.alive&&Math.hypot(e.x-t.c,e.y-t.r)<=s.rng)hurt(g,e,s.burn*dt,t,'burn');t.burnFx=(t.burnFx||0)+dt;if(t.burnFx>0.5){t.burnFx=0;if(g.enemies.some(e=>e.alive&&Math.hypot(e.x-t.c,e.y-t.r)<=s.rng))g.events.push({k:'burn',tw:t,rng:s.rng});}}
-    if(!s.dmg)return;t.cd-=dt*aspd[i];if(t.cd>0)return;
-    const cand=g.enemies.filter(e=>e.alive&&!(s.groundOnly&&e.fly)&&Math.hypot(e.x-t.c,e.y-t.r)<=s.rng);if(!cand.length){t.cd=0;return;}
-    cand.sort((a,b)=>b.dist-a.dist);const tg=cand.slice(0,s.multi||1);t.cd=s.cd;
-    for(const e of tg){let d=s.dmg;if(s.air&&e.fly)d*=s.air;else if(s.ground&&!e.fly)d*=s.ground;let crit=false;if(s.crit&&g.R()<s.crit){d*=s.critM;crit=true;}
-      g.events.push({k:'shot',tw:t,e,crit,col:s.col});
-      hurt(g,e,d,t);
-      if(s.shred)e.shred=Math.max(e.shred,s.shred);
-      if(s.slow){e.slowT=2;e.slowP=Math.max(e.slowP,s.slow);}
-      if(s.slowP&&!s.slow){e.slowT=Math.max(e.slowT,1.5);e.slowP=Math.max(e.slowP,s.slowP);}
-      if(s.poison){e.poisonT=3;e.poisonD=Math.max(e.poisonD,s.poison);e.poisonBy=t;}
-      if(s.splash){for(const o of g.enemies)if(o!==e&&o.alive&&o.fly===e.fly&&Math.hypot(o.x-e.x,o.y-e.y)<=s.splash){hurt(g,o,d*s.splashP,t);if(s.slow){o.slowT=2;o.slowP=Math.max(o.slowP,s.slow);}}g.events.push({k:'splash',x:e.x,y:e.y,r:s.splash,col:s.col});}}});
+    if(!s.dmg)return;
+    if(t.wind>0){t.wind-=dt*aspd[i];if(t.wind<=0)release(g,t,s);return;}
+    t.cd-=dt*aspd[i];if(t.cd>0)return;
+    const cand=targets(g,t,s,0);if(!cand.length){t.cd=0;return;}
+    // wind-up: the gem charges for s.wind seconds before the bolt leaves (readable attack)
+    t.lock=cand.slice(0,s.multi||1).map(e=>e.id);t.wind=s.wind||0.3;g.events.push({k:'charge',tw:t,dur:t.wind/aspd[i],col:s.col});});
+  // projectiles in flight land after their travel time
+  for(let i=g.hits.length-1;i>=0;i--){const h=g.hits[i];h.t-=dt;if(h.t>0)continue;g.hits.splice(i,1);land(g,h);}
   g.enemies=g.enemies.filter(e=>e.alive||false);
   if(g.lives<=0&&!g.over){g.over=true;g.phase='over';g.events.push({k:'over',win:false});return;}
-  if(!g.spawnQ.length&&!g.enemies.length){const bonus=5+g.wave;g.gold+=bonus;g.events.push({k:'waveClear',w:g.wave,bonus});
+  if(!g.spawnQ.length&&!g.enemies.length&&!g.hits.some(h=>h.e.alive)){const bonus=5+g.wave;g.gold+=bonus;g.events.push({k:'waveClear',w:g.wave,bonus});
     if(g.wave===MAXW&&!g.won){g.won=true;g.events.push({k:'victory'});}startBuild(g);}}
-const api={W,H,SPAWN,EXIT,CPS,WAYS,LIVES,MAXW,QN,QS,QMUL,GEMS,GTYPES,SPECIAL,ODDS,UPCOST,ROCK_COST,WAVES,waveDef,newGame,findPath,flyPath,testPlace,place,keepOptions,keep,upgradeChance,removeRock,towerStats,stepWave,canBuildCell,reserved,idx,pathLen,armorMul};
+// snapshot at the start of a build phase (no enemies alive) -> plain JSON; restore rebuilds the rng
+function snapshot(g){return JSON.stringify(g,(k,v)=>k==='R'||k==='events'||k==='poisonBy'||k==='hits'?undefined:v);}
+function restore(str){const g=JSON.parse(str);g.events=[];g.R=rngOf(g);g.enemies=[];g.spawnQ=[];g.hits=[];return g;}
+const api={snapshot,restore,W,H,SPAWN,EXIT,CPS,WAYS,LIVES,MAXW,QN,QS,QMUL,GEMS,GTYPES,SPECIAL,ODDS,UPCOST,ROCK_COST,WAVES,waveDef,newGame,findPath,flyPath,testPlace,place,keepOptions,keep,upgradeChance,removeRock,towerStats,stepWave,canBuildCell,reserved,idx,pathLen,armorMul};
 if(typeof module!=='undefined')module.exports=api;else root.TD=api;})(this);

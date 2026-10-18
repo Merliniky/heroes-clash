@@ -115,3 +115,6 @@ No new third-party packs; every asset is CC0.
 ## v22 — Gem TD mode
 - No new assets. The gems, pedestals, rocks and checkpoint markers are procedural three.js geometry. Enemies reuse the CC0 creature sprite atlases listed above, and the sounds are the existing procedural `audio.js` set.
 - The game rules are inspired by the Warcraft III custom map *Gem TD*. No content from it is used.
+
+## v23 — Gem TD polish
+- The tower pedestals, special towers and cut gems in `assets/td/towers.glb` are original meshes, modelled procedurally in Blender 4.2 by `tools/td_models/build_towers.py`. No third-party assets are used.

@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css?v=22">
-<link rel="stylesheet" href="td.css?v=22">
+<link rel="stylesheet" href="td.css?v=23">
 </head>
 <body class="td">
 <canvas id="cv"></canvas>
@@ -27,25 +27,28 @@
 <div id="tdPanel" class="hidden">
   <div id="pBuild">
     <div class="pt"><b id="bTitle">建造阶段</b><span id="bCount">放置宝石 0/5</span></div>
-    <div class="slots" id="bSlots"></div>
+    <div class="tray slots" id="bSlots"></div>
     <div class="phint" id="bHint">点空地预览路线，再点一次放置宝石</div>
-    <div class="pbtns"><button class="dbtn up" id="upBtn">🎲 宝石概率</button><button class="dbtn gray" id="rockBtn">🪨 移除石头</button><button class="dbtn gray" id="oddsBtn">📊</button></div>
+    <div class="pbtns"><button class="dbtn up" id="upBtn">🎲 宝石概率</button><button class="dbtn stone" id="rockBtn">🪨 移除石头</button><button class="dbtn blue sq" id="oddsBtn">📊</button></div>
   </div>
   <div id="pKeep" class="hidden">
     <div class="pt"><b>选择保留一颗</b><span>其余宝石将变成石头</span></div>
-    <div class="kopts" id="kOpts"></div>
+    <div class="tray kopts" id="kOpts"></div>
     <div class="pbtns"><button class="dbtn go" id="keepBtn" disabled>点选一项</button></div>
   </div>
   <div id="pWave" class="hidden">
-    <div class="pt"><b id="wTitle">第1波</b><span id="wLeft"></span></div>
+    <div class="pt"><b><img id="wIcon" alt=""><span id="wTitle">第1波</span></b><span id="wLeft"></span></div>
     <div class="wbar"><i id="wFill"></i></div>
-    <div class="phint">点防御塔查看射程 · 敌人走完迷宫会扣除生命</div>
+    <div class="phint">点防御塔查看射程 · 敌人走出城门会扣除生命</div>
   </div>
 </div>
 <div id="tdTip"></div>
 <div id="toasts"></div>
 <div id="flash"></div>
 <div id="banner2"></div>
+<div id="bossIntro"></div>
+<div id="tutHand">👆</div>
+<div id="tutBub"></div>
 <div id="tdTitle" class="overlay show">
   <div class="logo"><div class="l1">宝石塔防</div><div class="l2">HEROES CLASH · GEM TD</div></div>
   <div class="tdrules">
@@ -62,15 +65,16 @@
 </div>
 <div id="tdOver" class="overlay">
   <div class="go-title" id="oTitle">防线失守</div>
+  <div class="ostars" id="oStars"></div>
   <div class="go-sub" id="oSub"></div>
-  <div class="tbtns"><button class="big-btn" id="oAgain">再来一局</button></div>
+  <div class="tbtns col"><button class="big-btn" id="oRetry">↻ 重试本回合</button><button class="dbtn blue" id="oAgain">再来一局</button></div>
   <div class="tbtns"><button class="tbtn" id="oCont" style="display:none">♾ 继续无尽模式</button><a class="tbtn" href="./">⚔ 返回自走棋</a></div>
 </div>
 <div id="tdBook" class="overlay"><div class="book" id="bookBody"></div><div class="tbtns"><button class="tbtn" id="bookClose">关闭</button></div></div>
-<script src="audio.js?v=22"></script>
-<script src="td_core.js?v=22"></script>
+<script src="audio.js?v=23"></script>
+<script src="td_core.js?v=23"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js?v=21","three/addons/":"./lib/addons/"}}</script>
-<script type="module" src="td.js?v=22"></script>
+<script type="module" src="td.js?v=23"></script>
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>
